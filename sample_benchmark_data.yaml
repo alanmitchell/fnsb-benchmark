@@ -1,3 +1,8 @@
+bldgs:
+  - path: bigdip.html
+    name: Big Dipper
+  - path: main_office.html
+    name: FNSB Main Office
 pg1:
   date_updated: September 24, 2017
   bldg: 
