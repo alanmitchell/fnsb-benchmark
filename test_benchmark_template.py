@@ -1,3 +1,6 @@
+"""This script uses sample data from a YAML to file to test the Benchmarking
+template.  It creates an output HTML file at the path: output/sample.html.
+"""
 import yaml
 from jinja2 import Template
 
