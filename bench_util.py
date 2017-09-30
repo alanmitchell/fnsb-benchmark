@@ -12,6 +12,12 @@ import numpy as np
 class Util:
     
     def __init__(self, utility_data_pth, other_data_pth):
+        """
+        utility_data_pth: path to the CSV file containing all of the utility
+            billing records.
+        other_data_pth: path to the Excel file containing other application data,
+            building info, degree days, etc.
+        """
         
         # Read in the Building Information from the Other Data file
         df_bldg = pd.read_excel(
