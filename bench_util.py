@@ -50,6 +50,18 @@ def split_period(start_date, end_date):
         )
     return result
 
+def months_present(df, yr_col='fiscal_year', mo_col='fiscal_mo'):
+    """Returns a list of the year/months present in a DataFrame.  Each item
+    of the list is a two-tuple: (year, mo), and list is sorted from earliest
+    to latest month.
+    yr_col: the name of the column in the DataFrame containing the year.
+    mo_col: the name of the column in the DataFrame containing the month.
+    """
+    yr_mo = set(zip(df[yr_col], df[mo_col]))
+    yr_mo = list(yr_mo)
+    yr_mo.sort()
+    return yr_mo
+
 
 class Util:
     
@@ -122,7 +134,7 @@ class Util:
         """Returns the Btus per unit of fuel.
             fuel_type: string, type of fuel in lower case, e.g. Electricity, Natural Gas, etc.
             fuel_units: string, units of the fuel, e.g. CCF, Gallongs
-        Parameters are case insenstive.  If the fuel type and units are not known,
-        Numpy NaN is returned.
+        Parameters are case insenstive.  If the fuel type and units are not in
+        source spreadsheet, Numpy NaN is returned.
         """
         return self.fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), np.NaN)
