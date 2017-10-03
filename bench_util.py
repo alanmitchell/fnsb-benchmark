@@ -63,6 +63,14 @@ def months_present(df, yr_col='fiscal_year', mo_col='fiscal_mo'):
     return yr_mo
 
 
+def month_count(mo_present):
+    """Returns a Pandas series that gives the number of months present for each
+    year in the 'mo_present' list.  The 'mo_present' list is a list of two
+    tuples:  (year, mo).  The returned series is indexed on year.
+    """
+    return pd.DataFrame(data=mo_present, columns=['year', 'month']).groupby('year').count()['month']
+
+
 class Util:
     
     def __init__(self, utility_data_pth, other_data_pth):
@@ -121,15 +129,44 @@ class Util:
         """
         dd_col = []
         for ix, row in df.iterrows():
-            try:
-                deg_days = self.dd[(row.fiscal_year, row.fiscal_mo, self.bldg_info[row.site_id].dd_site)]
-            except:
-                deg_days = np.NaN
-                
+            deg_days = self.dd.get((row.fiscal_year, row.fiscal_mo, self.bldg_info[row.site_id].dd_site), np.NaN)
             dd_col.append(deg_days)
         
         df['degree_days'] = dd_col
+        
+    def degree_days_monthly(self, months_to_include, site_id):
+        """Returns a DataFrame that includes three colunns: fiscal_year, 
+        fiscal_mo, and dd.  The 'dd' column gives degree days for the site
+        identified by 'site_id'. The months included are specified in the input
+        parameter, 'months_to_include', a list of (fiscal_yr, fiscal_mo)
+        tuples. For months or sites without degree days, Numpy NaN is returned.
+        """
+        recs = []
+        for yr, mo in months_to_include:
+            recs.append(
+                {'fiscal_year': yr, 
+                 'fiscal_mo': mo, 
+                 'dd': self.dd.get((yr, mo, self.bldg_info[site_id].dd_site), np.NaN)
+                }
+            )
+        dfdd = pd.DataFrame(data=recs)
+        return dfdd
 
+    def degree_days_yearly(self, months_to_include, site_id):
+        """Returns a Pandas series indexed on fiscal year.  The values in the
+        series are the total degree days for the fiscal year, but only include
+        the months specified in the 'months_to_include' input parameter.  That
+        parameter is a list of (fiscal_yr, fiscal_mo)
+        tuples. If degree days are not present for some of the months in the
+        year, Numpy NaN is returned for the entire year.
+        """
+        dfdd = self.degree_days_monthly(months_to_include, site_id)
+        
+        # I had to use the lambda function below in order to have a NaN returned
+        # if one or more of the months in the sum was an NaN.
+        return dfdd.groupby('fiscal_year').agg({'dd': lambda x: np.sum(x.values)})['dd']
+        
+       
     def fuel_btus_per_unit(self, fuel_type, fuel_units):
         """Returns the Btus per unit of fuel.
             fuel_type: string, type of fuel in lower case, e.g. Electricity, Natural Gas, etc.
