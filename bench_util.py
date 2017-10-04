@@ -2,7 +2,7 @@
 """
 Utilities for assisting with the benchmarking analysis process.
 
-@author: Alan
+@author: Alan Mitchell
 """
 
 from collections import namedtuple
@@ -70,13 +70,77 @@ def month_count(mo_present):
     """
     return pd.DataFrame(data=mo_present, columns=['year', 'month']).groupby('year').count()['month']
 
+def missing_services(services_present):
+    """Returns a list of the Service Types that are *not* present in the 
+    'services_present' input list.
+    """
+    # I'm leaving out Oil #2 here.
+    all_services = set([
+        'Oil #1',
+        'Natural Gas',
+        'Electricity',
+        'Steam',
+        'Water',
+        'Sewer',
+        'Refuse'
+    ])
+    
+    return list(all_services - set(services_present))
+
+def missing_energy_services(services_present):
+    """Returns a list of the Energy-related Service Types that are *not* present
+    in the 'services_present' input list.
+    """
+    energy_services= set([
+        'Oil #1',
+        'Natural Gas',
+        'Electricity',
+        'Steam'
+    ])
+
+    return list(energy_services - set(services_present))
+
+def add_columns(df, col_names):
+    """Adds a new column to the DataFrame df for each column name in the list
+    'col_names'.  Sets all the values to 0.0 for that column.
+    """
+    for col in col_names:
+        df[col] = 0.0
+
+def df_to_dictionaries(df, change_names={}, include_index=True):
+    """Returns a list of dictionaries, one dictionary for each row in the 
+    DataFrame 'df'.  The keys of the dictionary match the DataFrame column names,
+    except for any substitututions provided in the 'change_names' dictionary;
+    {'old_name': 'new_name', etc}.  If 'include_index' is True, the index 
+    values are included in the dictionary keyed on the index name (unless changed
+    in the 'change_names' dictionary)
+    """
+    # make a list of the final names to use
+    names = list(df.columns.values)
+    if include_index:
+        names = [df.index.name] + names
+        
+    # apply name substitutions
+    for i in range(len(names)):
+        names[i] = change_names.get(names[i], names[i])
+    
+    result = []
+    for ix, row in df.iterrows():
+        vals = list(row.values)
+        if include_index:
+            vals = [ix] + vals
+        result.append(
+            dict(zip(names, vals))
+        )
+    
+    return result
+
 
 class Util:
     
-    def __init__(self, utility_data_pth, other_data_pth):
+    def __init__(self, raw_util_df, other_data_pth):
         """
-        utility_data_pth: path to the CSV file containing all of the utility
-            billing records.
+        raw_util_df: DataFrame containing the raw utility data
         other_data_pth: path to the Excel file containing other application data,
             building info, degree days, etc.
         """
