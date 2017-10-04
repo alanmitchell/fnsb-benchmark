@@ -22,6 +22,24 @@ def calendar_to_fiscal(cal_year, cal_mo):
 
     return fiscal_year, fiscal_month
 
+# Fiscal Month labels, both as a list and as a dictionary
+mo_list = [
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun'
+]
+
+mo_dict = dict(zip(range(1,13), mo_list))
+
 PeriodSplit = namedtuple('PeriodSplit', 'cal_year cal_mo bill_frac days_served')
 def split_period(start_date, end_date):
     """Splits a range of service dates from a utility bill into pieces that
