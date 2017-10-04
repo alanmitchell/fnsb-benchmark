@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Utilities for assisting with the benchmarking analysis process.
-
-@author: Alan Mitchell
 """
 
 from collections import namedtuple
@@ -156,9 +154,9 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
 
 class Util:
     
-    def __init__(self, raw_util_df, other_data_pth):
+    def __init__(self, util_df, other_data_pth):
         """
-        raw_util_df: DataFrame containing the raw utility data
+        raw_util_df: DataFrame containing the raw utility bill data
         other_data_pth: path to the Excel file containing other application data,
             building info, degree days, etc.
         """
@@ -171,12 +169,81 @@ class Util:
                 index_col='site_ID'
                 )
         # Create a named tuple to hold info for each building
-        BldgInfo = namedtuple('BldgInfo', list(df_bldg.columns))
+        # The fields of the tuple are the columns from the spreadsheet that
+        # was just read, but also a number of other fields related to 
+        # service providers and account numbers.
+        tup_fields = list(df_bldg.columns) + [
+            'source_elec',
+            'source_oil',
+            'source_nat_gas',
+            'source_steam',
+            'source_water',
+            'source_sewer',
+            'source_refuse',
+            'acct_elec',
+            'acct_oil',
+            'acct_nat_gas',
+            'acct_steam',
+            'acct_water',
+            'acct_sewer',
+            'acct_refuse',
+        ]
+            
+        BldgInfo = namedtuple('BldgInfo', tup_fields)
+        
+        # make a dictionary with default values for all fields (use empty
+        # string for defaults)
+        default_info = dict(zip(tup_fields, [''] * len(tup_fields)))
+
+        def find_src_acct(dfs, service_type):
+            """Function used below to return service provider and account
+            numbers for a particular service type.  'dfs' is a DataFrame that
+            has only the records for one site.  'service_type' is the name of
+            the service, e.g. 'Water'.  (provider name, account numbers) are
+            returned.
+            """
+            try:
+                df_svc = dfs[dfs['Service Name']==service_type]
+                last_bill_date = df_svc.Thru.max()
+                df_last_bill = df_svc[df_svc.Thru == last_bill_date]
+                
+                # could be multiple account numbers. Get them all and
+                # separate with commas
+                accts = df_last_bill['Account Number'].unique()
+                acct_str = ', '.join(accts)
+                # Assume only one provider.
+                provider = df_last_bill['Vendor Name'].iloc[0]
+                
+                return provider, acct_str
+            
+            except:
+                return '', ''
 
         # create a dictionary to map site_id to info about the building
         self.bldg_info = {}
         for ix, row in df_bldg.iterrows():
-            self.bldg_info[row.name] = BldgInfo(**row.to_dict())
+            # Start the record of building information (as a dictionary)
+            # and fill out the info from the spreadsheet first.
+            rec = default_info.copy()
+            rec.update(row.to_dict())
+
+            # now find providers and account numbers from raw utility file.
+            svcs = [
+                ('Electricity', 'elec'),
+                ('Oil #1', 'oil'),
+                ('Natural Gas', 'nat_gas'),
+                ('Steam', 'steam'),
+                ('Water', 'water'),
+                ('Sewer', 'sewer'),
+                ('Refuse', 'refuse')
+            ]
+            df_site = util_df[util_df['Site ID']==ix]
+            for svc, abbrev in svcs:
+                source, accounts = find_src_acct(df_site, svc)
+                rec['source_{}'.format(abbrev)] = source
+                rec['acct_{}'.format(abbrev)] = accounts
+                
+            self.bldg_info[row.name] = BldgInfo(**rec)
         
         # read in the degree-day info as well.
         df_dd = pd.read_excel(
@@ -257,3 +324,12 @@ class Util:
         source spreadsheet, Numpy NaN is returned.
         """
         return self.fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), np.NaN)
+
+
+if __name__=='__main__':
+    import pickle
+    df_raw = pickle.load(open('testing/df_raw.pkl', 'rb'))
+    other_pth = 'data/Other_Building_Data.xlsx'
+    ut = Util(df_raw, other_pth)
+    print(ut.bldg_info['03'])
+    
