@@ -166,7 +166,7 @@ class Util:
                 other_data_pth, 
                 sheetname='Building', 
                 skiprows=3, 
-                index_col='site_ID'
+                index_col='site_id'
                 )
         # Create a named tuple to hold info for each building
         # The fields of the tuple are the columns from the spreadsheet that
@@ -245,6 +245,15 @@ class Util:
                 
             self.bldg_info[row.name] = BldgInfo(**rec)
         
+        # make a list of site categories and their associated builddings
+        df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
+        cats = df_sites.groupby('site_category')
+        self.site_categories = []
+        for nm, gp in cats:
+            bldgs = list(zip(gp['site_name'], gp['site_id']))
+            bldgs.sort()
+            self.site_categories.append( {'category': nm, 'sites': bldgs} )
+
         # read in the degree-day info as well.
         df_dd = pd.read_excel(
                 other_data_pth, 
@@ -282,6 +291,16 @@ class Util:
         ids = list(self.bldg_info.keys())
         ids.sort()
         return ids
+    
+    def site_categories_and_buildings(self):
+        """Returns a list of site categories and associated buildings.
+        The list is sorted alphabetically by the site category name.
+        Each item in the list is a dictionary, with a key "category" giving 
+        the category name, and a key "sites" giving a list of buildings for that
+        category; the building is a two-tuple (building name, site ID).  Buildings
+        are sorted alphabetically by building name.
+        """
+        return self.site_categories
     
     def add_degree_days_col(self, df):
         """Adds a degree-day column to the Pandas DataFrame df.  The new column
