@@ -269,6 +269,19 @@ class Util:
         for ix, row in df_fuel.iterrows():
             self.fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
 
+    def building_info(self, site_id):
+        """Returns building information, a named tuple, for the facility
+        identified by 'site_id'.  Throws a KeyError if the site is not present.
+        """
+        return self.bldg_info[site_id]
+    
+    def all_sites(self):
+        """Returns a list of all Site IDs present in the Other Data spreadsheet.
+        The list is sorted alphabetically.
+        """
+        ids = list(self.bldg_info.keys())
+        ids.sort()
+        return ids
     
     def add_degree_days_col(self, df):
         """Adds a degree-day column to the Pandas DataFrame df.  The new column
