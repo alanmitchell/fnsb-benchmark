@@ -1,8 +1,8 @@
 output/*.html
 output/images/*.png
 ~$*.xlsx
-data/*.csv
-testing/data/*.csv
+*.csv
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
