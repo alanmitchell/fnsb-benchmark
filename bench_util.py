@@ -38,6 +38,25 @@ mo_list = [
 
 mo_dict = dict(zip(range(1,13), mo_list))
 
+# A dictionary used to map column names to more standardized variable names.
+name_changes = {
+    'Electricity': 'electricity',
+    'Natural Gas': 'natural_gas',
+    'Oil #1': 'fuel_oil',
+    'Refuse': 'refuse',
+    'Sewer': 'sewer',
+    'Steam': 'district_heat',
+    'Water': 'water',
+    'Total': 'total'
+}
+
+# If a function is needed to change one name, here is one:
+def change_name(old_name):
+    """This returns a new name if the old name is in the "name_changes"
+    ditionary.  Otherwise, it just returns the old name.
+    """
+    return name_changes.get(old_name, old_name)
+
 PeriodSplit = namedtuple('PeriodSplit', 'cal_year cal_mo bill_frac days_served')
 def split_period(start_date, end_date):
     """Splits a range of service dates from a utility bill into pieces that
