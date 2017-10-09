@@ -221,6 +221,11 @@ class Util:
 
         # create a dictionary to map site_id to info about the building
         self.bldg_info = {}
+        
+        # separately, create a list that will be used to make a DataFrame
+        # that also contains this info.
+        rec_list = []
+        
         for ix, row in df_bldg.iterrows():
             # Start the record of building information (as a dictionary)
             # and fill out the info from the spreadsheet first.
@@ -244,6 +249,16 @@ class Util:
                 rec['acct_{}'.format(abbrev)] = accounts
                 
             self.bldg_info[row.name] = BldgInfo(**rec)
+            
+            # add in the site_id to the record so the DataFrame has this
+            # column.
+            rec['site_id'] = row.name
+            rec_list.append(rec)
+            
+        # Make a DataFrame, indexed on site_id to hold this building info
+        # as well.
+        self.bldg_info_df = pd.DataFrame(rec_list)
+        self.bldg_info_df.set_index('site_id', inplace=True)
         
         # make a list of site categories and their associated builddings
         df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
@@ -283,6 +298,12 @@ class Util:
         identified by 'site_id'.  Throws a KeyError if the site is not present.
         """
         return self.bldg_info[site_id]
+    
+    def building_info_df(self):
+        """Returns a DataFrame with all of the building information.  The index
+        of the DataFrame is the Site ID.
+        """
+        return self.bldg_info_df
     
     def all_sites(self):
         """Returns a list of all Site IDs present in the Other Data spreadsheet.
