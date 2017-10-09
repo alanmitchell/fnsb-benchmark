@@ -393,9 +393,9 @@ class Util:
             fuel_type: string, type of fuel in lower case, e.g. Electricity, Natural Gas, etc.
             fuel_units: string, units of the fuel, e.g. CCF, Gallongs
         Parameters are case insenstive.  If the fuel type and units are not in
-        source spreadsheet, Numpy NaN is returned.
+        source spreadsheet, 0.0 is returned.
         """
-        return self.fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), np.NaN)
+        return self.fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
 
 
 if __name__=='__main__':
