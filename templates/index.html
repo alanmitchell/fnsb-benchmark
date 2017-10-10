@@ -1,21 +1,24 @@
 {% extends "layout.html" %}
 
-{% block body %}
-<h1>FNSB</h1>
-<h2>Report for Fairbanks North Star Borough</h2>
+{% block page_title %}Building List{% endblock %}
+{% block header_title %}FNSB{% endblock %}
+{% block header_subtitle %}Report for Fairbanks North Star Borough{% endblock %}
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Address</th>
-    <th>Actions</th>
-  </tr>
-  {% for building in buildings %}
+{% block body %}
+<div class="col-12">
+  <table class="table">
     <tr>
-      <th>{{ building.name }}</th>
-      <th>{{ building.address }}</th>
-      <th><a href="/{{ building.id }}/">View</a></th>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Actions</th>
     </tr>
-  {% endfor %}
-</table>
+    {% for building in buildings %}
+      <tr>
+        <th>{{ building.name }}</th>
+        <th>{{ building.address }}</th>
+        <th><a href="/{{ building.id }}/">View</a></th>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
 {% endblock %}
