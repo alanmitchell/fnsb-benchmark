@@ -1,0 +1,17 @@
+<h1>FNSB</h1>
+<h2>Report for Fairbanks North Star Borough</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Address</th>
+    <th>Actions</th>
+  </tr>
+  {% for building in buildings %}
+    <tr>
+      <th>{{ building.name }}</th>
+      <th>{{ building.address }}</th>
+      <th><a href="{{ building.link }}">View</a></th>
+    </tr>
+  {% endfor %}
+</table>
