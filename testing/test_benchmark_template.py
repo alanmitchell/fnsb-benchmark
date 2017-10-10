@@ -29,7 +29,18 @@ open("output/index.html", "w").write(result)
 # TODO: Loop through each building and render template
 building_id = "big-dipper" # TODO: This will be determined by the loop
 building_dir = output_folder + building_id
-report_pages = ['index'] # TODO: Add more pages here
+report_pages = [
+    "electrical-cost-analysis",
+    "electrical-usage-analysis",
+    "energy-cost-usage",
+    "energy-index-comparison",
+    "energy-usage-overview",
+    "heating-cost-analysis",
+    "heating-usage-analysis",
+    "index",
+    "utility-cost-overview",
+    "water-analysis"
+]
 for page in report_pages:
     # just easier than appending '.html' to all of the report array items above
     report_page_filename = page + ".html"
