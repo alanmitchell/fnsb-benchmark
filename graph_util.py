@@ -56,7 +56,7 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     plt.xlabel('Fiscal Year')
     
     # Add legend
-    plt.legend()
+    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Make sure file goes in the proper directory
     folder_and_filename = 'output/images/' + filename
