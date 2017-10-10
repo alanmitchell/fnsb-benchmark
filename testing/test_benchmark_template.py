@@ -4,10 +4,14 @@ template.  It creates an output HTML file at the path: output/sample.html.
 import yaml
 import os
 from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+env = Environment(
+    loader=FileSystemLoader(["../templates", "../templates/building"])
+)
 
 sample_building = yaml.load(open("sample_benchmark_data.yaml").read())
-template_folder = "../templates/"
-buildings_template_folder = template_folder + "building/"
+buildings_template_folder = "building/"
 output_folder = "output/"
 
 """Example
@@ -18,7 +22,7 @@ open("output/example.html", "w").write(result)
 
 # TODO: Give template a list of buildings
 buildings = yaml.load(open("sample_buildings_list.yaml").read())
-template = Template(open(template_folder + "index.html").read())
+template = env.get_template("index.html")
 result = template.render(buildings)
 open("output/index.html", "w").write(result)
 
@@ -34,7 +38,7 @@ for page in report_pages:
     template_filename = buildings_template_folder + report_page_filename
 
     # read Jinja2 template
-    template = Template(open(template_filename).read())
+    template = env.get_template(template_filename)
 
     # render the Jinja2 template with the building info
     result = template.render(sample_building)
