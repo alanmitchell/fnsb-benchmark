@@ -100,7 +100,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     plt.xlabel('Fiscal Year')
     
     # Add legend 
-    plt.legend()
+    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Make sure file goes in the proper directory
     folder_and_filename = 'output/images/' + filename
@@ -110,7 +110,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     plt.show()
 	
 	
-def create_stacked_bar(df, fiscal_year_col, column_name_list, filename):
+def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
@@ -127,14 +127,13 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     previous_col_name = 0
     
     for col in column_name_list:
-        short_col_name = col.split(" Cost")[0]
-        short_col_name = plt.bar(df[fiscal_year_col], df[col], width, label=short_col_name, bottom=previous_col_name)
+        col_name = col
+        col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name)
         previous_col_name = previous_col_name + df[col]
       
     # label axes
-    plt.ylabel('Utility Cost [$]')
+    plt.ylabel(ylabel)
     plt.xlabel('Fiscal Year')
-    plt.title('Total Annual Utility Costs')
     
     # Make one bar for each fiscal year
     plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
@@ -144,7 +143,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     df['total_cost'] = df[column_name_list].sum(axis=1)
     plt.yticks(np.arange(0, df.total_cost.max(), 100000))
     
-    plt.legend()
+    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Make sure file goes in the proper directory
     folder_and_filename = 'output/images/' + filename
@@ -188,7 +187,7 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     df['total_use'] = df[column_name_list].sum(axis=1)
     plt.yticks(np.arange(0, df.total_use.max(), 1000))
     
-    plt.legend()
+    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Make sure file goes in the proper directory
     folder_and_filename = 'output/images/' + filename
@@ -275,20 +274,34 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
     # Reset the index of the dataframe for more straightforward queries
     df_reset = df.reset_index()
     
+    
+    def get_calendar_month(fiscal_mo):
+        # Converts the fiscal month to the calendar month just for graphing purposes
+        if fiscal_mo > 6:
+            calendar_month = fiscal_mo - 6
+        else:
+            calendar_month = fiscal_mo + 6
+        
+        return calendar_month
+        
+        
     def get_date(row):
         # Converts the fiscal year and fiscal month columns to a datetime object for graphing
         
         # Year is set to 2016-17 so that the charts overlap; otherwise they will be spread out by year.
         # The "year trick" allows the graph to start from July so the seasonal energy changes are easier to identify
-        if row['fiscal_mo'] > 6:
+        if row['calendar_month'] > 6:
             year_trick = 2016
         else:
             year_trick = 2017
 
-        return datetime.date(year=year_trick, month=row['fiscal_mo'], day=1)
+        return datetime.date(year=year_trick, month=row['calendar_month'], day=1)
 
+    # First convers the fiscal month to calendar month so it is obvious when the heating season is, etc.
+    df_reset['calendar_month'] = df_reset['fiscal_mo'].apply(lambda x: get_calendar_month(x))
+    
     # This creates a new date column with data in the datetime format for graphing
-    df_reset['date'] = df_reset[['fiscal_year', 'fiscal_mo']].apply(get_date, axis=1)
+    df_reset['date'] = df_reset[['calendar_month']].apply(get_date, axis=1)
                         
     # Create a color dictionary of progressively lighter colors of three different shades and convert to dataframe
     color_dict = {'blue': ['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff'],
@@ -338,3 +351,57 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
 
 		
 		
+def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, ylabel2, filename):
+    
+    # Parameters:
+    # fiscal_year_col: the name of the column where the fiscal year is listed (use reset_index() if it is currently the index
+    # bar_col_list: a list of the column names for the bar chart portion of the graph
+    # line_col: The column with the data to plot the line
+    # ylabel1 and ylabel2: Strings to name the y-axes
+    # filename: A string with the filename where the output should be saved.
+    
+    
+    # Create the figure
+    fig, ax = plt.subplots()
+    
+    # Set the bar width
+    width = 0.50
+    
+    
+    # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
+    previous_col_name = 0
+    
+    
+    for col in bar_col_list:
+        col_name = col
+        col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name)
+        previous_col_name = previous_col_name + df[col]
+      
+    # label axes
+    ax.set_ylabel(ylabel1)
+    ax.set_xlabel('Fiscal Year')
+    
+    # Make one bar for each fiscal year
+    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
+               np.sort(list(df[fiscal_year_col].unique())))
+    
+    ax.set_ylim(bottom=0, top=previous_col_name.max() + previous_col_name.max()*0.10)
+    
+    # Create the line on the same graph but on a separate axis.
+    ax2 = ax.twinx()
+    ax2.plot(df[fiscal_year_col], df[line_col], label=line_col, color='k',linewidth=5, marker='D', markersize=10)
+    ax2.set_ylabel(ylabel2)
+    
+    # Ensure that the axis starts at 0.
+    ax2.set_ylim(bottom=0, top=df[line_col].max() + df[line_col].max()*0.10)
+    
+    h1, l1 = ax.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax.legend(h1+h2, l1+l2, loc='lower left')
+    
+    # Make sure file goes in the proper directory
+    folder_and_filename = 'output/images/' + filename
+    
+    # Save and show
+    plt.savefig(filename)
+    plt.show()
