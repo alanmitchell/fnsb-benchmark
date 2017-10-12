@@ -117,7 +117,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     
     
     # Create the figure
-    plt.figure()
+    fig, ax = plt.subplots()
     
     # Set the bar width
     width = 0.50
@@ -143,6 +143,9 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     df['total_cost'] = df[column_name_list].sum(axis=1)
     plt.yticks(np.arange(0, df.total_cost.max(), 100000))
     
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Make sure file goes in the proper directory
@@ -159,7 +162,7 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     # with the correct data for the chart, and the filename where the output should be saved.
     
     # Create the figure
-    plt.figure()
+    fig, ax = plt.subplots()
     
     # Set the bar width
     width = 0.50
@@ -169,9 +172,11 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     previous_col_name = 0
     
     for col in column_name_list:
-        short_col_name = col.split(" [MMBTU")[0]
-        short_col_name = plt.bar(df[fiscal_year_col], df[col], width, label=short_col_name, bottom=previous_col_name)
+      
+        col_name = col
+        col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name)
         previous_col_name = previous_col_name + df[col]
+        print (previous_col_name)
       
     # label axes
     plt.ylabel('Annual Energy Usage [MMBTU]')
@@ -185,7 +190,10 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Set the yticks to go up to the total usage in increments of 1,000
     df['total_use'] = df[column_name_list].sum(axis=1)
-    plt.yticks(np.arange(0, df.total_use.max(), 1000))
+    plt.yticks(np.arange(0, df.total_use.max()+df.total_use.max()*0.10, 1000))
+    
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
     
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
@@ -336,6 +344,9 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
     ax.xaxis.set_major_locator(months)
     ax.xaxis.set_major_formatter(months_format)
     fig.autofmt_xdate()
+    
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 
     # Add the labels
     plt.xlabel('Month of Year')
@@ -394,6 +405,10 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Ensure that the axis starts at 0.
     ax2.set_ylim(bottom=0, top=df[line_col].max() + df[line_col].max()*0.10)
+    
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    ax2.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
     
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
