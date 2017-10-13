@@ -5,6 +5,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib as mpl
 import matplotlib.dates as mdates
 import datetime
+import bench_util as bu
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
 mpl.rcParams['axes.labelsize'] = 16
@@ -139,9 +140,8 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
                np.sort(list(df[fiscal_year_col].unique())))
     
-    # Set the yticks to go up to the total cost in increments of 100,000
     df['total_cost'] = df[column_name_list].sum(axis=1)
-    plt.yticks(np.arange(0, df.total_cost.max(), 100000))
+    ax.set_ylim(bottom=0, top=df.total_cost.max() + df.total_cost.max()*0.10)
     
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -269,48 +269,14 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
         # graph_column_name: The name of the column containing the data to be graphed on the y-axis
         # yaxis_name: A string that will be displayed on the y-axis
         # color_choice: 'blue', 'red', or 'green' depending on the desired color palette.  
-    
-    # Additional matplotlib formatting settings
-    months = mdates.MonthLocator()
-    
-    # This formats the months as three-letter abbreviations
-    months_format = mdates.DateFormatter('%b')
 
+    
     # Get five most recent years
     recent_years = (sorted(list(df.index.levels[0].values), reverse=True)[0:5])
     
     # Reset the index of the dataframe for more straightforward queries
     df_reset = df.reset_index()
-    
-    
-    def get_calendar_month(fiscal_mo):
-        # Converts the fiscal month to the calendar month just for graphing purposes
-        if fiscal_mo > 6:
-            calendar_month = fiscal_mo - 6
-        else:
-            calendar_month = fiscal_mo + 6
-        
-        return calendar_month
-        
-        
-    def get_date(row):
-        # Converts the fiscal year and fiscal month columns to a datetime object for graphing
-        
-        # Year is set to 2016-17 so that the charts overlap; otherwise they will be spread out by year.
-        # The "year trick" allows the graph to start from July so the seasonal energy changes are easier to identify
-        if row['calendar_month'] > 6:
-            year_trick = 2016
-        else:
-            year_trick = 2017
 
-        return datetime.date(year=year_trick, month=row['calendar_month'], day=1)
-
-    # First convers the fiscal month to calendar month so it is obvious when the heating season is, etc.
-    df_reset['calendar_month'] = df_reset['fiscal_mo'].apply(lambda x: get_calendar_month(x))
-    
-    # This creates a new date column with data in the datetime format for graphing
-    df_reset['date'] = df_reset[['calendar_month']].apply(get_date, axis=1)
-                        
     # Create a color dictionary of progressively lighter colors of three different shades and convert to dataframe
     color_dict = {'blue': ['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff'],
                   'red': ['#a50f15', '#de2d26', '#fb6a4a', '#fcae91', '#fee5d9'],
@@ -330,23 +296,21 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
 
         # Create df for one year only so it's plotted as a single line
         year_df = df_reset.query("fiscal_year == @year")
-        year_df = year_df.sort_values(by='date')
 
         # Plot the data
-        ax.plot_date(year_df['date'], year_df[graph_column_name], fmt='-', color=color_df.iloc[i][color_choice], 
+        ax.plot_date(year_df['fiscal_mo'], year_df[graph_column_name], fmt='-', color=color_df.iloc[i][color_choice], 
                      label=str(year_df.fiscal_year.iloc[0]))
 
         # Increase counter by one to use the next color
         i += 1
 
-
-    # Format the dates
-    ax.xaxis.set_major_locator(months)
-    ax.xaxis.set_major_formatter(months_format)
-    fig.autofmt_xdate()
     
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    
+    # Set x-axis labels to be fiscal months, starting in July
+    ax.set_xticks(year_df.fiscal_mo.values)
+    ax.set_xticklabels(bu.mo_list)
 
     # Add the labels
     plt.xlabel('Month of Year')
@@ -413,6 +377,34 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1+h2, l1+l2, loc='lower left')
+    
+    # Make sure file goes in the proper directory
+    folder_and_filename = 'output/images/' + filename
+    
+    # Save and show
+    plt.savefig(filename)
+    plt.show()
+    
+    
+def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
+    
+    
+    # Will need to change these ultimately to match the color scheme
+    color_list = ['r', 'b', 'g']
+
+    fig, ax = plt.subplots()
+
+    i = 0 
+    for col in unit_cost_cols:
+        plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_list[i])
+        i +=1
+
+    plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col], label=bldg_unit_cost_col, linestyle='-', color='k')
+
+    plt.ylabel('Energy Cost [$/MMBTU]')
+    plt.xlabel('Date')
+
+    plt.legend()
     
     # Make sure file goes in the proper directory
     folder_and_filename = 'output/images/' + filename
