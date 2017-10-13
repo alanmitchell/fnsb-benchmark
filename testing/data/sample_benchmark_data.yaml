@@ -253,3 +253,11 @@ electrical_cost_analysis:
         demand_cost_percent_change: 0.02
         total_cost: 227301
         total_cost_percent_change: -0.1
+energy_cost_usage:
+  graphs:
+    year_neg_2_energy_usage: /images/energy_cost_usage/year_neg_2_energy_usage.png
+    year_neg_1_energy_usage: /images/energy_cost_usage/year_neg_1_energy_usage.png
+    current_year_energy_usage: /images/energy_cost_usage/current_year_energy_usage.png
+    year_neg_2_energy_cost: /images/energy_cost_usage/year_neg_2_energy_cost.png
+    year_neg_1_energy_cost: /images/energy_cost_usage/year_neg_1_energy_cost.png
+    current_year_energy_cost: /images/energy_cost_usage/current_year_energy_cost.png

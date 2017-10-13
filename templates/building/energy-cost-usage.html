@@ -3,5 +3,28 @@
 {% extends "building/layout.html" %}
 
 {% block report_body %}
-Energy Cost and Usage body
+<section>
+  <div class="row">
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_2_energy_usage }}" />
+    </div>
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_1_energy_usage }}" />
+    </div>
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.current_year_energy_usage }}" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_2_energy_cost }}" />
+    </div>
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_1_energy_cost }}" />
+    </div>
+    <div class="col-md-4 col-12">
+      <img class="graph" src="{{ energy_cost_usage.graphs.current_year_energy_cost }}" />
+    </div>
+  </div>
+</section>
 {% endblock %}

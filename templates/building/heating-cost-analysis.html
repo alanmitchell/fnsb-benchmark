@@ -53,11 +53,13 @@
 </section>
 
 <section>
-  <div class="col-md-6 col-12">
-    <img class="graph" src="{{ heating_cost_analysis.graphs.energy_cost }}" />
-  </div>
-  <div class="col-md-6 col-12">
-    <img class="graph" src="{{ heating_cost_analysis.graphs.cumulative_fuel_switching_savings }}" />
+  <div class="row">
+    <div class="col-md-6 col-12">
+      <img class="graph" src="{{ heating_cost_analysis.graphs.energy_cost }}" />
+    </div>
+    <div class="col-md-6 col-12">
+      <img class="graph" src="{{ heating_cost_analysis.graphs.cumulative_fuel_switching_savings }}" />
+    </div>
   </div>
 </section>
 {% endblock %}

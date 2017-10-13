@@ -53,11 +53,13 @@
 </section>
 
 <section>
-  <div class="col-md-6 col-12">
-    <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage }}" />
-  </div>
-  <div class="col-md-6 col-12">
-    <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage_distribution }}" />
+  <div class="row">
+    <div class="col-md-6 col-12">
+      <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage }}" />
+    </div>
+    <div class="col-md-6 col-12">
+      <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage_distribution }}" />
+    </div>
   </div>
 </section>
 {% endblock %}
