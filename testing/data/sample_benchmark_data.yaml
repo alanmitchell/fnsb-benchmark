@@ -205,3 +205,21 @@ water_analysis:
         total_cost_percent_change: -0.03
         total_unit_cost: 0.022
         unit_cost_percent_change: 0.03
+electrical_usage_analysis:
+  graphs:
+    electricity_usage: /images/electrical_usage_analysis/electricity_usage.png
+    monthly_electricity_usage_profile: /images/electrical_usage_analysis/monthly_electricity_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        usage_kwh: 1466819
+        usage_percent_change: 0.15
+        demand_kw: 276
+        demand_percent_change: 0.07
+      -
+        fiscal_year: 2015
+        usage_kwh: 1273106
+        usage_percent_change: -0.07
+        demand_kw: 257
+        demand_percent_change: 0.03
