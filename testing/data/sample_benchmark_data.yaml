@@ -127,8 +127,8 @@ energy_index_comparison:
 
 utility_cost_overview:
   graphs:
-    utility_cost_dollars: /images/utility_cost_overview/utility_cost_dollars.jpg
-    utility_cost_distribution: /images/utility_cost_overview/utility_cost_distribution.jpg
+    utility_cost_dollars: ../images/utility_cost_overview/utility_cost_dollars.jpg
+    utility_cost_distribution: ../images/utility_cost_overview/utility_cost_distribution.jpg
   table:
     rows:
       -
@@ -157,8 +157,8 @@ utility_cost_overview:
         percent_change: -0.13
 energy_usage_overview:
   graphs:
-    annual_energy_usage: /images/energy_usage_overview/annual_energy_usage.png
-    annual_energy_usage_distribution: /images/energy_usage_overview/annual_energy_usage_distribution.png
+    annual_energy_usage: ../images/energy_usage_overview/annual_energy_usage.png
+    annual_energy_usage_distribution: ../images/energy_usage_overview/annual_energy_usage_distribution.png
   table:
     rows:
       -
@@ -191,8 +191,8 @@ energy_usage_overview:
         total_energy: 11429
 heating_usage_analysis:
   graphs:
-    annual_energy_usage: /images/heating_usage_analysis/heating_degree_days.png
-    annual_energy_usage_distribution: /images/heating_usage_analysis/monthly_heating_energy_profile.png
+    annual_energy_usage: ../images/heating_usage_analysis/heating_degree_days.png
+    annual_energy_usage_distribution: ../images/heating_usage_analysis/monthly_heating_energy_profile.png
   table:
     rows:
       -
@@ -221,8 +221,8 @@ heating_usage_analysis:
         usage_percent_change: -0.14
 heating_cost_analysis:
   graphs:
-    energy_cost: /images/heating_cost_analysis/energy_cost.png
-    cumulative_fuel_switching_savings: /images/heating_cost_analysis/cumulative_fuel_switching_savings.png
+    energy_cost: ../images/heating_cost_analysis/energy_cost.png
+    cumulative_fuel_switching_savings: ../images/heating_cost_analysis/cumulative_fuel_switching_savings.png
   table:
     rows:
       -
@@ -255,8 +255,8 @@ heating_cost_analysis:
         total_cost_percent_change: -1.91
 water_analysis:
   graphs:
-    utility_cost: /images/water_analysis/utility_cost.png
-    monthly_water_usage_profile: /images/water_analysis/monthly_water_usage_profile.png
+    utility_cost: ../images/water_analysis/utility_cost.png
+    monthly_water_usage_profile: ../images/water_analysis/monthly_water_usage_profile.png
   table:
     rows:
       -
@@ -285,8 +285,8 @@ water_analysis:
         unit_cost_percent_change: 0.03
 electrical_usage_analysis:
   graphs:
-    electricity_usage: /images/electrical_usage_analysis/electricity_usage.png
-    monthly_electricity_usage_profile: /images/electrical_usage_analysis/monthly_electricity_usage_profile.png
+    electricity_usage: ../images/electrical_usage_analysis/electricity_usage.png
+    monthly_electricity_usage_profile: ../images/electrical_usage_analysis/monthly_electricity_usage_profile.png
   table:
     rows:
       -
@@ -303,8 +303,8 @@ electrical_usage_analysis:
         demand_percent_change: 0.03
 electrical_cost_analysis:
   graphs:
-    electricity_cost: /images/electrical_cost_analysis/electricity_cost.png
-    monthly_electricity_demand_profile: /images/electrical_cost_analysis/monthly_electricity_demand_profile.png
+    electricity_cost: ../images/electrical_cost_analysis/electricity_cost.png
+    monthly_electricity_demand_profile: ../images/electrical_cost_analysis/monthly_electricity_demand_profile.png
   table:
     rows:
       -
@@ -333,9 +333,9 @@ electrical_cost_analysis:
         total_cost_percent_change: -0.1
 energy_cost_usage:
   graphs:
-    year_neg_2_energy_usage: /images/energy_cost_usage/year_neg_2_energy_usage.png
-    year_neg_1_energy_usage: /images/energy_cost_usage/year_neg_1_energy_usage.png
-    current_year_energy_usage: /images/energy_cost_usage/current_year_energy_usage.png
-    year_neg_2_energy_cost: /images/energy_cost_usage/year_neg_2_energy_cost.png
-    year_neg_1_energy_cost: /images/energy_cost_usage/year_neg_1_energy_cost.png
-    current_year_energy_cost: /images/energy_cost_usage/current_year_energy_cost.png
+    year_neg_2_energy_usage: ../images/energy_cost_usage/year_neg_2_energy_usage.png
+    year_neg_1_energy_usage: ../images/energy_cost_usage/year_neg_1_energy_usage.png
+    current_year_energy_usage: ../images/energy_cost_usage/current_year_energy_usage.png
+    year_neg_2_energy_cost: ../images/energy_cost_usage/year_neg_2_energy_cost.png
+    year_neg_1_energy_cost: ../images/energy_cost_usage/year_neg_1_energy_cost.png
+    current_year_energy_cost: ../images/energy_cost_usage/current_year_energy_cost.png

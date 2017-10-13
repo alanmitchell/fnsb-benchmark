@@ -5,6 +5,8 @@
 {% block header_title %}FNSB{% endblock %}
 {% block header_subtitle %}Report for Fairbanks North Star Borough{% endblock %}
 
+{% set root_path = "." %}
+
 {% block body %}
 <div class="col-12">
   {% for category in categories %}
@@ -22,7 +24,7 @@
         <tr>
           <th class="id-col">{{ site.id }}</th>
           <th class="name-col">{{ site.name }}</th>
-          <th class="action-col"><a href="/{{ site.id }}/">View Report</a></th>
+          <th class="action-col"><a href="./{{ site.id }}/index.html">View Report</a></th>
         </tr>
       {% endfor %}
       </tbody>

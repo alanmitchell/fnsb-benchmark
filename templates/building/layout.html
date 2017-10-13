@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% set building_name = pg1.bldg.site_name %}
+{% set root_path = ".." %}
 
 {% block date_updated %}{{ pg1.date_updated }}{% endblock %}
 {% block page_title %}{{ report_title }} - {{ building_name }}{% endblock %}
@@ -11,7 +12,7 @@
 <div class="row">
   <div class="col-lg-3 col-md-3 col-sm-4">
     <div class="list-group table-of-contents">
-      <a class="list-group-item" href="./">Building Information</a>
+      <a class="list-group-item" href="./index.html">Building Information</a>
       <a class="list-group-item" href="./energy-index-comparison.html">Energy Index Comparison</a>
       <a class="list-group-item" href="./utility-cost-overview.html">Utility Cost Overview</a>
       <a class="list-group-item" href="./energy-usage-overview.html">Energy Usage Overview</a>
