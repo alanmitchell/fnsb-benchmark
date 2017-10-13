@@ -38,7 +38,7 @@ energy_index_comparison:
         eui: 1/0
         specific_eui: 1/0
   details_table:
-    fiscal_year: 2016
+    fiscal_year: FY 2016
     square_footage:
       building: 0
       fnsb_buildings_total: 645867
