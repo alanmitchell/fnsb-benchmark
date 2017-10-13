@@ -3,5 +3,49 @@
 {% extends "building/layout.html" %}
 
 {% block report_body %}
-Utility Cost Overview body
+<section>
+  <div class="row">
+    <div class="col-12">
+      <table class="table">
+        <tr>
+          <th>Fiscal Year</th>
+          <th>HDD</th>
+          <th>Electricity</th>
+          <th>Fuel Oil</th>
+          <th>Nat Gas</th>
+          <th>District Heat</th>
+          <th>Water</th>
+          <th>Sewer</th>
+          <th>Other</th>
+          <th>Total</th>
+          <th>% Change</th>
+        </tr>
+        {% for row in pg3.tbl1.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.hdd | number }}</td>
+            <td>{{ row.electricity | money }}</td>
+            <td>{{ row.fuel_oil | money }}</td>
+            <td>{{ row.natural_gas | money }}</td>
+            <td>{{ row.district_heat | money }}</td>
+            <td>{{ row.water | money }}</td>
+            <td>{{ row.sewer | money }}</td>
+            <td>{{ row.other | blank }}</td>
+            <td>{{ row.total | money }}</td>
+            <td>{{ row.percent_change | percent }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ pg3.graphs.utility_cost_dollars }}" />
+  </div>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ pg3.graphs.utility_cost_distribution }}" />
+  </div>
+</section>
 {% endblock %}

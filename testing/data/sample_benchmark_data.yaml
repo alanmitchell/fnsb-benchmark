@@ -24,7 +24,6 @@ pg1:
     source_water: Golden Heart Utilities
     sq_ft: 10123
     year_built: 1993.0
-
 pg2:
   tbl1:
     rows:
@@ -49,10 +48,32 @@ pg2:
       rank: 3
 
 pg3:
-  rows:
-    - id: abc
-      name: Alan
-    - id: 123
-      name: Dustin
-    - id: xyz
-      name: Conroy
+  graphs:
+    utility_cost_dollars: /images/utility_cost_overview/utility_cost_dollars.jpg
+    utility_cost_distribution: /images/utility_cost_overview/utility_cost_distribution.jpg
+  tbl1:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity: 245104
+        fuel_oil: 94749
+        natural_gas: 549
+        distrcit_heat: 0
+        water: 1/0
+        sewer: 1/0
+        other:
+        total: 1/0
+        percent_change: 1/0
+      -
+        fiscal_year: 2015
+        hdd: 12345
+        electricity: 227302
+        fuel_oil: 47575
+        natural_gas: 97090
+        distrcit_heat: 0
+        water: 18472
+        sewer: 19420
+        other:
+        total: 411237
+        percent_change: -0.13

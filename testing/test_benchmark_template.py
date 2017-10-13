@@ -6,20 +6,38 @@ import os
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+def is_blank(val):
+    return (val is None) or (val == "nan")
+
 def filter_blank(val):
-    if (val is None) or (val == "nan"):
+    if is_blank(val):
         return ''
     else:
         return val
 
 def filter_money(val):
-    return "${:,.2f}".format(val)
+    try:
+        return "${:,.2f}".format(val)
+    except TypeError:
+        return ''
+    except ValueError:
+        return val
 
 def filter_number(val):
-    return '{:,}'.format(val)
+    try:
+        return '{:,}'.format(val)
+    except TypeError:
+        return ''
+    except ValueError:
+        return val
 
 def filter_percent(val):
-    return "{:.0%}".format(val)
+    try:
+        return "{:.0%}".format(val)
+    except TypeError:
+        return ''
+    except ValueError:
+        return val
 
 env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/building"])
