@@ -74,7 +74,7 @@ result = template.render(buildings)
 open("output/index.html", "w").write(result)
 
 # TODO: Loop through each building and render template
-building_id = "big-dipper" # TODO: This will be determined by the loop
+building_id = "ANSBG1" # TODO: This will be determined by the loop
 building_dir = output_folder + building_id
 report_pages = [
     "electrical-cost-analysis",
