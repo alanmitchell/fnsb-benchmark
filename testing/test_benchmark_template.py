@@ -17,7 +17,15 @@ def filter_blank(val):
 
 def filter_money(val):
     try:
-        return "${:,.2f}".format(val)
+        return "${:,}".format(val)
+    except TypeError:
+        return ''
+    except ValueError:
+        return val
+
+def filter_money_accurate(val):
+    try:
+        return "${:,.3f}".format(val)
     except TypeError:
         return ''
     except ValueError:
@@ -45,6 +53,7 @@ env = Environment(
 
 env.filters['blank'] = filter_blank
 env.filters['money'] = filter_money
+env.filters['money_accurate'] = filter_money_accurate
 env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
 

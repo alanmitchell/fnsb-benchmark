@@ -175,3 +175,33 @@ heating_cost_analysis:
         building_unit_heat_cost: 21.20
         total_heat_cost: 145857
         total_cost_percent_change: -1.91
+water_analysis:
+  graphs:
+    utility_cost: /images/water_analysis/utility_cost.png
+    monthly_water_usage_profile: /images/water_analysis/monthly_water_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        total_usage_volume: 1/0
+        total_usage_percent_change: 1/0
+        water_cost: 1/0
+        water_percent_change: 1/0
+        sewer_cost: 1/0
+        sewer_percent_change: 1/0
+        total_cost: 1/0
+        total_cost_percent_change: 1/0
+        total_unit_cost: 1/0
+        unit_cost_percent_change: 1/0
+      -
+        fiscal_year: 2015
+        total_usage_volume: 1758249
+        total_usage_percent_change: -0.06
+        water_cost: 18529
+        water_percent_change: -0.03
+        sewer_cost: 19315
+        sewer_percent_change: -0.03
+        total_cost: 38088
+        total_cost_percent_change: -0.03
+        total_unit_cost: 0.022
+        unit_cost_percent_change: 0.03

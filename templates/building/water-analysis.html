@@ -3,5 +3,56 @@
 {% extends "building/layout.html" %}
 
 {% block report_body %}
-Water Analysis body
+<section>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered centered valign-middle">
+        <tr>
+          <th rowspan="2">Fiscal Year</th>
+
+          <th colspan="2">Total Usage</th>
+          <th colspan="2">Water</th>
+          <th colspan="2">Sewer</th>
+
+          <th rowspan="2">Total Cost</th>
+          <th rowspan="2">Total Cost % Change</th>
+          <th rowspan="2">Total Unit Cost [$/gal]</th>
+          <th rowspan="2">Unit Cost % Change</th>
+        </tr>
+        <tr>
+          <th>[gal]</th>
+          <th>% Change</th>
+          <th>Cost [$]</th>
+          <th>% Change</th>
+          <th>Cost [$]</th>
+          <th>% Change</th>
+        </tr>
+        {% for row in water_analysis.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.total_usage_volume | number }}</td>
+            <td>{{ row.total_usage_percent_change | percent }}</td>
+            <td>{{ row.water_cost | money }}</td>
+            <td>{{ row.water_percent_change | percent }}</td>
+            <td>{{ row.sewer_cost | money }}</td>
+            <td>{{ row.sewer_percent_change | percent }}</td>
+            <td>{{ row.total_cost | money }}</td>
+            <td>{{ row.total_cost_percent_change | percent }}</td>
+            <td>{{ row.total_unit_cost | money_accurate }}</td>
+            <td>{{ row.unit_cost_percent_change | percent }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ water_analysis.graphs.utility_cost }}" />
+  </div>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ water_analysis.graphs.monthly_water_usage_profile }}" />
+  </div>
+</section>
 {% endblock %}
