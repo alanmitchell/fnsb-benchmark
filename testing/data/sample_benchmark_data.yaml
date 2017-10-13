@@ -111,3 +111,33 @@ energy_usage_overview:
         total_heat_energy: 5820
         total_specific_heat_usage: 557
         total_energy: 11429
+heating_usage_analysis:
+  graphs:
+    annual_energy_usage: /images/heating_usage_analysis/heating_degree_days.png
+    annual_energy_usage_distribution: /images/heating_usage_analysis/monthly_heating_energy_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        oil_volume: 46938
+        oil_mmbtu: 5829
+        oil_percent_change: 1.56
+        natural_gas_volume: 0
+        natural_gas_mmbtu: 0
+        natural_gas_percent_change: -1.0
+        district_heat_mmbtu: 0
+        district_heat_percent_change: 0
+        total_heat_energy: 6829
+        usage_percent_change: -0.06
+      -
+        fiscal_year: 2015
+        oil_volume: 18391
+        oil_mmbtu: 2529
+        oil_percent_change: 3.04
+        natural_gas_volume: 42919
+        natural_gas_mmbtu: 4312
+        natural_gas_percent_change: -0.41
+        district_heat_mmbtu: 0
+        district_heat_percent_change: 0
+        total_heat_energy: 6808
+        usage_percent_change: -0.14
