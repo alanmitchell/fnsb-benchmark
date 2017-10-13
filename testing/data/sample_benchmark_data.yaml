@@ -141,3 +141,37 @@ heating_usage_analysis:
         district_heat_percent_change: 0
         total_heat_energy: 6808
         usage_percent_change: -0.14
+heating_cost_analysis:
+  graphs:
+    energy_cost: /images/heating_cost_analysis/energy_cost.png
+    cumulative_fuel_switching_savings: /images/heating_cost_analysis/cumulative_fuel_switching_savings.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        oil_cost: 84739
+        oil_percent_change: 0.74
+        natural_gas_cost: 692
+        natural_gas_percent_change: -0.99
+        district_heat_cost: 0
+        district_heat_percent_change: 0
+        unit_cost_oil: 13.07
+        unit_cost_natural_gas: n/a
+        unit_cost_district_heat: n/a
+        building_unit_heat_cost: 13.18
+        total_heat_cost: 85293
+        total_cost_percent_change: -0.41
+      -
+        fiscal_year: 2015
+        oil_cost: 48727
+        oil_percent_change: 2.10
+        natural_gas_cost: 97090
+        natural_gas_percent_change: -0.41
+        district_heat_cost: 0
+        district_heat_percent_change: 0
+        unit_cost_oil: 19.29
+        unit_cost_natural_gas: 22.31
+        unit_cost_district_heat: n/a
+        building_unit_heat_cost: 21.20
+        total_heat_cost: 145857
+        total_cost_percent_change: -1.91
