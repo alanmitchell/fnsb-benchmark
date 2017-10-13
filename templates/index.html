@@ -6,19 +6,26 @@
 
 {% block body %}
 <div class="col-12">
-  <table class="table">
-    <tr>
-      <th>Name</th>
-      <th>Address</th>
-      <th>Actions</th>
-    </tr>
-    {% for building in buildings %}
-      <tr>
-        <th>{{ building.name }}</th>
-        <th>{{ building.address }}</th>
-        <th><a href="/{{ building.id }}/">View</a></th>
-      </tr>
-    {% endfor %}
-  </table>
+  {% for category in categories %}
+    <div class="row">
+      <div class="col-12">
+        <h2>{{ category.name }}</h2>
+        <table class="table">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+          </tr>
+          {% for site in category.sites %}
+            <tr>
+              <th>{{ site.id }}</th>
+              <th>{{ site.name }}</th>
+              <th><a href="/{{ site.id }}/">View</a></th>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  {% endfor %}
 </div>
 {% endblock %}

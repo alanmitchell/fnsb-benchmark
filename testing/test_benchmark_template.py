@@ -10,7 +10,7 @@ env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/building"])
 )
 
-sample_building = yaml.load(open("sample_benchmark_data.yaml").read())
+sample_building = yaml.load(open("./data/sample_benchmark_data.yaml").read())
 buildings_template_folder = "building/"
 output_folder = "output/"
 
@@ -21,7 +21,7 @@ open("output/example.html", "w").write(result)
 """
 
 # TODO: Give template a list of buildings
-buildings = yaml.load(open("sample_buildings_list.yaml").read())
+buildings = yaml.load(open("./data/sample_buildings_list.yaml").read())
 template = env.get_template("index.html")
 result = template.render(buildings)
 open("output/index.html", "w").write(result)

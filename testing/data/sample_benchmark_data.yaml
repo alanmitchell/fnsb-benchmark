@@ -1,12 +1,13 @@
 pg1:
   date_updated: September 24, 2017
-  bldg: 
+  bldg:
+    id: big-dipper
     name: Big Dipper
     address: 12345 Ice Rink Lane
     primary_func: Ice Rink
     year_built: 1993
     square_footage: 23456
-  
+
 pg2:
   tbl1:
     rows:
@@ -29,7 +30,7 @@ pg2:
       all_bldgs: 123456
       pct_of_tot: 12.3
       rank: 3
-  
+
 pg3:
   rows:
     - id: abc
@@ -38,4 +39,3 @@ pg3:
       name: Dustin
     - id: xyz
       name: Conroy
-  
