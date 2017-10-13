@@ -47,11 +47,11 @@ pg2:
       pct_of_tot: 12.3
       rank: 3
 
-pg3:
+utility_cost_overview:
   graphs:
     utility_cost_dollars: /images/utility_cost_overview/utility_cost_dollars.jpg
     utility_cost_distribution: /images/utility_cost_overview/utility_cost_distribution.jpg
-  tbl1:
+  table:
     rows:
       -
         fiscal_year: 2016
@@ -77,3 +77,37 @@ pg3:
         other:
         total: 411237
         percent_change: -0.13
+energy_usage_overview:
+  graphs:
+    annual_energy_usage: /images/energy_usage_overview/annual_energy_usage.png
+    annual_energy_usage_distribution: /images/energy_usage_overview/annual_energy_usage_distribution.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity_mmbtu: 5005
+        electricity_percent_total: 0.44
+        oil_mmbtu: 6848
+        oil_percent_total: 0.56
+        natural_gas_mmbtu: 0
+        natural_gas_percent_total: 0
+        direct_heat_mmbtu: 0
+        direct_heat_percent_total: 0
+        total_heat_energy: 6485
+        total_specific_heat_usage: 530
+        total_energy: 11428
+      -
+        fiscal_year: 2015
+        hdd: 12345
+        electricity_mmbtu: 4334
+        electricity_percent_total: 0.39
+        oil_mmbtu: 2528
+        oil_percent_total: 0.23
+        natural_gas_mmbtu: 4352
+        natural_gas_percent_total: 0.39
+        direct_heat_mmbtu: 0
+        direct_heat_percent_total: 0.0
+        total_heat_energy: 5820
+        total_specific_heat_usage: 557
+        total_energy: 11429

@@ -20,7 +20,7 @@
           <th>Total</th>
           <th>% Change</th>
         </tr>
-        {% for row in pg3.tbl1.rows %}
+        {% for row in utility_cost_overview.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.hdd | number }}</td>
@@ -42,10 +42,10 @@
 
 <section>
   <div class="col-md-6 col-12">
-    <img class="graph" src="{{ pg3.graphs.utility_cost_dollars }}" />
+    <img class="graph" src="{{ utility_cost_overview.graphs.utility_cost_dollars }}" />
   </div>
   <div class="col-md-6 col-12">
-    <img class="graph" src="{{ pg3.graphs.utility_cost_distribution }}" />
+    <img class="graph" src="{{ utility_cost_overview.graphs.utility_cost_distribution }}" />
   </div>
 </section>
 {% endblock %}

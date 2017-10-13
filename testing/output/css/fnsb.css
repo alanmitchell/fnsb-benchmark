@@ -28,3 +28,14 @@ section h3 {
   text-align: left;
   width: 33%;
 }
+
+.table.centered td,
+.table.centered th {
+  text-align: center;
+  width: auto;
+}
+
+.table.valign-middle td,
+.table.valign-middle th {
+  vertical-align: middle;
+}
