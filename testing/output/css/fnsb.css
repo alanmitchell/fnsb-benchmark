@@ -1,0 +1,10 @@
+.table {
+  margin-bottom: 75px;
+  width: 100%;
+}
+
+.table td,
+.table th {
+  text-align: left;
+  width: 33%;
+}

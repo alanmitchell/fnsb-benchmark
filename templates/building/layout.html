@@ -2,6 +2,7 @@
 
 {% set building_name = pg1.bldg.name %}
 
+{% block date_updated %}{{ pg1.date_updated }}{% endblock %}
 {% block page_title %}{{ report_title }} - {{ building_name }}{% endblock %}
 {% block header_title %}{{ building_name }}{% endblock %}
 {% block header_subtitle %}{{ report_title }}{% endblock %}

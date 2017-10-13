@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 
+{% block date_updated %}{{ date_updated }}{% endblock %}
 {% block page_title %}Building List{% endblock %}
 {% block header_title %}FNSB{% endblock %}
 {% block header_subtitle %}Report for Fairbanks North Star Borough{% endblock %}
@@ -7,25 +8,21 @@
 {% block body %}
 <div class="col-12">
   {% for category in categories %}
-    <div class="row">
-      <div class="col-12">
-        <h2>{{ category.name }}</h2>
-        <table class="table">
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-          {% for site in category.sites %}
-            <tr>
-              <th>{{ site.id }}</th>
-              <th>{{ site.name }}</th>
-              <th><a href="/{{ site.id }}/">View</a></th>
-            </tr>
-          {% endfor %}
-        </table>
-      </div>
-    </div>
+    <h2>{{ category.name }}</h2>
+    <table class="table">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+      {% for site in category.sites %}
+        <tr>
+          <th>{{ site.id }}</th>
+          <th>{{ site.name }}</th>
+          <th><a href="/{{ site.id }}/">View</a></th>
+        </tr>
+      {% endfor %}
+    </table>
   {% endfor %}
 </div>
 {% endblock %}
