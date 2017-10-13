@@ -14,8 +14,16 @@ section h3 {
   margin-top: 0;
 }
 
+.container {
+  width: 90%;
+}
+
 .graph {
   width: 100%;
+}
+
+.page-header {
+  margin-top: 60px;
 }
 
 .table {
