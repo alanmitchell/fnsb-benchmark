@@ -223,3 +223,33 @@ electrical_usage_analysis:
         usage_percent_change: -0.07
         demand_kw: 257
         demand_percent_change: 0.03
+electrical_cost_analysis:
+  graphs:
+    electricity_cost: /images/electrical_cost_analysis/electricity_cost.png
+    monthly_electricity_demand_profile: /images/electrical_cost_analysis/monthly_electricity_demand_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        usage_kwh: 1466819
+        usage_percent_change: 0.15
+        usage_cost: 199539
+        usage_cost_percent_change: 0.07
+        demand_kw: 276
+        demand_percent_change: 0.07
+        demand_cost: 45629
+        demand_cost_percent_change: 0.14
+        total_cost: 245192
+        total_cost_percent_change: 0.08
+      -
+        fiscal_year: 2015
+        usage_kwh: 1273106
+        usage_percent_change: -0.07
+        usage_cost: 187319
+        usage_cost_percent_change: -0.12
+        demand_kw: 257
+        demand_percent_change: -0.03
+        demand_cost: 40135
+        demand_cost_percent_change: 0.02
+        total_cost: 227301
+        total_cost_percent_change: -0.1

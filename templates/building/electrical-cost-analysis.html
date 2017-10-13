@@ -3,5 +3,55 @@
 {% extends "building/layout.html" %}
 
 {% block report_body %}
-Electrical Cost Analysis body
+<section>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered centered valign-middle">
+        <tr>
+          <th rowspan="2">Fiscal Year</th>
+
+          <th colspan="4">Usage</th>
+          <th colspan="4">Demand</th>
+
+          <th rowspan="2">Total Cost</th>
+          <th rowspan="2">Total Cost % Change</th>
+        </tr>
+        <tr>
+          <th>[kWh]</th>
+          <th>% Change</th>
+          <th>Cost</th>
+          <th>Cost % Change</th>
+          <th>[kWh]</th>
+          <th>% Change</th>
+          <th>Cost</th>
+          <th>Cost % Change</th>
+        </tr>
+        {% for row in electrical_cost_analysis.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.usage_kwh | number }}</td>
+            <td>{{ row.usage_percent_change | percent }}</td>
+            <td>{{ row.usage_cost | money }}</td>
+            <td>{{ row.usage_cost_percent_change | percent }}</td>
+            <td>{{ row.demand_kw | number }}</td>
+            <td>{{ row.demand_percent_change | percent }}</td>
+            <td>{{ row.demand_cost | money }}</td>
+            <td>{{ row.demand_cost_percent_change | percent }}</td>
+            <td>{{ row.total_cost | money }}</td>
+            <td>{{ row.total_cost_percent_change | percent }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ electrical_cost_analysis.graphs.electricity_cost }}" />
+  </div>
+  <div class="col-md-6 col-12">
+    <img class="graph" src="{{ electrical_cost_analysis.graphs.monthly_electricity_demand_profile }}" />
+  </div>
+</section>
 {% endblock %}
