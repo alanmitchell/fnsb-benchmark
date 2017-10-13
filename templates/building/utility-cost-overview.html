@@ -7,19 +7,22 @@
   <div class="row">
     <div class="col-12">
       <table class="table table-bordered table-hover centered valign-middle">
-        <tr>
-          <th>Fiscal Year</th>
-          <th>HDD</th>
-          <th>Electricity</th>
-          <th>Fuel Oil</th>
-          <th>Nat Gas</th>
-          <th>District Heat</th>
-          <th>Water</th>
-          <th>Sewer</th>
-          <th>Other</th>
-          <th>Total</th>
-          <th>% Change</th>
-        </tr>
+        <thead>
+          <tr>
+            <th>Fiscal Year</th>
+            <th>HDD</th>
+            <th>Electricity</th>
+            <th>Fuel Oil</th>
+            <th>Nat Gas</th>
+            <th>District Heat</th>
+            <th>Water</th>
+            <th>Sewer</th>
+            <th>Other</th>
+            <th>Total</th>
+            <th>% Change</th>
+          </tr>
+        </thead>
+        <tbody>
         {% for row in utility_cost_overview.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
@@ -35,6 +38,7 @@
             <td>{{ row.percent_change | percent }}</td>
           </tr>
         {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>

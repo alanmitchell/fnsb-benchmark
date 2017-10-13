@@ -7,25 +7,28 @@
   <div class="row">
     <div class="col-12">
       <table class="table table-bordered table-hover centered valign-middle">
-        <tr>
-          <th rowspan="2">Fiscal Year</th>
+        <thead>
+          <tr>
+            <th rowspan="2">Fiscal Year</th>
 
-          <th colspan="4">Usage</th>
-          <th colspan="4">Demand</th>
+            <th colspan="4">Usage</th>
+            <th colspan="4">Demand</th>
 
-          <th rowspan="2">Total Cost</th>
-          <th rowspan="2">Total Cost % Change</th>
-        </tr>
-        <tr>
-          <th>[kWh]</th>
-          <th>% Change</th>
-          <th>Cost</th>
-          <th>Cost % Change</th>
-          <th>[kWh]</th>
-          <th>% Change</th>
-          <th>Cost</th>
-          <th>Cost % Change</th>
-        </tr>
+            <th rowspan="2">Total Cost</th>
+            <th rowspan="2">Total Cost % Change</th>
+          </tr>
+          <tr>
+            <th>[kWh]</th>
+            <th>% Change</th>
+            <th>Cost</th>
+            <th>Cost % Change</th>
+            <th>[kWh]</th>
+            <th>% Change</th>
+            <th>Cost</th>
+            <th>Cost % Change</th>
+          </tr>
+        </thead>
+        <tbody>
         {% for row in electrical_cost_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
@@ -41,6 +44,7 @@
             <td>{{ row.total_cost_percent_change | percent }}</td>
           </tr>
         {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
