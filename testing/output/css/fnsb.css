@@ -34,16 +34,26 @@ section h3 {
 .table td,
 .table th {
   text-align: left;
-  width: 33%;
 }
 
 .table.centered td,
 .table.centered th {
   text-align: center;
-  width: auto;
 }
 
 .table.valign-middle td,
 .table.valign-middle th {
   vertical-align: middle;
+}
+
+.id-col {
+  width: 25%;
+}
+
+.name-col {
+  width: 50%;
+}
+
+.action-col {
+  width: 25%;
 }
