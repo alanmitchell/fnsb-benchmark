@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% set building_name = pg1.bldg.name %}
+{% set building_name = pg1.bldg.site_name %}
 
 {% block date_updated %}{{ pg1.date_updated }}{% endblock %}
 {% block page_title %}{{ report_title }} - {{ building_name }}{% endblock %}

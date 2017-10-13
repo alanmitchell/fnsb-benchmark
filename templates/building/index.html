@@ -3,5 +3,146 @@
 {% extends "building/layout.html" %}
 
 {% block report_body %}
-Building Overview body
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h3>Building Information</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <dt>Building Name:</dt>
+      <dd>{{ pg1.bldg.site_name }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <dt>Address:</dt>
+      <dd>{{ pg1.bldg.address }}, {{ pg1.bldg.city }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <dt>Primary Function:</dt>
+      <dd>{{ pg1.bldg.primary_func | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Year Built:</dt>
+      <dd>{{ pg1.bldg.year_built | int }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Square Footage:</dt>
+      <dd>{{ pg1.bldg.sq_ft | number }}</dd>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h3>Utility Information</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Electricity Source:</dt>
+      <dd>{{ pg1.bldg.source_elec | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_elec | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Fuel Oil Source:</dt>
+      <dd>{{ pg1.bldg.source_oil | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_oil | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Natural Gas Source:</dt>
+      <dd>{{ pg1.bldg.source_nat_gas | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_nat_gas | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>District Heat Source:</dt>
+      <dd></dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd></dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Water Source:</dt>
+      <dd>{{ pg1.bldg.source_water | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_water | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Steam Source:</dt>
+      <dd>{{ pg1.bldg.source_steam | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_steam | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Sewer Source:</dt>
+      <dd>{{ pg1.bldg.source_sewer | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_sewer | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Refuse Source:</dt>
+      <dd>{{ pg1.bldg.source_refuse | blank }}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ pg1.bldg.acct_refuse | blank }}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <dt>Onsite Generation:</dt>
+      <dd>{{ pg1.bldg.onsite_gen | blank }}</dd>
+    </div>
+  </div>
+</section>
 {% endblock %}

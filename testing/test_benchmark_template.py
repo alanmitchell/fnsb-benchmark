@@ -6,9 +6,29 @@ import os
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+def filter_blank(val):
+    if (val is None) or (val == "nan"):
+        return ''
+    else:
+        return val
+
+def filter_money(val):
+    return "${:,.2f}".format(val)
+
+def filter_number(val):
+    return '{:,}'.format(val)
+
+def filter_percent(val):
+    return "{:.0%}".format(val)
+
 env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/building"])
 )
+
+env.filters['blank'] = filter_blank
+env.filters['money'] = filter_money
+env.filters['number'] = filter_number
+env.filters['percent'] = filter_percent
 
 sample_building = yaml.load(open("./data/sample_benchmark_data.yaml").read())
 buildings_template_folder = "building/"

@@ -1,12 +1,29 @@
 pg1:
   date_updated: September 24, 2017
   bldg:
-    id: big-dipper
-    name: Big Dipper
-    address: 12345 Ice Rink Lane
-    primary_func: Ice Rink
-    year_built: 1993
-    square_footage: 23456
+    acct_elec: 31850
+    acct_nat_gas: 10282  (2408 DAVIS)
+    acct_oil:
+    acct_refuse:
+    acct_sewer: 1311001100
+    acct_steam:
+    acct_water: 1311001100
+    address: 2408 Davis Road
+    city: Fairbanks
+    dd_site: PAFA
+    onsite_gen: nan
+    primary_func: Animal Shelter
+    site_category: Other
+    site_name: FNSB-Animal Control
+    source_elec: Golden Valley Electric
+    source_nat_gas: Fairbanks Natural Gas
+    source_oil:
+    source_refuse:
+    source_sewer: Golden Heart Utilities
+    source_steam:
+    source_water: Golden Heart Utilities
+    sq_ft: 10123
+    year_built: 1993.0
 
 pg2:
   tbl1:
