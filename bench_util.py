@@ -286,7 +286,10 @@ class Util:
         for nm, gp in cats:
             bldgs = list(zip(gp['site_name'], gp['site_id']))
             bldgs.sort()
-            self.site_categories.append( {'category': nm, 'sites': bldgs} )
+            sites = []
+            for site_name, site_id in bldgs:
+                sites.append(dict(id=site_id, name=site_name))
+            self.site_categories.append( {'name': nm, 'sites': sites} )
 
         # read in the degree-day info as well.
         df_dd = pd.read_excel(
