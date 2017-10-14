@@ -412,3 +412,24 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
     # Save and show
     plt.savefig(filename)
     plt.show()
+    
+
+def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
+    fig, ax = plt.subplots()
+    
+    # Create the plot
+    plt.plot(df[date_col], df[graph_col])
+    
+    # Set the ylabel
+    plt.ylabel(ylabel)
+    
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    
+    # Make sure file goes in the proper directory
+    folder_and_filename = 'output/images/' + filename
+    
+    # Save and show
+    plt.savefig(folder_and_filename)
+    plt.show()
+    
