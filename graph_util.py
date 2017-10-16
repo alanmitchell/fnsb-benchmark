@@ -61,7 +61,7 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
 	
 	
 def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
@@ -102,7 +102,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
 	
 	
 def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
@@ -144,7 +144,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
 	
 	
 def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
@@ -167,7 +167,6 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
         col_name = col
         col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name)
         previous_col_name = previous_col_name + df[col]
-        print (previous_col_name)
       
     # label axes
     plt.ylabel('Annual Energy Usage [MMBTU]')
@@ -190,7 +189,7 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
 	
 	
 def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
@@ -248,7 +247,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         
         # Save and show
         plt.savefig(new_filename)
-        plt.show()
+        return fig
 		
 		
 def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, filename):
@@ -307,7 +306,7 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
 
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
 
 		
 		
@@ -365,7 +364,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
     
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
@@ -390,7 +389,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
     
 
 def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
@@ -407,7 +406,7 @@ def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     
     # Save and show
     plt.savefig(filename)
-    plt.show()
+    return fig
     
 def graph_filename_url(site_id, base_graph_name):
     """This function returns a two-tuple: graph file name, graph URL.
