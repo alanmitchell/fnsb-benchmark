@@ -59,11 +59,8 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Add legend
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
-    plt.savefig(folder_and_filename)
+    plt.savefig(filename)
     plt.show()
 	
 	
@@ -103,11 +100,8 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Add legend 
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
-    plt.savefig(folder_and_filename)
+    plt.savefig(filename)
     plt.show()
 	
 	
@@ -147,9 +141,6 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
     
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
-    
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
     
     # Save and show
     plt.savefig(filename)
@@ -197,11 +188,8 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
-    plt.savefig(folder_and_filename)
+    plt.savefig(filename)
     plt.show()
 	
 	
@@ -255,11 +243,8 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
 
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-        # Make sure file goes in the proper directory
-        folder_and_filename = 'output/images/' + filename + str(year)
-
         # Save and show
-        plt.savefig(folder_and_filename)
+        plt.savefig(filename + str(year))
         plt.show()
 		
 		
@@ -317,11 +302,8 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
     plt.ylabel(yaxis_name)
     plt.legend()
 
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
-    plt.savefig(folder_and_filename)
+    plt.savefig(filename)
     plt.show()
 
 		
@@ -378,9 +360,6 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1+h2, l1+l2, loc='lower left')
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
     plt.savefig(filename)
     plt.show()
@@ -406,9 +385,6 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
 
     plt.legend()
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
     plt.savefig(filename)
     plt.show()
@@ -426,10 +402,22 @@ def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
     
-    # Make sure file goes in the proper directory
-    folder_and_filename = 'output/images/' + filename
-    
     # Save and show
-    plt.savefig(folder_and_filename)
+    plt.savefig(filename)
     plt.show()
     
+def graph_filename_url(site_id, base_graph_name):
+    """This function returns a two-tuple: graph file name, graph URL.
+    The graph file name is used to save the graph to the file system; the
+    graph URL is used in an HTML site report to load the graph into an
+    image tag.
+    Parameters:
+    'site_id': the Site ID of the site this graph is related to.
+    'base_graph_name': a graph file name, not including the Site ID and not
+        including the 'png' extension.  For example: 'eco_g1', which will
+        produce a graph file name of 'ANSBG1_eco_g1.png' assuming
+        the Site ID is ANSBG1.
+    """
+    fn = 'output/images/{}_{}.png'.format(site_id, base_graph_name)
+    url = '../images/{}_{}.png'.format(site_id, base_graph_name)
+    return fn, url
