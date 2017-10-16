@@ -200,8 +200,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
 
     
     # Get the three most recent complete years of data
-    complete_years = df.query("month_count == 12.0")
-    sorted_completes = complete_years.sort_index(ascending=False)
+    sorted_completes = df.sort_index(ascending=False)
     most_recent_complete_years = sorted_completes[0:3]
     years = list(most_recent_complete_years.index.values)
     
@@ -213,6 +212,8 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
     
     most_recent_complete_years = most_recent_complete_years.drop('Totals', axis=1)
 
+    
+    figs = []
     
     # Create a pie chart for each of 3 most recent complete years
     for year in years:
@@ -247,7 +248,9 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         
         # Save and show
         plt.savefig(new_filename)
-        return fig
+        figs.append(fig)
+        
+    return figs
 		
 		
 def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, filename):
