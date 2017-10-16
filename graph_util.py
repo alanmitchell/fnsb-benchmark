@@ -243,8 +243,11 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
 
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
+     
+        new_filename = 'output/images/' + str(year) + '_' + filename.split('/')[-1]
+        
         # Save and show
-        plt.savefig(filename + str(year))
+        plt.savefig(new_filename)
         plt.show()
 		
 		
