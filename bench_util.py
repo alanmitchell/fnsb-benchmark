@@ -2,7 +2,6 @@
 """
 Utilities for assisting with the benchmarking analysis process.
 """
-
 from collections import namedtuple
 import pandas as pd
 import numpy as np
@@ -97,13 +96,23 @@ def months_present(df, yr_col='fiscal_year', mo_col='fiscal_mo'):
     yr_mo.sort()
     return yr_mo
 
-
 def month_count(mo_present):
     """Returns a Pandas series that gives the number of months present for each
     year in the 'mo_present' list.  The 'mo_present' list is a list of two
     tuples:  (year, mo).  The returned series is indexed on year.
     """
     return pd.DataFrame(data=mo_present, columns=['year', 'month']).groupby('year').count()['month']
+
+def add_month_count_column(df_target, df_detail, yr_col='fiscal_year', mo_col='fiscal_mo'):
+    """Adds a 'month_count' column to the 'df_target' DataFrame, whose index
+    must be a year value.  The value in the 'month_count' column is the number
+    of months that are present in the detailed DataFrame 'df_detail' for each 
+    year.  'yr_col' and 'mo_col' give the names of the columns in 'df_detail'
+    that are used to determine the month counts by year.
+    """
+    mo_present = months_present(df_detail)
+    mo_count = month_count(mo_present)
+    df_target['month_count'] = mo_count
 
 def missing_services(services_present):
     """Returns a list of the Service Types that are *not* present in the 
@@ -187,11 +196,11 @@ class Util:
                 skiprows=3, 
                 index_col='site_id'
                 )
-        # Create a named tuple to hold info for each building
-        # The fields of the tuple are the columns from the spreadsheet that
+        # Create a dictionary to hold info for each building
+        # The keys of the dictionary are the columns from the spreadsheet that
         # was just read, but also a number of other fields related to 
         # service providers and account numbers.
-        tup_fields = list(df_bldg.columns) + [
+        dict_keys = list(df_bldg.columns) + [
             'source_elec',
             'source_oil',
             'source_nat_gas',
@@ -208,11 +217,9 @@ class Util:
             'acct_refuse',
         ]
             
-        BldgInfo = namedtuple('BldgInfo', tup_fields)
-        
         # make a dictionary with default values for all fields (use empty
         # string for defaults)
-        default_info = dict(zip(tup_fields, [''] * len(tup_fields)))
+        default_info = dict(zip(dict_keys, [''] * len(dict_keys)))
 
         def find_src_acct(dfs, service_type):
             """Function used below to return service provider and account
@@ -239,7 +246,7 @@ class Util:
                 return '', ''
 
         # create a dictionary to map site_id to info about the building
-        self.bldg_info = {}
+        self._bldg_info = {}
         
         # separately, create a list that will be used to make a DataFrame
         # that also contains this info.
@@ -267,7 +274,7 @@ class Util:
                 rec['source_{}'.format(abbrev)] = source
                 rec['acct_{}'.format(abbrev)] = accounts
                 
-            self.bldg_info[row.name] = BldgInfo(**rec)
+            self._bldg_info[row.name] = rec
             
             # add in the site_id to the record so the DataFrame has this
             # column.
@@ -276,17 +283,20 @@ class Util:
             
         # Make a DataFrame, indexed on site_id to hold this building info
         # as well.
-        self.bldg_info_df = pd.DataFrame(rec_list)
-        self.bldg_info_df.set_index('site_id', inplace=True)
+        self._bldg_info_df = pd.DataFrame(rec_list)
+        self._bldg_info_df.set_index('site_id', inplace=True)
         
         # make a list of site categories and their associated builddings
         df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
         cats = df_sites.groupby('site_category')
-        self.site_categories = []
+        self._site_categories = []
         for nm, gp in cats:
             bldgs = list(zip(gp['site_name'], gp['site_id']))
             bldgs.sort()
-            self.site_categories.append( {'category': nm, 'sites': bldgs} )
+            sites = []
+            for site_name, site_id in bldgs:
+                sites.append(dict(id=site_id, name=site_name))
+            self._site_categories.append( {'name': nm, 'sites': sites} )
 
         # read in the degree-day info as well.
         df_dd = pd.read_excel(
@@ -299,36 +309,36 @@ class Util:
         
         # make a dictionary keyed on fiscal_yr, fiscal_mo, site_id
         # with a value of degree days.
-        self.dd = {}
+        self._dd = {}
         for ix, row in df_dd.iterrows():
             f_yr, f_mo = calendar_to_fiscal(row.Month.year, row.Month.month)
             for site in sites:
-                self.dd[(f_yr, f_mo, site)] = row[site]
+                self._dd[(f_yr, f_mo, site)] = row[site]
   
         # Get Fuel Btu Information and put it in a dictionary as an object
         # attribute.  Keys are fuel type, fuel unit, both in lower case.
         df_fuel = pd.read_excel(other_data_pth, sheetname='Fuel Types', skiprows=3)
-        self.fuel_btus = {}
+        self._fuel_btus = {}
         for ix, row in df_fuel.iterrows():
-            self.fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
+            self._fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
 
     def building_info(self, site_id):
-        """Returns building information, a named tuple, for the facility
+        """Returns building information, a dictionary, for the facility
         identified by 'site_id'.  Throws a KeyError if the site is not present.
         """
-        return self.bldg_info[site_id]
+        return self._bldg_info[site_id]
     
     def building_info_df(self):
         """Returns a DataFrame with all of the building information.  The index
         of the DataFrame is the Site ID.
         """
-        return self.bldg_info_df
+        return self._bldg_info_df
     
     def all_sites(self):
         """Returns a list of all Site IDs present in the Other Data spreadsheet.
         The list is sorted alphabetically.
         """
-        ids = list(self.bldg_info.keys())
+        ids = list(self._bldg_info.keys())
         ids.sort()
         return ids
     
@@ -340,7 +350,7 @@ class Util:
         category; the building is a two-tuple (building name, site ID).  Buildings
         are sorted alphabetically by building name.
         """
-        return self.site_categories
+        return self._site_categories
     
     def add_degree_days_col(self, df):
         """Adds a degree-day column to the Pandas DataFrame df.  The new column
@@ -350,7 +360,7 @@ class Util:
         """
         dd_col = []
         for ix, row in df.iterrows():
-            deg_days = self.dd.get((row.fiscal_year, row.fiscal_mo, self.bldg_info[row.site_id].dd_site), np.NaN)
+            deg_days = self._dd.get((row.fiscal_year, row.fiscal_mo, self._bldg_info[row.site_id]['dd_site']), np.NaN)
             dd_col.append(deg_days)
         
         df['degree_days'] = dd_col
@@ -367,7 +377,7 @@ class Util:
             recs.append(
                 {'fiscal_year': yr, 
                  'fiscal_mo': mo, 
-                 'dd': self.dd.get((yr, mo, self.bldg_info[site_id].dd_site), np.NaN)
+                 'dd': self._dd.get((yr, mo, self._bldg_info[site_id]['dd_site']), np.NaN)
                 }
             )
         dfdd = pd.DataFrame(data=recs)
@@ -395,7 +405,7 @@ class Util:
         Parameters are case insenstive.  If the fuel type and units are not in
         source spreadsheet, 0.0 is returned.
         """
-        return self.fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
+        return self._fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
 
 
 if __name__=='__main__':

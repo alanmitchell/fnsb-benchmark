@@ -1,8 +1,13 @@
 output/*.html
-output/images/*.png
+*.png
 ~$*.xlsx
 *.csv
+
+# Files created by Python pickle.dump
 *.pkl
+
+# the user's settings file for the benchmark script
+settings.py    
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
