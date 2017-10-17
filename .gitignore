@@ -6,6 +6,9 @@ output/*.html
 # Files created by Python pickle.dump
 *.pkl
 
+# some application-created debug files end in .vars
+*.vars
+
 # the user's settings file for the benchmark script
 settings.py    
 

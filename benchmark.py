@@ -14,11 +14,12 @@ This script uses settings from a "settings.py" file, which should be placed
 in the same directory as this script.  Start by copying "settings_example.py"
 to "settings.py" and then modify settings in that copied file.
 
-In the settings file, you can specify the Utility Bill CSV file you want to 
-read and the spreadsheet Other Data file, which contains the list of sites
-to process, information (e.g. square feet) about each site, and degree day 
+In the settings file, you can specify the path to the Utility Bill CSV file you 
+want to read and the spreadsheet Other Data file, which contains the list of 
+sites to process, information (e.g. square feet) about each site, and degree day 
 data.  Modify this spreadsheet according to your needs; create multiple
-versions if you sometimes only want to process some of the sites.
+versions if you sometimes only want to process some of the sites.  The "data"
+directory is the best place to put Utility Bill and Other Data files.
 
 All reports and other output from this script appear in the "output" directory.
 View the resulting benchmarking report by opening the "output/index.html" file.
@@ -41,9 +42,11 @@ import pickle
 import glob
 import os
 import pprint
+from datetime import datetime
 import pandas as pd
 import numpy as np
-import bench_util
+import bench_util as bu
+import template_util
 import settings       # the file holding settings for this script
 
 #*****************************************************************************
@@ -118,7 +121,7 @@ def preprocess_data():
         del row_tmpl['from_dt']
         del row_tmpl['thru_dt']
         
-        for piece in bench_util.split_period(st, en):
+        for piece in bu.split_period(st, en):
             new_row = row_tmpl.copy()
             new_row['cal_year'] = piece.cal_year
             new_row['cal_mo'] = piece.cal_mo
@@ -138,7 +141,7 @@ def preprocess_data():
     #--- Make a utility function object
     msg('Make an Object containing Useful Utility Functions.')
     fn = settings.OTHER_DATA_FILE_PATH
-    ut = bench_util.Util(dfu, fn)
+    ut = bu.Util(dfu, fn)
     
     # save this object to a pickle file for quick loading
     pickle.dump(ut, open('util_obj.pkl', 'wb'))
@@ -148,7 +151,7 @@ def preprocess_data():
     fyr = []
     fmo = []
     for cyr, cmo in zip(dfu3.cal_year, dfu3.cal_mo):
-        fis_yr, fis_mo = bench_util.calendar_to_fiscal(cyr, cmo)
+        fis_yr, fis_mo = bu.calendar_to_fiscal(cyr, cmo)
         fyr.append(fis_yr)
         fmo.append(fis_mo)
     dfu3['fiscal_year'] = fyr
@@ -168,6 +171,27 @@ def preprocess_data():
     
     return dfu3, ut
     
+#******************************************************************************
+#******************************************************************************
+# --------------------------- Analyze One Site --------------------------------
+
+def analyze_site(site, df, ut, report_date_time):
+    """This function produces the benchmarking data and graphs for one site. 
+    The function returns a large dictionary containing all of the data necessary
+    for rendering the benchmarking report template.  This function also creates
+    and saves all the necessary graphs; graphs are saved in the directory
+    determined in the graph_util.graph_filename_url() function.
+    
+    Input parameters:
+        site:  The Site ID of the site to analyze.
+        df:    The preprocessed Pandas DataFrame of Utility Bill information.
+        ut:    The bench_util.Util object that provides additional site data
+                   needed in the benchmarking process.
+        report_date_time: A date/time string indicating when this benchmarking
+                   report was done.
+    """
+
+    return {}
 
 #******************************************************************************
 #******************************************************************************
@@ -191,6 +215,9 @@ if __name__=="__main__":
     # shown in messages printed to the console.
     start_time = time.time()
     msg('Benchmarking Script starting!')
+    
+    # Get a Date/Time String for labeling this report
+    report_date_time = datetime.now().strftime('%B %d, %Y %I:%M %p')
     
     # Read and Preprocess the data in the Utility Bill file, acquiring
     # a DataFrame of preprocessed data and a utility function object that is
@@ -218,19 +245,42 @@ if __name__=="__main__":
             if not 'placeholder' in fn:    # don't delete placeholder file
                 os.remove(fn)
 
-    # Create Index page
+    # Create Index (Home) page
+    site_cats = util_obj.site_categories_and_buildings()
+    template_data = dict(
+        date_updated = report_date_time,
+        categories = site_cats
+    )
+    ix_template = template_util.get_template('index.html')
+    result = ix_template.render(template_data)
+    open('output/index.html', 'w').write(result)
 
-    # Loop through the sites, creating a report for each
+    # ------ Loop through the sites, creating a report for each
+    
+    # Get the template used to create the site benchmarking report.
+    site_template = template_util.get_template('sites/index.html')
+    
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
+
         msg("Site '{}' is being processed...".format(site_id))
         
-        # process site here
+        # Run the benchmark analysis for this site, returning the template
+        # data.
+        template_data = analyze_site(site_id, df, util_obj, report_date_time)
 
-        # save vars to debug file
+        # save template data variables to debug file if requested
+        if settings.WRITE_DEBUG_DATA:
+            with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
+                pprint.pprint(template_data, fout)
 
-        # create report file        
-        
+        # create report file
+        try:
+            result = site_template.render(template_data)
+            with open('output/sites/{}.html'.format(site_id), 'w') as fout:
+                fout.write(result)
+        except:
+            print('error')
         
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
