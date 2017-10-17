@@ -11,20 +11,18 @@
 <div class="col-12">
   {% for category in categories %}
     <h2>{{ category.name }}</h2>
-    <table class="table table-bordered table-hover table-striped centered valign-middle">
+    <table class="table table-bordered table-hover table-striped clickable valign-middle">
       <thead>
         <tr>
           <th class="id-col">ID</th>
           <th class="name-col">Name</th>
-          <th class="action-col">Actions</th>
         </tr>
       </thead>
       <tbody>
       {% for site in category.sites %}
-        <tr>
-          <th class="id-col">{{ site.id }}</th>
-          <th class="name-col">{{ site.name }}</th>
-          <th class="action-col"><a href="{{ site.id }}.html">View Report</a></th>
+        <tr onclick="document.location = '{{ site.id }}.html';">
+          <th class="id-col"><a href="{{ site.id }}.html">{{ site.id }}</a></th>
+          <th class="name-col"><a href="{{ site.id }}.html">{{ site.name }}</a></th>
         </tr>
       {% endfor %}
       </tbody>

@@ -47,18 +47,19 @@ section h3 {
   vertical-align: middle;
 }
 
+.table.clickable td,
+.table.clickable th {
+  cursor: pointer;
+}
+
 .table-of-contents {
   position: fixed;
 }
 
 .id-col {
-  width: 25%;
+  width: 15%;
 }
 
 .name-col {
-  width: 50%;
-}
-
-.action-col {
-  width: 25%;
+  width: 85%;
 }
