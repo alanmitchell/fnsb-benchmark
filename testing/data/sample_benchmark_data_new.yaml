@@ -1,0 +1,343 @@
+building_info:
+  date_updated: September 24, 2017
+  bldg:
+    acct_elec: 31850
+    acct_nat_gas: 10282  (2408 DAVIS)
+    acct_oil:
+    acct_refuse:
+    acct_sewer: 1311001100
+    acct_steam:
+    acct_water: 1311001100
+    address: 2408 Davis Road
+    city: Fairbanks
+    dd_site: PAFA
+    onsite_gen: nan
+    primary_func: Animal Shelter
+    site_category: Other
+    site_name: FNSB-Animal Control
+    source_elec: Golden Valley Electric
+    source_nat_gas: Fairbanks Natural Gas
+    source_oil:
+    source_refuse:
+    source_sewer: Golden Heart Utilities
+    source_steam:
+    source_water: Golden Heart Utilities
+    sq_ft: 10123
+    year_built: 1993.0
+energy_index_comparison:
+  yearly_table:
+    rows:
+      -
+        fiscal_year: 2016
+        eci: 1/0
+        eui: 1/0
+        specific_eui: 1/0
+      -
+        fiscal_year: 2015
+        eci: 1/0
+        eui: 1/0
+        specific_eui: 1/0
+  details_table:
+    fiscal_year: FY 2016
+    bldg:
+      total_cost         :    86508.240113
+      electricity_cost   :    29639.448485
+      natural_gas_cost   :    45647.201628
+      fuel_oil_cost      :             NaN
+      district_heat_cost :             NaN
+      total_energy_cost  :    75286.650113
+      total_heat_cost    :    45647.201628
+      electricity_mmbtu  :      542.173934
+      natural_gas_mmbtu  :     2151.683625
+      fuel_oil_mmbtu     :             NaN
+      district_heat_mmbtu:             NaN
+      total_mmbtu        :     2693.857559
+      total_heat_mmbtu   :     2151.683625
+      electricity_kWh    :   158902.090909
+      electricity_kW_average:          NaN
+      electricity_kW_max :             NaN
+      sq_ft              :    10123.000000
+      eui                :      266.112571
+      eci                :        7.437188
+      specific_eui       :       17.463968      
+    all:
+      total_cost         :    86508.240113
+      electricity_cost   :    29639.448485
+      natural_gas_cost   :    45647.201628
+      fuel_oil_cost      :             NaN
+      district_heat_cost :             NaN
+      total_energy_cost  :    75286.650113
+      total_heat_cost    :    45647.201628
+      electricity_mmbtu  :      542.173934
+      natural_gas_mmbtu  :     2151.683625
+      fuel_oil_mmbtu     :             NaN
+      district_heat_mmbtu:             NaN
+      total_mmbtu        :     2693.857559
+      total_heat_mmbtu   :     2151.683625
+      electricity_kWh    :   158902.090909
+      electricity_kW_average:          NaN
+      electricity_kW_max :             NaN
+      sq_ft              :    10123.000000
+      eui                :      266.112571
+      eci                :        7.437188
+      specific_eui       :       17.463968      
+    pct:
+      total_cost         :    .240113
+      electricity_cost   :    .448485
+      natural_gas_cost   :    .201628
+      fuel_oil_cost      :             NaN
+      district_heat_cost :             NaN
+      total_energy_cost  :    .650113
+      total_heat_cost    :    .201628
+      electricity_mmbtu  :    .173934
+      natural_gas_mmbtu  :    .683625
+      fuel_oil_mmbtu     :             NaN
+      district_heat_mmbtu:             NaN
+      total_mmbtu        :    .857559
+      total_heat_mmbtu   :    .683625
+      electricity_kWh    :    .090909
+      electricity_kW_average:          NaN
+      electricity_kW_max :             NaN
+      sq_ft              :    .05
+      eui                :    .112571
+      eci                :    .437188
+      specific_eui       :    .463968      
+    rank:
+      total_cost         :    8
+      electricity_cost   :    2
+      natural_gas_cost   :    4
+      fuel_oil_cost      :             NaN
+      district_heat_cost :             NaN
+      total_energy_cost  :    7
+      total_heat_cost    :    4
+      electricity_mmbtu  :    5
+      natural_gas_mmbtu  :    21
+      fuel_oil_mmbtu     :             NaN
+      district_heat_mmbtu:             NaN
+      total_mmbtu        :    26
+      total_heat_mmbtu   :    21
+      electricity_kWh    :    15
+      electricity_kW_average:          NaN
+      electricity_kW_max :             NaN
+      sq_ft              :    10
+      eui                :    266.112571
+      eci                :    7
+      specific_eui       :    17
+utility_cost_overview:
+  graphs:
+    - images/utility_cost_overview/utility_cost_dollars.jpg
+    - images/utility_cost_overview/utility_cost_distribution.jpg
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity: 245104
+        fuel_oil: 94749
+        natural_gas: 549
+        distrcit_heat: 0
+        water: 1/0
+        sewer: 1/0
+        refuse:
+        total: 1/0
+        pct_change: 1/0
+      -
+        fiscal_year: 2015
+        hdd: 12345
+        electricity: 227302
+        fuel_oil: 47575
+        natural_gas: 97090
+        distrcit_heat: 0
+        water: 18472
+        sewer: 19420
+        refuse:
+        total: 411237
+        pct_change: -0.13
+energy_usage_overview:
+  graphs:
+    - images/energy_usage_overview/annual_energy_usage.png
+    - images/energy_usage_overview/annual_energy_usage_distribution.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity_mmbtu: 5005
+        electricity_pct: 0.44
+        fuel_oil_mmbtu: 6848
+        fuel_pct: 0.56
+        natural_gas_mmbtu: 0
+        natural_gas_pct: 0
+        district_heat_mmbtu: 0
+        district_heat_pct: 0
+        total_heat_mmbtu: 6485
+        total_specific_heat: 530
+        total_energy_mmbtu: 11428
+      -
+        fiscal_year: 2015
+        hdd: 12500
+        electricity_mmbtu: 5005
+        electricity_pct: 0.44
+        fuel_oil_mmbtu: 6848
+        fuel_oil_pct: 0.56
+        natural_gas_mmbtu: 0
+        natural_gas_pct: 0
+        district_heat_mmbtu: 0
+        district_heat_pct: 0
+        total_heat_mmbtu: 6485
+        total_specific_heat: 530
+        total_energy_mmbtu: 11428
+heating_usage_analysis:
+  graphs:
+    - images/heating_usage_analysis/heating_degree_days.png
+    - images/heating_usage_analysis/monthly_heating_energy_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        fuel_oil_usage: 46938
+        fuel_oil_mmbtu: 5829
+        fuel_oil_pct_change: 1.56
+        natural_gas_usage: 0
+        natural_gas_mmbtu: 0
+        natural_gas_pct_change: -1.0
+        district_heat_mmbtu: 0
+        district_heat_pct_change: 0
+        total_heat_mmbtu: 6829
+        total_heat_pct_change: -0.06
+      -
+        fiscal_year: 2015
+        fuel_oil_usage: 47938
+        fuel_oil_mmbtu: 5729
+        fuel_oil_pct_change: 1.56
+        natural_gas_usage: 0
+        natural_gas_mmbtu: 0
+        natural_gas_pct_change: -1.0
+        district_heat_mmbtu: 0
+        district_heat_pct_change: 0
+        total_heat_mmbtu: 6829
+        total_heat_pct_change: -0.04
+heating_cost_analysis:
+  graphs:
+    - images/heating_cost_analysis/energy_cost.png
+    - images/heating_cost_analysis/cumulative_fuel_switching_savings.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        fuel_oil_cost: 84739
+        fuel_oil_pct_change: 0.74
+        natural_gas_cost: 692
+        natural_gas_pct_change: -0.99
+        district_heat_cost: 0
+        district_heat_pct_change: 0
+        fuel_oil_unit_cost: 13.07
+        natural_gas_unit_cost: n/a
+        district_heat_unit_cost: n/a
+        building_heat_unit_cost: 13.18
+        total_heat_cost: 85293
+        total_heat_cost_pct_change: -0.41
+      -
+        fiscal_year: 2015
+        fuel_oil_cost: 94739
+        fuel_oil_pct_change: 0.74
+        natural_gas_cost: 692
+        natural_gas_pct_change: -0.99
+        district_heat_cost: 0
+        district_heat_pct_change: 0
+        fuel_oil_unit_cost: 14.07
+        natural_gas_unit_cost: n/a
+        district_heat_unit_cost: n/a
+        building_heat_unit_cost: 13.18
+        total_heat_cost: 83293
+        total_heat_cost_pct_change: -0.31
+water_analysis:
+  graphs:
+    - images/water_analysis/utility_cost.png
+    - images/water_analysis/monthly_water_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        total_usage: 1758249
+        total_usage_pct_change: -0.06
+        water_cost: 18529
+        water_cost_pct_change: -0.03
+        sewer_cost: 19315
+        sewer_cost_pct_change: -0.03
+        total_cost: 38088
+        total_cost_pct_change: -0.03
+        total_unit_cost: 0.022
+        total_unit_cost_pct_change: 0.03
+      -
+        fiscal_year: 2015
+        total_usage: 1858249
+        total_usage_pct_change: -0.06
+        water_cost: 18529
+        water_cost_pct_change: -0.03
+        sewer_cost: 19315
+        sewer_cost_pct_change: -0.03
+        total_cost: 39088
+        total_cost_pct_change: -0.03
+        total_unit_cost: 0.022
+        total_unit_cost_pct_change: 0.03
+electrical_usage_analysis:
+  graphs:
+    - images/electrical_usage_analysis/electricity_usage.png
+    - images/electrical_usage_analysis/monthly_electricity_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        kwh: 1466819
+        kwh_pct_change: 0.15
+        kw_avg: 276
+        kw_avg_pct_change: 0.12
+        kw_max: 300
+        kw_max_pct_change: 0.11
+      -
+        fiscal_year: 2015
+        kwh: 1466900
+        kwh_pct_change: 0.14
+        kw_avg: 270
+        kw_avg_pct_change: 0.11
+        kw_max: 295
+        kw_max_pct_change: 0.10
+electrical_cost_analysis:
+  graphs:
+    - images/electrical_cost_analysis/electricity_cost.png
+    - images/electrical_cost_analysis/monthly_electricity_demand_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        kwh: 1466819
+        kwh_pct_change: 0.15
+        kwh_cost: 199539
+        kwh_cost_pct_change: 0.07
+        kw_avg: 276
+        kw_avg_pct_change: 0.07
+        kw_avg_cost: 45629
+        kw_avg_cost_pct_change: 0.14
+        total_cost: 245192
+        total_cost_pct_change: 0.08
+      -
+        fiscal_year: 2015
+        kwh: 1566819
+        kwh_pct_change: 0.14
+        kwh_cost: 199550
+        kwh_cost_pct_change: 0.07
+        kw_avg: 276
+        kw_avg_pct_change: 0.07
+        kw_avg_cost: 45629
+        kw_avg_cost_pct_change: 0.14
+        total_cost: 255192
+        total_cost_pct_change: 0.08
+energy_cost_usage:
+  graphs:
+    - images/energy_cost_usage/year_neg_2_energy_usage.png
+    - images/energy_cost_usage/year_neg_1_energy_usage.png
+    - images/energy_cost_usage/current_year_energy_usage.png
+    - images/energy_cost_usage/year_neg_2_energy_cost.png
+    - images/energy_cost_usage/year_neg_1_energy_cost.png
+    - images/energy_cost_usage/current_year_energy_cost.png

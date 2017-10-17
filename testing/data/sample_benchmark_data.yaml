@@ -1,0 +1,341 @@
+pg1:
+  date_updated: September 24, 2017
+  bldg:
+    acct_elec: 31850
+    acct_nat_gas: 10282  (2408 DAVIS)
+    acct_oil:
+    acct_refuse:
+    acct_sewer: 1311001100
+    acct_steam:
+    acct_water: 1311001100
+    address: 2408 Davis Road
+    city: Fairbanks
+    dd_site: PAFA
+    onsite_gen: nan
+    primary_func: Animal Shelter
+    site_category: Other
+    site_name: FNSB-Animal Control
+    source_elec: Golden Valley Electric
+    source_nat_gas: Fairbanks Natural Gas
+    source_oil:
+    source_refuse:
+    source_sewer: Golden Heart Utilities
+    source_steam:
+    source_water: Golden Heart Utilities
+    sq_ft: 10123
+    year_built: 1993.0
+energy_index_comparison:
+  summary_table:
+    rows:
+      -
+        fiscal_year: 2016
+        eci: 1/0
+        eui: 1/0
+        specific_eui: 1/0
+      -
+        fiscal_year: 2015
+        eci: 1/0
+        eui: 1/0
+        specific_eui: 1/0
+  details_table:
+    fiscal_year: FY 2016
+    square_footage:
+      building: 0
+      fnsb_buildings_total: 645867
+      building_percent_total: 0
+      building_rank:
+    total_utility_cost:
+      building: 1/0
+      fnsb_buildings_total: 2236721
+      building_percent_total: 1/0
+      building_rank:
+    total_energy_usage:
+      building: 11488
+      fnsb_buildings_total: 70363
+      building_percent_total: 0.16
+      building_rank:
+    electricity_kwh:
+      building: 1466819
+      fnsb_buildings_total: 7616568
+      building_percent_total: 0.19
+      building_rank:
+    electricity_kw:
+      building: 276
+      fnsb_buildings_total: 1733
+      building_percent_total: 0.16
+      building_rank:
+    electricity_cost:
+      building: 245104
+      fnsb_buildings_total: 1322409
+      building_percent_total: 0.29
+      building_rank:
+    oil_mmbtu:
+      building: 6484
+      fnsb_buildings_total: 37922
+      building_percent_total: 0.17
+      building_rank:
+    oil_cost:
+      building: 84748
+      fnsb_buildings_total: 499818
+      building_percent_total: 0.17
+      building_rank:
+    natural_gas_mmbtu:
+      building: 0
+      fnsb_buildings_total: 23
+      building_percent_total: 0
+      building_rank:
+    natrual_gas_cost:
+      building: 471
+      fnsb_buildings_total: 44717
+      building_percent_total: 0.01
+      building_rank:
+    district_heat_mmbtu:
+      building: 0
+      fnsb_buildings_total: 5706
+      building_percent_total: 0
+      building_rank:
+    district_heat_cost:
+      building: 0
+      fnsb_buildings_total: 80680
+      building_percent_total: 0
+      building_rank:
+    total_heat_energy:
+      building: 6484
+      fnsb_buildings_total: 43684
+      building_percent_total: 0.35
+      building_rank:
+    total_heat_cost:
+      building: 85428
+      fnsb_buildings_total: 626810
+      building_percent_total: 0.54
+      building_rank:
+    eui:
+      building: 1/0
+      fnsb_buildings_total: 109.2
+      building_percent_total: 1/0
+      building_rank:
+    hdd_specific_eui:
+      building: 1/0
+      fnsb_buildings_total: 9.1
+      building_percent_total: 1/0
+      building_rank:
+    eci:
+      building: 1/0
+      fnsb_buildings_total: 53.01
+      building_percent_total: 1/0
+      building_rank:
+
+utility_cost_overview:
+  graphs:
+    utility_cost_dollars: ../images/utility_cost_overview/utility_cost_dollars.jpg
+    utility_cost_distribution: ../images/utility_cost_overview/utility_cost_distribution.jpg
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity: 245104
+        fuel_oil: 94749
+        natural_gas: 549
+        distrcit_heat: 0
+        water: 1/0
+        sewer: 1/0
+        other:
+        total: 1/0
+        percent_change: 1/0
+      -
+        fiscal_year: 2015
+        hdd: 12345
+        electricity: 227302
+        fuel_oil: 47575
+        natural_gas: 97090
+        distrcit_heat: 0
+        water: 18472
+        sewer: 19420
+        other:
+        total: 411237
+        percent_change: -0.13
+energy_usage_overview:
+  graphs:
+    annual_energy_usage: ../images/energy_usage_overview/annual_energy_usage.png
+    annual_energy_usage_distribution: ../images/energy_usage_overview/annual_energy_usage_distribution.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        hdd: 12017
+        electricity_mmbtu: 5005
+        electricity_percent_total: 0.44
+        oil_mmbtu: 6848
+        oil_percent_total: 0.56
+        natural_gas_mmbtu: 0
+        natural_gas_percent_total: 0
+        direct_heat_mmbtu: 0
+        direct_heat_percent_total: 0
+        total_heat_energy: 6485
+        total_specific_heat_usage: 530
+        total_energy: 11428
+      -
+        fiscal_year: 2015
+        hdd: 12345
+        electricity_mmbtu: 4334
+        electricity_percent_total: 0.39
+        oil_mmbtu: 2528
+        oil_percent_total: 0.23
+        natural_gas_mmbtu: 4352
+        natural_gas_percent_total: 0.39
+        direct_heat_mmbtu: 0
+        direct_heat_percent_total: 0.0
+        total_heat_energy: 5820
+        total_specific_heat_usage: 557
+        total_energy: 11429
+heating_usage_analysis:
+  graphs:
+    annual_energy_usage: ../images/heating_usage_analysis/heating_degree_days.png
+    annual_energy_usage_distribution: ../images/heating_usage_analysis/monthly_heating_energy_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        oil_volume: 46938
+        oil_mmbtu: 5829
+        oil_percent_change: 1.56
+        natural_gas_volume: 0
+        natural_gas_mmbtu: 0
+        natural_gas_percent_change: -1.0
+        district_heat_mmbtu: 0
+        district_heat_percent_change: 0
+        total_heat_energy: 6829
+        usage_percent_change: -0.06
+      -
+        fiscal_year: 2015
+        oil_volume: 18391
+        oil_mmbtu: 2529
+        oil_percent_change: 3.04
+        natural_gas_volume: 42919
+        natural_gas_mmbtu: 4312
+        natural_gas_percent_change: -0.41
+        district_heat_mmbtu: 0
+        district_heat_percent_change: 0
+        total_heat_energy: 6808
+        usage_percent_change: -0.14
+heating_cost_analysis:
+  graphs:
+    energy_cost: ../images/heating_cost_analysis/energy_cost.png
+    cumulative_fuel_switching_savings: ../images/heating_cost_analysis/cumulative_fuel_switching_savings.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        oil_cost: 84739
+        oil_percent_change: 0.74
+        natural_gas_cost: 692
+        natural_gas_percent_change: -0.99
+        district_heat_cost: 0
+        district_heat_percent_change: 0
+        unit_cost_oil: 13.07
+        unit_cost_natural_gas: n/a
+        unit_cost_district_heat: n/a
+        building_unit_heat_cost: 13.18
+        total_heat_cost: 85293
+        total_cost_percent_change: -0.41
+      -
+        fiscal_year: 2015
+        oil_cost: 48727
+        oil_percent_change: 2.10
+        natural_gas_cost: 97090
+        natural_gas_percent_change: -0.41
+        district_heat_cost: 0
+        district_heat_percent_change: 0
+        unit_cost_oil: 19.29
+        unit_cost_natural_gas: 22.31
+        unit_cost_district_heat: n/a
+        building_unit_heat_cost: 21.20
+        total_heat_cost: 145857
+        total_cost_percent_change: -1.91
+water_analysis:
+  graphs:
+    utility_cost: ../images/water_analysis/utility_cost.png
+    monthly_water_usage_profile: ../images/water_analysis/monthly_water_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        total_usage_volume: 1/0
+        total_usage_percent_change: 1/0
+        water_cost: 1/0
+        water_percent_change: 1/0
+        sewer_cost: 1/0
+        sewer_percent_change: 1/0
+        total_cost: 1/0
+        total_cost_percent_change: 1/0
+        total_unit_cost: 1/0
+        unit_cost_percent_change: 1/0
+      -
+        fiscal_year: 2015
+        total_usage_volume: 1758249
+        total_usage_percent_change: -0.06
+        water_cost: 18529
+        water_percent_change: -0.03
+        sewer_cost: 19315
+        sewer_percent_change: -0.03
+        total_cost: 38088
+        total_cost_percent_change: -0.03
+        total_unit_cost: 0.022
+        unit_cost_percent_change: 0.03
+electrical_usage_analysis:
+  graphs:
+    electricity_usage: ../images/electrical_usage_analysis/electricity_usage.png
+    monthly_electricity_usage_profile: ../images/electrical_usage_analysis/monthly_electricity_usage_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        usage_kwh: 1466819
+        usage_percent_change: 0.15
+        demand_kw: 276
+        demand_percent_change: 0.07
+      -
+        fiscal_year: 2015
+        usage_kwh: 1273106
+        usage_percent_change: -0.07
+        demand_kw: 257
+        demand_percent_change: 0.03
+electrical_cost_analysis:
+  graphs:
+    electricity_cost: ../images/electrical_cost_analysis/electricity_cost.png
+    monthly_electricity_demand_profile: ../images/electrical_cost_analysis/monthly_electricity_demand_profile.png
+  table:
+    rows:
+      -
+        fiscal_year: 2016
+        usage_kwh: 1466819
+        usage_percent_change: 0.15
+        usage_cost: 199539
+        usage_cost_percent_change: 0.07
+        demand_kw: 276
+        demand_percent_change: 0.07
+        demand_cost: 45629
+        demand_cost_percent_change: 0.14
+        total_cost: 245192
+        total_cost_percent_change: 0.08
+      -
+        fiscal_year: 2015
+        usage_kwh: 1273106
+        usage_percent_change: -0.07
+        usage_cost: 187319
+        usage_cost_percent_change: -0.12
+        demand_kw: 257
+        demand_percent_change: -0.03
+        demand_cost: 40135
+        demand_cost_percent_change: 0.02
+        total_cost: 227301
+        total_cost_percent_change: -0.1
+energy_cost_usage:
+  graphs:
+    year_neg_2_energy_usage: ../images/energy_cost_usage/year_neg_2_energy_usage.png
+    year_neg_1_energy_usage: ../images/energy_cost_usage/year_neg_1_energy_usage.png
+    current_year_energy_usage: ../images/energy_cost_usage/current_year_energy_usage.png
+    year_neg_2_energy_cost: ../images/energy_cost_usage/year_neg_2_energy_cost.png
+    year_neg_1_energy_cost: ../images/energy_cost_usage/year_neg_1_energy_cost.png
+    current_year_energy_cost: ../images/energy_cost_usage/current_year_energy_cost.png

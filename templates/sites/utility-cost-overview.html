@@ -1,0 +1,58 @@
+{% block section_body %}
+<a name="utility-cost-overview"></a>
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h2>Utility Cost Overview</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered table-hover centered valign-middle">
+        <thead>
+          <tr>
+            <th>Fiscal Year</th>
+            <th>HDD</th>
+            <th>Electricity</th>
+            <th>Fuel Oil</th>
+            <th>Nat Gas</th>
+            <th>District Heat</th>
+            <th>Water</th>
+            <th>Sewer</th>
+            <th>Refuse</th>
+            <th>Total</th>
+            <th>% Change</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in utility_cost_overview.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.hdd | number }}</td>
+            <td>{{ row.electricity | money }}</td>
+            <td>{{ row.fuel_oil | money }}</td>
+            <td>{{ row.natural_gas | money }}</td>
+            <td>{{ row.district_heat | money }}</td>
+            <td>{{ row.water | money }}</td>
+            <td>{{ row.sewer | money }}</td>
+            <td>{{ row.refuse | blank }}</td>
+            <td>{{ row.total | money }}</td>
+            <td>{{ row.pct_change | percent }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    {% for graph in utility_cost_overview.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

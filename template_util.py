@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 
 # Create the Template environment
 env = Environment(
-    loader=FileSystemLoader(['templates', 'templates/building'])
+    loader=FileSystemLoader(['templates', 'templates/sites'])
 )
 
 #------ Below are Custom Filters used for Formatting --------

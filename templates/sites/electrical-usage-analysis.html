@@ -1,0 +1,56 @@
+{% block section_body %}
+<a name="electrical-usage-analysis"></a>
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h2>Electrical Usage Analysis</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered table-hover centered valign-middle">
+        <thead>
+          <tr>
+            <th rowspan="2">Fiscal Year</th>
+
+            <th colspan="2">Usage</th>
+            <th colspan="2">Demand (Avg)</th>
+            <th colspan="2">Demand (Max)</th>
+          </tr>
+          <tr>
+            <th>[kWh]</th>
+            <th>% Change</th>
+            <th>[kW]</th>
+            <th>% Change</th>
+            <th>[kW]</th>
+            <th>% Change</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in electrical_usage_analysis.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.kwh | number }}</td>
+            <td>{{ row.kwh_pct_change | percent }}</td>
+            <td>{{ row.kw_avg | number }}</td>
+            <td>{{ row.kw_avg_pct_change | percent }}</td>
+            <td>{{ row.kw_max | number }}</td>
+            <td>{{ row.kw_max_pct_change | percent }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    {% for graph in electrical_usage_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

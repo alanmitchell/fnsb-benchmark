@@ -1,0 +1,63 @@
+{% block section_body %}
+<a name="electrical-cost-analysis"></a>
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h2>Electrical Cost Analysis</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered table-hover centered valign-middle">
+        <thead>
+          <tr>
+            <th rowspan="2">Fiscal Year</th>
+
+            <th colspan="4">Usage</th>
+            <th colspan="4">Demand</th>
+
+            <th rowspan="2">Total Cost</th>
+            <th rowspan="2">Total Cost % Change</th>
+          </tr>
+          <tr>
+            <th>[kWh]</th>
+            <th>% Change</th>
+            <th>Cost</th>
+            <th>Cost % Change</th>
+            <th>[kWh]</th>
+            <th>% Change</th>
+            <th>Cost</th>
+            <th>Cost % Change</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in electrical_cost_analysis.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.kwh | number }}</td>
+            <td>{{ row.kwh_pct_change | percent }}</td>
+            <td>{{ row.kwh_cost | money }}</td>
+            <td>{{ row.kwh_cost_pct_change | percent }}</td>
+            <td>{{ row.kw_avg | number }}</td>
+            <td>{{ row.kw_avg_pct_change | percent }}</td>
+            <td>{{ row.kw_avg_cost | money }}</td>
+            <td>{{ row.kw_avg_cost_pct_change | percent }}</td>
+            <td>{{ row.total_cost | money }}</td>
+            <td>{{ row.total_cost_pct_change | percent }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    {% for graph in electrical_cost_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
+      </div>
+    {% endfor %}
+  </div>
+</section>{% endblock %}

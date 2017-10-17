@@ -1,0 +1,419 @@
+date_updated: September 24, 2017
+categories:
+  -
+    name: Test
+    sites:
+      -
+        id: ANSBG1
+        name: FNSB-Animal Control
+  -
+    name: Other
+    sites:
+      -
+        id: ADLER
+        name: FNSB-Adler School building
+      -
+        id: ANSBG1
+        name: FNSB-Animal Control
+      -
+        id: BAP001
+        name: FNSB-Bernice Aldridge Park
+      -
+        id: DIPMP1
+        name: FNSB-Big Dipper
+      -
+        id: BHPBHG
+        name: FNSB-Birch Hill Garage
+      -
+        id: BHPCCS
+        name: FNSB-Birch Hill Ski Building
+      -
+        id: BHPSKI1
+        name: FNSB-Birch Hill Ski Trail #1
+      -
+        id: BHPSKI2
+        name: FNSB-Birch Hill Ski Trail #2
+      -
+        id: BHPSKI3
+        name: FNSB-Birch Hill Ski Trail #3
+      -
+        id: BHPSKI4
+        name: FNSB-Birch Hill Ski Trail #4
+      -
+        id: BHPBHL
+        name: FNSB-Birch Hill Timing Building
+      -
+        id: BHPBHW
+        name: FNSB-Birch Hill Warm-up Building
+      -
+        id: CLX001
+        name: FNSB-CLRA Chena Lakes Rec Area
+      -
+        id: CLX002
+        name: FNSB-CLRA Chena Lakes Rec Park
+      -
+        id: CLX004
+        name: FNSB-CLRA Chena River Lakes Proj A
+      -
+        id: CLX003
+        name: FNSB-CLRA Chena River Lakes Rec Proj
+      -
+        id: CLXES1
+        name: FNSB-CLRA Entrance Station
+      -
+        id: CLXSM1
+        name: FNSB-CLRA Maintenance Bunker
+      -
+        id: CLXSO1
+        name: FNSB-CLRA Office/Shop
+      -
+        id: CLXGP2
+        name: FNSB-CLRA River Park General Area
+      -
+        id: CACBG1
+        name: FNSB-Carlson Center
+      -
+        id: CBS001
+        name: FNSB-Centennial Bridge South
+      -
+        id: CRB001
+        name: FNSB-Chena River Bridge
+      -
+        id: CSP001
+        name: FNSB-Crosson Street Park
+      -
+        id: GSWNP
+        name: FNSB-General Serv Wareh North Pole
+      -
+        id: GF001
+        name: FNSB-Gillam Field
+      -
+        id: GFP001
+        name: FNSB-Griffin Park
+      -
+        id: GRP001
+        name: FNSB-Growden Park
+      -
+        id: GRPLFT
+        name: FNSB-Growden Park Lift Station
+      -
+        id: HSPSWP
+        name: FNSB-Hamme Swimming Pool
+      -
+        id: HEZ001
+        name: FNSB-Hez Ray Sport Complex
+      -
+        id: BAOBG1
+        name: FNSB-JHAC
+      -
+        id: KEP001
+        name: FNSB-Kendall Park
+      -
+        id: KIP001
+        name: FNSB-Kiana Park
+      -
+        id: KWP001
+        name: FNSB-Kiwanis Park
+      -
+        id: LF001
+        name: FNSB-Lions Field
+      -
+        id: MSWBG1
+        name: FNSB-Marika St Maintenance Shop
+      -
+        id: MSWBG2
+        name: FNSB-Marika St Maintenance Storage
+      -
+        id: MSWWAR
+        name: FNSB-Marika St Warehouse-Gen Svcs
+      -
+        id: MF001
+        name: FNSB-Marlin Field
+      -
+        id: MSRSWP
+        name: FNSB-Mary Siah Rec Center
+      -
+        id: MTP001
+        name: FNSB-Mertyle Thomas Park
+      -
+        id: MSP001
+        name: FNSB-Midnight Sun Lions Park
+      -
+        id: MSLL001
+        name: FNSB-Moore Street Little League
+      -
+        id: MNPPRK
+        name: FNSB-Morning Star Park
+      -
+        id: NWP001
+        name: FNSB-Newby Park
+      -
+        id: NRP001
+        name: FNSB-Newby Road Park
+      -
+        id: NWLP01
+        name: FNSB-Noel Wein Library Park
+      -
+        id: NWLBG1
+        name: FNSB-Noel Wien Library
+      -
+        id: NPL
+        name: FNSB-North Pole Library
+      -
+        id: NPP001
+        name: FNSB-North Pole Park
+      -
+        id: NBP001
+        name: FNSB-Nussbaumer Park
+      -
+        id: PRW
+        name: FNSB-Peger Road West - Trans Garag
+      -
+        id: ASLCHU
+        name: FNSB-Pioneer Pk - Office (Cab 19)
+      -
+        id: ASLC47
+        name: FNSB-Pioneer Pk Barn Cabin 47
+      -
+        id: ASLC52
+        name: FNSB-Pioneer Pk Cabin 52/Guard Shack
+      -
+        id: ASLCV1
+        name: FNSB-Pioneer Pk Civic Center
+      -
+        id: ASLELC1
+        name: FNSB-Pioneer Pk East Electrical Serv
+      -
+        id: ASLGP2
+        name: FNSB-Pioneer Pk East Parking Lot
+      -
+        id: ASLGDM
+        name: FNSB-Pioneer Pk Gold Dome
+      -
+        id: ASLHIS
+        name: FNSB-Pioneer Pk Historical Society
+      -
+        id: ASLSEA
+        name: FNSB-Pioneer Pk North Seasonal Water
+      -
+        id: ASLC18
+        name: FNSB-Pioneer Pk Palace Saloon C18
+      -
+        id: ASLPIH
+        name: FNSB-Pioneer Pk Pioneer Hall
+      -
+        id: ASLTVR
+        name: FNSB-Pioneer Pk Railroad Museum
+      -
+        id: ASLC21
+        name: FNSB-Pioneer Pk South Seasonal Water
+      -
+        id: ASLSQD
+        name: FNSB-Pioneer Pk Square Dance Hall
+      -
+        id: ASLELC2
+        name: FNSB-Pioneer Pk West Electrical Serv
+      -
+        id: ASLPL1
+        name: FNSB-Pioneer Pk West Parkng Lot/Sign
+      -
+        id: SHW001
+        name: FNSB-Shoreway Pk-Downtown Walk Brdg
+      -
+        id: BALHHW
+        name: FNSB-Solid Waste Baler/Office/HHW
+      -
+        id: BENBG1
+        name: FNSB-Solid Waste Entrance Scales
+      -
+        id: HEMBG1
+        name: FNSB-Solid Waste Heavy Equip Bldg
+      -
+        id: LEABG1
+        name: FNSB-Solid Waste Leachate Building
+      -
+        id: STRBG1
+        name: FNSB-Solid Waste Storage Shed
+      -
+        id: DOGPRK
+        name: FNSB-South Davis Dog Park Lighting
+      -
+        id: SF001
+        name: FNSB-Stockton Field
+      -
+        id: TRANS04
+        name: FNSB-TS - 18 Mi CHSR - Two Rivers
+      -
+        id: TRANS03
+        name: FNSB-TS - 35 Mi Richardson Hwy
+      -
+        id: TRANS09
+        name: FNSB-TS - Badger and Holmes Rd
+      -
+        id: TRANS08
+        name: FNSB-TS - Farmers Loop Rd East
+      -
+        id: TRANS01
+        name: FNSB-TS - Farmers Loop Rd West
+      -
+        id: TRANS05
+        name: FNSB-TS - Fox Dumpster Site
+      -
+        id: TRANS10
+        name: FNSB-TS - Little Shot Rd Ester
+      -
+        id: TRANS02
+        name: FNSB-TS - Midway
+      -
+        id: TRANS06
+        name: FNSB-TS - North Pole
+      -
+        id: TRANS07
+        name: FNSB-TS - Old Chena Ridge Rd
+      -
+        id: TRGR
+        name: FNSB-Transit Garage
+      -
+        id: TRPAIR
+        name: FNSB-Transit Park/Air Qual Trailer
+      -
+        id: TRPBG1
+        name: FNSB-Transit Park/Downtown Terminal
+      -
+        id: TRS001
+        name: FNSB-Two Rivers Sports Complex
+      -
+        id: VMP001
+        name: FNSB-Veterans Memorial Park
+      -
+        id: WF001
+        name: FNSB-Weeks Field
+      -
+        id: WSPP01
+        name: FNSB-Wendal Street Pedestrian Path
+      -
+        id: WSPGAR
+        name: FNSB-Wescott Garage / Zamboni Rm
+      -
+        id: WSPSWP
+        name: FNSB-Wescott Swimming Pool
+      -
+        id: CEC
+        name: SD-CEC-Star Charter
+      -
+        id: Emer S T
+        name: SD-FNSB Emergency Service Tower
+  -
+    name: School District
+    sites:
+      -
+        id: 11
+        name: SD-Admin Center
+      -
+        id: 16
+        name: SD-Anderson Elementary
+      -
+        id: 44
+        name: SD-Anne Wien Elementary
+      -
+        id: 43
+        name: SD-Arctic Light Elementary
+      -
+        id: 34
+        name: SD-Badger Elementary
+      -
+        id: 08
+        name: SD-Barnette Magnet
+      -
+        id: 20
+        name: SD-Ben Eielson JR/SR
+      -
+        id: 45
+        name: SD-Chinook Charter
+      -
+        id: 46
+        name: SD-Crawford Elementary
+      -
+        id: 03
+        name: SD-Denali Elementary
+      -
+        id: 40
+        name: SD-Effie Kokrine Charter (HlA)
+      -
+        id: 15
+        name: SD-Facilities Management
+      -
+        id: 15B
+        name: SD-Grounds
+      -
+        id: 06
+        name: SD-Hunter Elementary
+      -
+        id: 14
+        name: SD-Hutchison High
+      -
+        id: 09
+        name: SD-Joy Elementary
+      -
+        id: 15A
+        name: SD-Krize Building
+      -
+        id: 42
+        name: SD-Ladd Elementary
+      -
+        id: 05
+        name: SD-Lathrop High
+      -
+        id: 04
+        name: SD-Nordale Elementary
+      -
+        id: 12
+        name: SD-North Pole Elementary
+      -
+        id: 23
+        name: SD-North Pole High
+      -
+        id: 22
+        name: SD-North Pole Middle
+      -
+        id: 104
+        name: SD-Nutrition Services Center
+      -
+        id: 36
+        name: SD-Pearl Creek Elementary
+      -
+        id: 47
+        name: SD-Randy Smith Middle
+      -
+        id: 13
+        name: SD-Ryan Middle
+      -
+        id: 10
+        name: SD-Salcha Elementary
+      -
+        id: 49
+        name: SD-Star of the North Charter
+      -
+        id: 27
+        name: SD-Tanana Middle
+      -
+        id: 39
+        name: SD-Ticasuk Brown Elementary
+      -
+        id: 37
+        name: SD-Two Rivers Elementary
+      -
+        id: 07
+        name: SD-University Park Elementary
+      -
+        id: 76
+        name: SD-Watershed Charter
+      -
+        id: 38
+        name: SD-Weller Elementary
+      -
+        id: 28
+        name: SD-West Valley High
+      -
+        id: 29
+        name: SD-Woodriver Elementary

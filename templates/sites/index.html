@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% set building_name = building_info.bldg.site_name %}
+{% set root_path = ".." %}
+
+{% block date_updated %}{{ building_info.date_updated }}{% endblock %}
+{% block page_title %}{{ building_name }}{% endblock %}
+{% block header_title %}{{ building_name }}{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-lg-3 col-md-3 col-sm-4">
+    <div class="list-group table-of-contents">
+      <a class="list-group-item" href="#building-information">Building Information</a>
+      <a class="list-group-item" href="#energy-index-comparison">Energy Index Comparison</a>
+      <a class="list-group-item" href="#utility-cost-overview">Utility Cost Overview</a>
+      <a class="list-group-item" href="#energy-usage-overview">Energy Usage Overview</a>
+      <a class="list-group-item" href="#energy-cost-usage">Energy Cost and Usage</a>
+      <a class="list-group-item" href="#electrical-usage-analysis">Electrical Usage Analysis</a>
+      <a class="list-group-item" href="#electrical-cost-analysis">Electrical Cost Analysis</a>
+      <a class="list-group-item" href="#heating-usage-analysis">Heating Usage Analysis</a>
+      <a class="list-group-item" href="#heating-cost-analysis">Heating Cost Analysis</a>
+      <a class="list-group-item" href="#water-analysis">Water Analysis</a>
+    </div>
+  </div>
+  <div class="col-lg-9 col-md-9 col-sm-8">
+    {% include "sites/building-information.html" %}
+    {% include "sites/energy-index-comparison.html" %}
+    {% include "sites/utility-cost-overview.html" %}
+    {% include "sites/energy-usage-overview.html" %}
+    {% include "sites/energy-cost-usage.html" %}
+    {% include "sites/electrical-usage-analysis.html" %}
+    {% include "sites/electrical-cost-analysis.html" %}
+    {% include "sites/heating-usage-analysis.html" %}
+    {% include "sites/heating-cost-analysis.html" %}
+    {% include "sites/water-analysis.html" %}
+  </div>
+{% endblock %}

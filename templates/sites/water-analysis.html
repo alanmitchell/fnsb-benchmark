@@ -1,0 +1,65 @@
+{% block section_body %}
+<a name="water-analysis"></a>
+<section>
+  <div class="row">
+    <div class="col-12">
+      <h2>Water Analysis</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered table-hover centered valign-middle">
+        <thead>
+          <tr>
+            <th rowspan="2">Fiscal Year</th>
+
+            <th colspan="2">Total Usage</th>
+            <th colspan="2">Water</th>
+            <th colspan="2">Sewer</th>
+
+            <th rowspan="2">Total Cost</th>
+            <th rowspan="2">Total Cost % Change</th>
+            <th rowspan="2">Total Unit Cost [$/gal]</th>
+            <th rowspan="2">Unit Cost % Change</th>
+          </tr>
+          <tr>
+            <th>[gal]</th>
+            <th>% Change</th>
+            <th>Cost [$]</th>
+            <th>% Change</th>
+            <th>Cost [$]</th>
+            <th>% Change</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in water_analysis.table.rows %}
+          <tr>
+            <td>{{ row.fiscal_year | int }}</td>
+            <td>{{ row.total_usage | number }}</td>
+            <td>{{ row.total_usage_pct_change | percent }}</td>
+            <td>{{ row.water_cost | money }}</td>
+            <td>{{ row.water_cost_pct_change | percent }}</td>
+            <td>{{ row.sewer_cost | money }}</td>
+            <td>{{ row.sewer_cost_pct_change | percent }}</td>
+            <td>{{ row.total_cost | money }}</td>
+            <td>{{ row.total_cost_pct_change | percent }}</td>
+            <td>{{ row.total_unit_cost | money(3) }}</td>
+            <td>{{ row.total_unit_cost_pct_change | percent }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    {% for graph in water_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
