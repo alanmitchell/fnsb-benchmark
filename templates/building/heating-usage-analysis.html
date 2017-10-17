@@ -33,16 +33,16 @@
         {% for row in heating_usage_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
-            <td>{{ row.oil_volume | number }}</td>
-            <td>{{ row.oil_mmbtu | number }}</td>
-            <td>{{ row.oil_percent_change | percent }}</td>
-            <td>{{ row.natural_gas_volume | number }}</td>
+            <td>{{ row.fuel_oil_usage | number }}</td>
+            <td>{{ row.fuel_oil_mmbtu | number }}</td>
+            <td>{{ row.fuel_oil_pct_change | percent }}</td>
+            <td>{{ row.natural_gas_usage | number }}</td>
             <td>{{ row.natural_gas_mmbtu | number }}</td>
-            <td>{{ row.natural_gas_percent_change | percent }}</td>
+            <td>{{ row.natural_gas_pct_change | percent }}</td>
             <td>{{ row.district_heat_mmbtu | number }}</td>
-            <td>{{ row.district_heat_percent_change | percent }}</td>
-            <td>{{ row.total_heat_energy | number }}</td>
-            <td>{{ row.usage_percent_change | percent }}</td>
+            <td>{{ row.district_heat_pct_change | percent }}</td>
+            <td>{{ row.total_heat_mmbtu | number }}</td>
+            <td>{{ row.total_heat_pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -53,12 +53,11 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ heating_usage_analysis.graphs.annual_energy_usage }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ heating_usage_analysis.graphs.annual_energy_usage_distribution }}" />
-    </div>
+    {% for graph in heating_usage_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

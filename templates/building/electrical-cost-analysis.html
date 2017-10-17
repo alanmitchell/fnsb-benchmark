@@ -32,16 +32,16 @@
         {% for row in electrical_cost_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
-            <td>{{ row.usage_kwh | number }}</td>
-            <td>{{ row.usage_percent_change | percent }}</td>
-            <td>{{ row.usage_cost | money }}</td>
-            <td>{{ row.usage_cost_percent_change | percent }}</td>
-            <td>{{ row.demand_kw | number }}</td>
-            <td>{{ row.demand_percent_change | percent }}</td>
-            <td>{{ row.demand_cost | money }}</td>
-            <td>{{ row.demand_cost_percent_change | percent }}</td>
+            <td>{{ row.kwh | number }}</td>
+            <td>{{ row.kwh_pct_change | percent }}</td>
+            <td>{{ row.kwh_cost | money }}</td>
+            <td>{{ row.kwh_cost_pct_change | percent }}</td>
+            <td>{{ row.kw_avg | number }}</td>
+            <td>{{ row.kw_avg_pct_change | percent }}</td>
+            <td>{{ row.kw_avg_cost | money }}</td>
+            <td>{{ row.kw_avg_cost_pct_change | percent }}</td>
             <td>{{ row.total_cost | money }}</td>
-            <td>{{ row.total_cost_percent_change | percent }}</td>
+            <td>{{ row.total_cost_pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -52,12 +52,10 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ electrical_cost_analysis.graphs.electricity_cost }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ electrical_cost_analysis.graphs.monthly_electricity_demand_profile }}" />
-    </div>
+    {% for graph in electrical_cost_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
-</section>
-{% endblock %}
+</section>{% endblock %}

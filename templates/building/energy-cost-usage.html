@@ -5,26 +5,14 @@
 {% block report_body %}
 <section>
   <div class="row">
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_2_energy_usage }}" />
-    </div>
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_1_energy_usage }}" />
-    </div>
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.current_year_energy_usage }}" />
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_2_energy_cost }}" />
-    </div>
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.year_neg_1_energy_cost }}" />
-    </div>
-    <div class="col-md-4 col-12">
-      <img class="graph" src="{{ energy_cost_usage.graphs.current_year_energy_cost }}" />
-    </div>
+    {% for graph in energy_cost_usage.graphs %}
+      <div class="col-md-4 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+      {%- if loop.index0 % 3 == 2 %}
+        </div><div class="row">
+      {%- endif %}
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

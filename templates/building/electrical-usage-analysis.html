@@ -12,10 +12,13 @@
             <th rowspan="2">Fiscal Year</th>
 
             <th colspan="2">Usage</th>
-            <th colspan="2">Demand</th>
+            <th colspan="2">Demand (Avg)</th>
+            <th colspan="2">Demand (Max)</th>
           </tr>
           <tr>
             <th>[kWh]</th>
+            <th>% Change</th>
+            <th>[kW]</th>
             <th>% Change</th>
             <th>[kW]</th>
             <th>% Change</th>
@@ -25,10 +28,12 @@
         {% for row in electrical_usage_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
-            <td>{{ row.usage_kwh | number }}</td>
-            <td>{{ row.usage_percent_change | percent }}</td>
-            <td>{{ row.demand_kw | number }}</td>
-            <td>{{ row.demand_percent_change | percent }}</td>
+            <td>{{ row.kwh | number }}</td>
+            <td>{{ row.kwh_pct_change | percent }}</td>
+            <td>{{ row.kw_avg | number }}</td>
+            <td>{{ row.kw_avg_pct_change | percent }}</td>
+            <td>{{ row.kw_max | number }}</td>
+            <td>{{ row.kw_max_pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -39,12 +44,11 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ electrical_usage_analysis.graphs.electricity_usage }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ electrical_usage_analysis.graphs.monthly_electricity_usage_profile }}" />
-    </div>
+    {% for graph in electrical_usage_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

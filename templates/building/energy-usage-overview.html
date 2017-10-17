@@ -18,7 +18,7 @@
             <th colspan="2">Direct Heat</th>
 
             <th rowspan="2">Total Heat Energy [MMBTU]</th>
-            <th rowspan="2">Total Specific Heat Usage [??/??]</th>
+            <th rowspan="2">Total Specific Heat Usage [kBtu/HDD]</th>
             <th rowspan="2">Total Energy</th>
           </tr>
           <tr>
@@ -38,16 +38,16 @@
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.hdd | number }}</td>
             <td>{{ row.electricity_mmbtu | number }}</td>
-            <td>{{ row.electricity_percent_total | percent }}</td>
-            <td>{{ row.oil_mmbtu | number }}</td>
-            <td>{{ row.oil_percent_total | percent }}</td>
+            <td>{{ row.electricity_pct | percent }}</td>
+            <td>{{ row.fuel_oil_mmbtu | number }}</td>
+            <td>{{ row.fuel_pct | percent }}</td>
             <td>{{ row.natural_gas_mmbtu | number }}</td>
-            <td>{{ row.natural_gas_percent_total | percent }}</td>
-            <td>{{ row.direct_heat_mmbtu | number }}</td>
-            <td>{{ row.direct_heat_percent_total | percent }}</td>
-            <td>{{ row.total_heat_energy | number }}</td>
-            <td>{{ row.total_specific_heat_usage | number }}</td>
-            <td>{{ row.total_energy | number }}</td>
+            <td>{{ row.natural_gas_pct | percent }}</td>
+            <td>{{ row.district_heat_mmbtu | number }}</td>
+            <td>{{ row.district_heat_pct | percent }}</td>
+            <td>{{ row.total_heat_mmbtu | number }}</td>
+            <td>{{ row.total_specific_heat | number }}</td>
+            <td>{{ row.total_energy_mmbtu | number }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -58,12 +58,11 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ energy_usage_overview.graphs.annual_energy_usage_distribution }}" />
-    </div>
+    {% for graph in energy_usage_overview.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

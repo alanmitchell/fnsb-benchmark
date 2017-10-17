@@ -11,12 +11,12 @@
           <tr>
             <th>Fiscal Year</th>
             <th>ECI [$/sqft]</th>
-            <th>EUI [?/?]</th>
-            <th>Specific EUI [?/?]</th>
+            <th>EUI [kBtu/sqft]</th>
+            <th>Specific EUI [Btu/sqft-HDD]</th>
           </tr>
         </thead>
         <tbody>
-        {% for row in energy_index_comparison.summary_table.rows %}
+        {% for row in energy_index_comparison.yearly_table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.eci | number }}</td>
@@ -54,133 +54,140 @@
           <tr>
             <th>Square Footage</th>
             <td>ft^2</td>
-            <td>{{ data.square_footage.building | number }}</td>
-            <td>{{ data.square_footage.fnsb_buildings_total | number }}</td>
-            <td>{{ data.square_footage.building_percent_total | percent }}</td>
-            <td>{{ data.square_footage.building_rank | number }}</td>
+            <td>{{ data.bldg.sq_ft | number }}</td>
+            <td>{{ data.all.sq_ft | number }}</td>
+            <td>{{ data.pct.sq_ft | percent }}</td>
+            <td>{{ data.rank.sq_ft | number }}</td>
           </tr>
           <tr>
             <th>Total Utility Cost</th>
             <td>$</td>
-            <td>{{ data.total_utility_cost.building | money }}</td>
-            <td>{{ data.total_utility_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.total_utility_cost.building_percent_total | percent }}</td>
-            <td>{{ data.total_utility_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.total_cost | money }}</td>
+            <td>{{ data.all.total_cost | money }}</td>
+            <td>{{ data.pct.total_cost | percent }}</td>
+            <td>{{ data.rank.total_cost | money }}</td>
           </tr>
           <tr>
             <th>Total Energy Usage</th>
             <td>MMBTU</td>
-            <td>{{ data.total_energy_usage.building | number }}</td>
-            <td>{{ data.total_energy_usage.fnsb_buildings_total | number }}</td>
-            <td>{{ data.total_energy_usage.building_percent_total | percent }}</td>
-            <td>{{ data.total_energy_usage.building_rank | number }}</td
+            <td>{{ data.bldg.total_energy_cost | number }}</td>
+            <td>{{ data.all.total_energy_cost | number }}</td>
+            <td>{{ data.pct.total_energy_cost | percent }}</td>
+            <td>{{ data.rank.total_energy_cost | number }}</td
           </tr>
           <tr>
-            <th rowspan="3">Electricity</th>
+            <th rowspan="4">Electricity</th>
             <td>kWh</td>
-            <td>{{ data.electricity_kwh.building | number }}</td>
-            <td>{{ data.electricity_kwh.fnsb_buildings_total | number }}</td>
-            <td>{{ data.electricity_kwh.building_percent_total | percent }}</td>
-            <td>{{ data.electricity_kwh.building_rank | number }}</td
+            <td>{{ data.bldg.electricity_kWh | number }}</td>
+            <td>{{ data.all.electricity_kWh | number }}</td>
+            <td>{{ data.pct.electricity_kWh | percent }}</td>
+            <td>{{ data.rank.electricity_kWh | number }}</td
           </tr>
           <tr>
-            <td>kW</td>
-            <td>{{ data.electricity_kw.building | number }}</td>
-            <td>{{ data.electricity_kw.fnsb_buildings_total | number }}</td>
-            <td>{{ data.electricity_kw.building_percent_total | percent }}</td>
-            <td>{{ data.electricity_kw.building_rank | number }}</td>
+            <td>Average kW</td>
+            <td>{{ data.bldg.electricity_kW_average | number }}</td>
+            <td>{{ data.all.electricity_kW_average | number }}</td>
+            <td>{{ data.pct.electricity_kW_average | percent }}</td>
+            <td>{{ data.rank.electricity_kW_average | number }}</td>
+          </tr>
+          <tr>
+            <td>Max kW</td>
+            <td>{{ data.bldg.electricity_kW_max | number }}</td>
+            <td>{{ data.all.electricity_kW_max | number }}</td>
+            <td>{{ data.pct.electricity_kW_max | percent }}</td>
+            <td>{{ data.rank.electricity_kW_max | number }}</td>
           </tr>
           <tr>
             <td>$</td>
-            <td>{{ data.electricity_cost.building | money }}</td>
-            <td>{{ data.electricity_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.electricity_cost.building_percent_total | percent }}</td>
-            <td>{{ data.electricity_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.electricity_cost | money }}</td>
+            <td>{{ data.all.electricity_cost | money }}</td>
+            <td>{{ data.pct.electricity_cost | percent }}</td>
+            <td>{{ data.rank.electricity_cost | money }}</td>
           </tr>
           <tr>
             <th rowspan="2">Oil #1</th>
             <td>MMBTU</td>
-            <td>{{ data.oil_mmbtu.building | number }}</td>
-            <td>{{ data.oil_mmbtu.fnsb_buildings_total | number }}</td>
-            <td>{{ data.oil_mmbtu.building_percent_total | percent }}</td>
-            <td>{{ data.oil_mmbtu.building_rank | number }}</td
+            <td>{{ data.bldg.fuel_oil_mmbtu | number }}</td>
+            <td>{{ data.all.fuel_oil_mmbtu | number }}</td>
+            <td>{{ data.pct.fuel_oil_mmbtu | percent }}</td>
+            <td>{{ data.rank.fuel_oil_mmbtu | number }}</td
           </tr>
           <tr>
             <td>$</td>
-            <td>{{ data.oil_cost.building | money }}</td>
-            <td>{{ data.oil_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.oil_cost.building_percent_total | percent }}</td>
-            <td>{{ data.oil_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.fuel_oil_cost | money }}</td>
+            <td>{{ data.all.fuel_oil_cost | money }}</td>
+            <td>{{ data.pct.fuel_oil_cost | percent }}</td>
+            <td>{{ data.rank.fuel_oil_cost | money }}</td>
           </tr>
           <tr>
             <th rowspan="2">Natural Gas</th>
             <td>MMBTU</td>
-            <td>{{ data.natural_gas_mmbtu.building | number }}</td>
-            <td>{{ data.natural_gas_mmbtu.fnsb_buildings_total | number }}</td>
-            <td>{{ data.natural_gas_mmbtu.building_percent_total | percent }}</td>
-            <td>{{ data.natural_gas_mmbtu.building_rank | number }}</td
+            <td>{{ data.bldg.natural_gas_mmbtu | number }}</td>
+            <td>{{ data.all.natural_gas_mmbtu | number }}</td>
+            <td>{{ data.pct.natural_gas_mmbtu | percent }}</td>
+            <td>{{ data.rank.natural_gas_mmbtu | number }}</td
           </tr>
           <tr>
             <td>$</td>
-            <td>{{ data.natrual_gas_cost.building | money }}</td>
-            <td>{{ data.natrual_gas_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.natrual_gas_cost.building_percent_total | percent }}</td>
-            <td>{{ data.natrual_gas_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.natural_gas_cost | money }}</td>
+            <td>{{ data.all.natural_gas_cost | money }}</td>
+            <td>{{ data.pct.natural_gas_cost | percent }}</td>
+            <td>{{ data.rank.natural_gas_cost | money }}</td>
           </tr>
           <tr>
             <th rowspan="2">District Heat</th>
             <td>MMBTU</td>
-            <td>{{ data.district_heat_mmbtu.building | number }}</td>
-            <td>{{ data.district_heat_mmbtu.fnsb_buildings_total | number }}</td>
-            <td>{{ data.district_heat_mmbtu.building_percent_total | percent }}</td>
-            <td>{{ data.district_heat_mmbtu.building_rank | number }}</td>
+            <td>{{ data.bldg.district_heat_mmbtu | number }}</td>
+            <td>{{ data.all.district_heat_mmbtu | number }}</td>
+            <td>{{ data.pct.district_heat_mmbtu | percent }}</td>
+            <td>{{ data.rank.district_heat_mmbtu | number }}</td>
           </tr>
           <tr>
             <td>$</td>
-            <td>{{ data.district_heat_cost.building | money }}</td>
-            <td>{{ data.district_heat_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.district_heat_cost.building_percent_total | percent }}</td>
-            <td>{{ data.district_heat_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.district_heat_cost | money }}</td>
+            <td>{{ data.all.district_heat_cost | money }}</td>
+            <td>{{ data.pct.district_heat_cost | percent }}</td>
+            <td>{{ data.rank.district_heat_cost | money }}</td>
           </tr>
           <tr>
             <th>Total Heat Energy</th>
             <td>MMBTU</td>
-            <td>{{ data.total_heat_energy.building | number }}</td>
-            <td>{{ data.total_heat_energy.fnsb_buildings_total | number }}</td>
-            <td>{{ data.total_heat_energy.building_percent_total | percent }}</td>
-            <td>{{ data.total_heat_energy.building_rank | number }}</td>
+            <td>{{ data.bldg.total_heat_mmbtu | number }}</td>
+            <td>{{ data.all.total_heat_mmbtu | number }}</td>
+            <td>{{ data.pct.total_heat_mmbtu | percent }}</td>
+            <td>{{ data.rank.total_heat_mmbtu | number }}</td>
           </tr>
           <tr>
             <th>Total Heat Cost</th>
             <td>$</td>
-            <td>{{ data.total_heat_cost.building | money }}</td>
-            <td>{{ data.total_heat_cost.fnsb_buildings_total | money }}</td>
-            <td>{{ data.total_heat_cost.building_percent_total | percent }}</td>
-            <td>{{ data.total_heat_cost.building_rank | money }}</td>
+            <td>{{ data.bldg.total_heat_cost | money }}</td>
+            <td>{{ data.all.total_heat_cost | money }}</td>
+            <td>{{ data.pct.total_heat_cost | percent }}</td>
+            <td>{{ data.rank.total_heat_cost | money }}</td>
           </tr>
           <tr>
             <th>EUI</th>
             <td>kBTU/sqft</td>
-            <td>{{ data.eui.building | number }}</td>
-            <td>{{ data.eui.fnsb_buildings_total | number }}</td>
-            <td>{{ data.eui.building_percent_total | percent }}</td>
-            <td>{{ data.eui.building_rank | number }}</td>
+            <td>{{ data.bldg.eui | number }}</td>
+            <td>{{ data.all.eui | number }}</td>
+            <td>{{ data.pct.eui | percent }}</td>
+            <td>{{ data.rank.eui | number }}</td>
           </tr>
           <tr>
             <th>HDD Specific EUI</th>
-            <td>?/?</td>
-            <td>{{ data.hdd_specific_eui.building | number }}</td>
-            <td>{{ data.hdd_specific_eui.fnsb_buildings_total | number }}</td>
-            <td>{{ data.hdd_specific_eui.building_percent_total | percent }}</td>
-            <td>{{ data.hdd_specific_eui.building_rank | number }}</td>
+            <td>Btu/sqft-HDD</td>
+            <td>{{ data.bldg.specific_eui | number }}</td>
+            <td>{{ data.all.specific_eui | number }}</td>
+            <td>{{ data.pct.specific_eui | percent }}</td>
+            <td>{{ data.rank.specific_eui | number }}</td>
           </tr>
           <tr>
             <th>ECI</th>
             <td>$/sqft</td>
-            <td>{{ data.eci.building | money_accurate }}</td>
-            <td>{{ data.eci.fnsb_buildings_total | money_accurate }}</td>
-            <td>{{ data.eci.building_percent_total | percent }}</td>
-            <td>{{ data.eci.building_rank | money_accurate }}</td>
+            <td>{{ data.bldg.eci | money_accurate }}</td>
+            <td>{{ data.all.eci | money_accurate }}</td>
+            <td>{{ data.pct.eci | percent }}</td>
+            <td>{{ data.rank.eci | money_accurate }}</td>
           </tr>
         </tbody>
       </table>

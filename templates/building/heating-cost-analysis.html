@@ -36,18 +36,18 @@
         {% for row in heating_cost_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
-            <td>{{ row.oil_cost | money }}</td>
-            <td>{{ row.oil_percent_change | percent }}</td>
+            <td>{{ row.fuel_oil_cost | money }}</td>
+            <td>{{ row.fuel_oil_pct_change | percent }}</td>
             <td>{{ row.natural_gas_cost | money }}</td>
-            <td>{{ row.natural_gas_percent_change | percent }}</td>
+            <td>{{ row.natural_gas_pct_change | percent }}</td>
             <td>{{ row.district_heat_cost | money }}</td>
-            <td>{{ row.district_heat_percent_change | percent }}</td>
-            <td>{{ row.unit_cost_oil | money }}</td>
-            <td>{{ row.unit_cost_natural_gas | money }}</td>
-            <td>{{ row.unit_cost_district_heat | money }}</td>
-            <td>{{ row.building_unit_heat_cost | money }}</td>
+            <td>{{ row.district_heat_pct_change | percent }}</td>
+            <td>{{ row.fuel_oil_unit_cost | money }}</td>
+            <td>{{ row.natural_gas_unit_cost | money }}</td>
+            <td>{{ row.district_heat_unit_cost | money }}</td>
+            <td>{{ row.building_heat_unit_cost | money }}</td>
             <td>{{ row.total_heat_cost | money }}</td>
-            <td>{{ row.total_cost_percent_change | percent }}</td>
+            <td>{{ row.total_heat_cost_pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -58,12 +58,11 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ heating_cost_analysis.graphs.energy_cost }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ heating_cost_analysis.graphs.cumulative_fuel_switching_savings }}" />
-    </div>
+    {% for graph in heating_cost_analysis.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

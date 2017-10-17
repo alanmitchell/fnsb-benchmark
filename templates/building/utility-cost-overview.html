@@ -17,7 +17,7 @@
             <th>District Heat</th>
             <th>Water</th>
             <th>Sewer</th>
-            <th>Other</th>
+            <th>Refuse</th>
             <th>Total</th>
             <th>% Change</th>
           </tr>
@@ -33,9 +33,9 @@
             <td>{{ row.district_heat | money }}</td>
             <td>{{ row.water | money }}</td>
             <td>{{ row.sewer | money }}</td>
-            <td>{{ row.other | blank }}</td>
+            <td>{{ row.refuse | blank }}</td>
             <td>{{ row.total | money }}</td>
-            <td>{{ row.percent_change | percent }}</td>
+            <td>{{ row.pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -46,12 +46,11 @@
 
 <section>
   <div class="row">
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ utility_cost_overview.graphs.utility_cost_dollars }}" />
-    </div>
-    <div class="col-md-6 col-12">
-      <img class="graph" src="{{ utility_cost_overview.graphs.utility_cost_distribution }}" />
-    </div>
+    {% for graph in utility_cost_overview.graphs %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="../{{ graph }}" />
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

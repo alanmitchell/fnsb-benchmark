@@ -57,7 +57,7 @@ env.filters['money_accurate'] = filter_money_accurate
 env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
 
-sample_building = yaml.load(open("./data/sample_benchmark_data.yaml").read())
+sample_building = yaml.load(open("./data/sample_benchmark_data_new.yaml").read())
 buildings_template_folder = "building/"
 output_folder = "output/"
 
