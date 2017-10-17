@@ -1,13 +1,15 @@
-{% set report_title = "Energy Cost and Usage" %}
-
-{% extends "sites/layout.html" %}
-
-{% block report_body %}
+{% block section_body %}
+<a name="energy-cost-usage"></a>
 <section>
+  <div class="row">
+    <div class="col-12">
+      <h2>Energy Cost Usage</h2>
+    </div>
+  </div>
   <div class="row">
     {% for graph in energy_cost_usage.graphs %}
       <div class="col-md-4 col-12">
-        <img class="graph" src="../{{ graph }}" />
+        <img class="graph" src="{{ graph }}" />
       </div>
       {%- if loop.index0 % 3 == 2 %}
         </div><div class="row">

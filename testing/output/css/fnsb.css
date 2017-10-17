@@ -7,7 +7,8 @@ dd {
 }
 
 section {
-  margin-bottom: 50px;
+  padding-top: 75px;
+  margin-top: -75px;
 }
 
 section h3 {
@@ -27,7 +28,7 @@ section h3 {
 }
 
 .table {
-  margin-bottom: 75px;
+  margin-bottom: 25px;
   width: 100%;
 }
 
