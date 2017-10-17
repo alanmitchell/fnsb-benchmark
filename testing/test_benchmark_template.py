@@ -48,7 +48,7 @@ def filter_percent(val):
         return val
 
 env = Environment(
-    loader=FileSystemLoader(["../templates", "../templates/building"])
+    loader=FileSystemLoader(["../templates", "../templates/sites"])
 )
 
 env.filters['blank'] = filter_blank
@@ -58,7 +58,7 @@ env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
 
 sample_building = yaml.load(open("./data/sample_benchmark_data_new.yaml").read())
-buildings_template_folder = "building/"
+buildings_template_folder = "sites/"
 output_folder = "output/"
 
 """Example

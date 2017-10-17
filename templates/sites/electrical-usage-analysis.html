@@ -1,6 +1,6 @@
-{% set report_title = "Electrical Cost Analysis" %}
+{% set report_title = "Electrical Usage Analysis" %}
 
-{% extends "building/layout.html" %}
+{% extends "sites/layout.html" %}
 
 {% block report_body %}
 <section>
@@ -11,37 +11,29 @@
           <tr>
             <th rowspan="2">Fiscal Year</th>
 
-            <th colspan="4">Usage</th>
-            <th colspan="4">Demand</th>
-
-            <th rowspan="2">Total Cost</th>
-            <th rowspan="2">Total Cost % Change</th>
+            <th colspan="2">Usage</th>
+            <th colspan="2">Demand (Avg)</th>
+            <th colspan="2">Demand (Max)</th>
           </tr>
           <tr>
             <th>[kWh]</th>
             <th>% Change</th>
-            <th>Cost</th>
-            <th>Cost % Change</th>
-            <th>[kWh]</th>
+            <th>[kW]</th>
             <th>% Change</th>
-            <th>Cost</th>
-            <th>Cost % Change</th>
+            <th>[kW]</th>
+            <th>% Change</th>
           </tr>
         </thead>
         <tbody>
-        {% for row in electrical_cost_analysis.table.rows %}
+        {% for row in electrical_usage_analysis.table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.kwh | number }}</td>
             <td>{{ row.kwh_pct_change | percent }}</td>
-            <td>{{ row.kwh_cost | money }}</td>
-            <td>{{ row.kwh_cost_pct_change | percent }}</td>
             <td>{{ row.kw_avg | number }}</td>
             <td>{{ row.kw_avg_pct_change | percent }}</td>
-            <td>{{ row.kw_avg_cost | money }}</td>
-            <td>{{ row.kw_avg_cost_pct_change | percent }}</td>
-            <td>{{ row.total_cost | money }}</td>
-            <td>{{ row.total_cost_pct_change | percent }}</td>
+            <td>{{ row.kw_max | number }}</td>
+            <td>{{ row.kw_max_pct_change | percent }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -52,10 +44,11 @@
 
 <section>
   <div class="row">
-    {% for graph in electrical_cost_analysis.graphs %}
+    {% for graph in electrical_usage_analysis.graphs %}
       <div class="col-md-6 col-12">
         <img class="graph" src="../{{ graph }}" />
       </div>
     {% endfor %}
   </div>
-</section>{% endblock %}
+</section>
+{% endblock %}
