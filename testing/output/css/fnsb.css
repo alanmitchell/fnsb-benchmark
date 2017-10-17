@@ -47,6 +47,10 @@ section h3 {
   vertical-align: middle;
 }
 
+.table-of-contents {
+  position: fixed;
+}
+
 .id-col {
   width: 25%;
 }
