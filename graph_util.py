@@ -78,6 +78,8 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
         percent_columns.append(percent_col)
         df[percent_col] = df[col] / df.total_costs
         percent_col_colors[percent_col] = color_dict[col]
+        
+    df = df.fillna(0)
 
     # Create stacked area plot
     ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns,
@@ -126,7 +128,9 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
         df[percent_col] = df[col] / df.total_use
         percent_col_colors[percent_col] = color_dict[col]
  
-
+    # Fill the NaNs
+    df = df.fillna(0)
+    
     # Create stacked area plot
     ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns, 
                  colors=[ percent_col_colors[i] for i in percent_columns])
@@ -169,6 +173,9 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
     
+    # Fill the NaNs
+    df = df.fillna(0)
+    
     for col in column_name_list:
         col_name = col
         col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
@@ -208,6 +215,9 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Standardize colors using color_formatter utility
     color_dict = color_formatter(column_name_list)
+    
+    # Fill the NaNs
+    df = df.fillna(0)
     
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
@@ -388,6 +398,8 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
     
+    # Fill the NaNs
+    df = df.fillna(0)
     
     for col in bar_col_list:
         col_name = col
