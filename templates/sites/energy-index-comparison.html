@@ -21,7 +21,7 @@
         {% for row in energy_index_comparison.yearly_table.rows %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
-            <td>{{ row.eci | number }}</td>
+            <td>{{ row.eci | money(2) }}</td>
             <td>{{ row.eui | number }}</td>
             <td>{{ row.specific_eui | number }}</td>
           </tr>
@@ -194,10 +194,10 @@
           <tr>
             <th>ECI</th>
             <td>$/sqft</td>
-            <td>{{ data.bldg.eci | money(3) }}</td>
-            <td>{{ data.all.eci | money(3) }}</td>
+            <td>{{ data.bldg.eci | money(2) }}</td>
+            <td>{{ data.all.eci | money(2) }}</td>
             <td>{{ data.pct.eci | percent }}</td>
-            <td>{{ data.rank.eci | money(3) }}</td>
+            <td>{{ data.rank.eci | money(2) }}</td>
           </tr>
         </tbody>
       </table>
