@@ -33,5 +33,6 @@ WRITE_DEBUG_DATA = True
 # If you are debugging or modifying the code in the benchmark script, it is
 # convenient to only run some of the sites through the benchmark script to save
 # time.  Set the number of sites you want to run in the setting below.  If you
-# want to run all the sites, set the value to 0. (integer)
+# want to run all the sites, set the value to 0. The sites are processed in
+# alphabetical order based on their Site ID. (integer)
 MAX_NUMBER_SITES_TO_RUN = 0

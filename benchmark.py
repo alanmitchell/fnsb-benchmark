@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" --------- MAIN BENCHMARKING SCRIPT ---------
+""" -------------------- MAIN BENCHMARKING SCRIPT -----------------------
 
 Run this script by executing the following from a command prompt:
     
@@ -14,13 +14,19 @@ This script uses settings from a "settings.py" file, which should be placed
 in the same directory as this script.  Start by copying "settings_example.py"
 to "settings.py" and then modify settings in that copied file.
 
+In the settings file, you can specify the Utility Bill CSV file you want to 
+read and the spreadsheet Other Data file, which contains the list of sites
+to process, information (e.g. square feet) about each site, and degree day 
+data.  Modify this spreadsheet according to your needs; create multiple
+versions if you sometimes only want to process some of the sites.
+
 All reports and other output from this script appear in the "output" directory.
 View the resulting benchmarking report by opening the "output/index.html" file.
 Other useful data is put in the "output/extra_data" directory, including a 
 spreadsheet that summarizes utility information for all of the buildings.
 
 Each time the script is run, all files in the output directory are deleted and
-resplaced with new files. So, if you have modified any of these files and want
+replaced with new files. So, if you have modified any of these files and want
 to save your modifications, copy the files to a location outside the output
 directory.
 
@@ -32,11 +38,15 @@ These are present in this directory.
 """
 import time
 import pickle
+import glob
+import os
+import pprint
 import pandas as pd
 import numpy as np
 import bench_util
 import settings       # the file holding settings for this script
 
+#*****************************************************************************
 #*****************************************************************************
 # ----------------------Function for Preprocessing Data ----------------------
 
@@ -84,7 +94,12 @@ def preprocess_data():
     dfu1.loc[np.isnan(dfu1.usage), 'item_desc'] = 'Other Charge'
     # Pandas can't do a GroupBy on NaNs, so replace with something
     dfu1.units.fillna('-', inplace=True)   
-    dfu1 = dfu1.groupby(['site_id', 'from_dt', 'thru_dt', 'service_type', 'item_desc', 'units']).sum()
+    dfu1 = dfu1.groupby(['site_id', 
+                         'from_dt', 
+                         'thru_dt', 
+                         'service_type', 
+                         'item_desc', 
+                         'units']).sum()
     dfu1.reset_index(inplace=True)
     
     # --- Split Each Bill into Multiple Pieces, each within one Calendar Month
@@ -155,6 +170,7 @@ def preprocess_data():
     
 
 #******************************************************************************
+#******************************************************************************
 # ----------------------------- Misc Functions --------------------------------
 
 # Time when the script started running. Used to determine cumulative time
@@ -167,6 +183,7 @@ def msg(the_message):
 
 
 #*****************************************************************************
+#*****************************************************************************
 # ----------------------------- Main Script -----------------------------------
     
 if __name__=="__main__":
@@ -175,6 +192,49 @@ if __name__=="__main__":
     start_time = time.time()
     msg('Benchmarking Script starting!')
     
-    # Read and Preprocess the data in the Utility Bill file.
-    df, util_obj = preprocess_data()
+    # Read and Preprocess the data in the Utility Bill file, acquiring
+    # a DataFrame of preprocessed data and a utility function object that is
+    # needed by the analysis routines.
+    if settings.USE_DATA_FROM_LAST_RUN:
+        # Read the data from the pickle files that were created during the
+        # last run of the script.
+        df = pickle.load(open('df_processed.pkl', 'rb'))
+        util_obj = pickle.load(open('util_obj.pkl', 'rb'))
+        msg('Data from Last Run has been loaded.')
+
+    else:
+        # Run the full reading and processing routine
+        df, util_obj = preprocess_data()
+
+    # Clean out the output directories to prepare for the new report files
+    out_dirs = [
+        'output/debug',
+        'output/extra_data',
+        'output/images',
+        'output/sites'
+    ]
+    for out_dir in out_dirs:
+        for fn in glob.glob(os.path.join(out_dir, '*')):
+            if not 'placeholder' in fn:    # don't delete placeholder file
+                os.remove(fn)
+
+    # Create Index page
+
+    # Loop through the sites, creating a report for each
+    site_count = 0    # tracks number of site processed
+    for site_id in util_obj.all_sites():
+        msg("Site '{}' is being processed...".format(site_id))
+        
+        # process site here
+
+        # save vars to debug file
+
+        # create report file        
+        
+        
+        site_count += 1
+        if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
+            break
     
+    print()
+    msg('Benchmarking Script Complete!')
