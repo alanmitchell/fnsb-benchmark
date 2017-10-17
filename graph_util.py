@@ -25,6 +25,31 @@ months = mdates.MonthLocator()
 # This formats the months as three-letter abbreviations
 months_format = mdates.DateFormatter('%b')
 
+def beautify_legend(df, col_list):
+    """ This function takes a dataframe and the list of columns that 
+    will ultimately be displayed and re-formats the names so that they 
+    are prettier when displayed in the legend. Returns a list of column
+    names"""
+    
+    pretty_cols = []
+    
+    for col in col_list:
+        new_col = col.replace("_mmbtu", "")
+        new_col = new_col.replace("_unit_cost", " unit cost")
+        new_col = new_col.replace("_cost", "")
+        new_col = new_col.replace("kwh", "electricity usage")
+        new_col = new_col.replace("kw_avg", "electricity demand")
+        new_col = new_col.replace("hdd", "heating degree days")
+        new_col = new_col.replace("_", " ")
+        new_col = new_col.title()
+        df = df.rename(columns={col:new_col})
+        
+        pretty_cols.append(new_col)
+    
+    return df, pretty_cols
+    
+        
+
 def color_formatter(col_name_list):
     """This function takes in a list of dataframe column names and then
     converts them to standardized colors so that the final graphs show 
@@ -33,20 +58,20 @@ def color_formatter(col_name_list):
     color_dict = {}
     
     for col_name in col_name_list:
-        if 'natural' in col_name:
+        if 'natural' in col_name.lower():
             color_dict[col_name] = '#1f78b4'
-        elif 'fuel' in col_name:
+        elif 'fuel' in col_name.lower():
             color_dict[col_name] = '#e31a1c'
-        elif 'water' in col_name:
+        elif 'water' in col_name.lower():
             color_dict[col_name] = '#b3df8a'
-        elif 'sewer' in col_name:
+        elif 'sewer' in col_name.lower():
             color_dict[col_name] = '#fdbf6f'
-        elif 'district' in col_name:
+        elif 'district' in col_name.lower():
             color_dict[col_name] = '#fb9a99'
-        elif 'electricity' in col_name or 'kwh' in col_name or 'Electricity' in col_name:
-            color_dict[col_name] = '#a6cee3'
-        elif 'kw_' in col_name:
+        elif 'kw_' in col_name.lower() or 'demand' in col_name.lower():
             color_dict[col_name] = '#33a02c'
+        elif 'electricity' in col_name.lower() or 'kwh' in col_name.lower() or 'Electricity' in col_name:
+            color_dict[col_name] = '#a6cee3'
         else:
             color_dict[col_name] = '#000000'
             
@@ -59,6 +84,8 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
 
     fig, ax = plt.subplots()
 
+    # Makes the legend prettier.
+    df, utility_col_list = beautify_legend(df, utility_col_list)
     
     # Take costs for each utility type and convert to percent of total cost by fiscal year
     df['total_costs'] = df[utility_col_list].sum(axis=1)
@@ -108,7 +135,9 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Inputs include the dataframe, the column name for the fiscal year column, and the list of column names for the 
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
     
-
+    # Makes the legend prettier.
+    df, utility_col_list = beautify_legend(df, utility_col_list)
+    
     fig, ax = plt.subplots()
 
     # Take usage for each utility type and convert to percent of total cost by fiscal year
@@ -160,6 +189,8 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
     
+    # Makes the legend prettier.
+    df, column_name_list = beautify_legend(df, column_name_list)
     
     # Create the figure
     fig, ax = plt.subplots()
@@ -206,6 +237,9 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
+    
+    # Makes the legend prettier.
+    df, column_name_list = beautify_legend(df, column_name_list)
     
     # Create the figure
     fig, ax = plt.subplots()
@@ -259,6 +293,9 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
     # use_or_cost_cols: a list of the energy usage or energy cost column names
     # chart_type: 1 for an energy use pie chart, 2 for an energy cost pie chart
 
+    # Makes the legend prettier.
+    df, use_or_cost_cols = beautify_legend(df, use_or_cost_cols)
+    
     # Standardize colors using color_formatter utility
     color_dict = color_formatter(use_or_cost_cols)
     
@@ -385,6 +422,11 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # ylabel1 and ylabel2: Strings to name the y-axes
     # filename: A string with the filename where the output should be saved.
     
+    # Makes the legend prettier.
+    df, bar_col_list = beautify_legend(df, bar_col_list)
+    
+     # Makes the legend prettier.
+    df, line_col = beautify_legend(df, [line_col])
     
     # Create the figure
     fig, ax = plt.subplots()
@@ -418,11 +460,11 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Create the line on the same graph but on a separate axis.
     ax2 = ax.twinx()
-    ax2.plot(df[fiscal_year_col], df[line_col], label=line_col, color='k',linewidth=5, marker='D', markersize=10)
+    ax2.plot(df[fiscal_year_col], df[line_col[0]], label=line_col[0], color='k',linewidth=5, marker='D', markersize=10)
     ax2.set_ylabel(ylabel2)
     
     # Ensure that the axis starts at 0.
-    ax2.set_ylim(bottom=0, top=df[line_col].max() + df[line_col].max()*0.10)
+    ax2.set_ylim(bottom=0, top=df[line_col[0]].max() + df[line_col[0]].max()*0.10)
     
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -439,6 +481,13 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
     
+    
+    # Makes the legend prettier.
+    unit_cost_df, unit_cost_cols = beautify_legend(unit_cost_df, unit_cost_cols)
+    
+    # Makes the legend prettier.
+    unit_cost_df, bldg_unit_cost_col = beautify_legend(unit_cost_df, [bldg_unit_cost_col])
+    
     # Standardize colors using color_formatter utility
     color_dict = color_formatter(unit_cost_cols)
 
@@ -449,7 +498,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
         plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_dict[col])
 
     # Plot the building unit cost for fuels used
-    plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col], label=bldg_unit_cost_col, linestyle='-', color='k')
+    plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col[0]], label=bldg_unit_cost_col[0], linestyle='-', color='k')
 
     plt.ylabel('Energy Cost [$/MMBTU]')
     plt.xlabel('Date')
@@ -462,6 +511,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
     
 
 def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
+    
     fig, ax = plt.subplots()
     
     # Create the plot
