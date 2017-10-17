@@ -67,7 +67,7 @@
             <td>{{ data.bldg.total_cost | money }}</td>
             <td>{{ data.all.total_cost | money }}</td>
             <td>{{ data.pct.total_cost | percent }}</td>
-            <td>{{ data.rank.total_cost | money }}</td>
+            <td>{{ data.rank.total_cost | number }}</td>
           </tr>
           <tr>
             <th>Total Energy Cost</th>
@@ -75,7 +75,7 @@
             <td>{{ data.bldg.total_energy_cost | money }}</td>
             <td>{{ data.all.total_energy_cost | money }}</td>
             <td>{{ data.pct.total_energy_cost | percent }}</td>
-            <td>{{ data.rank.total_energy_cost | money }}</td
+            <td>{{ data.rank.total_energy_cost | number }}</td
           </tr>
           <tr>
             <th>Total Energy Usage</th>
@@ -112,7 +112,7 @@
             <td>{{ data.bldg.electricity_cost | money }}</td>
             <td>{{ data.all.electricity_cost | money }}</td>
             <td>{{ data.pct.electricity_cost | percent }}</td>
-            <td>{{ data.rank.electricity_cost | money }}</td>
+            <td>{{ data.rank.electricity_cost | number }}</td>
           </tr>
           <tr>
             <th rowspan="2">Oil #1</th>
@@ -127,7 +127,7 @@
             <td>{{ data.bldg.fuel_oil_cost | money }}</td>
             <td>{{ data.all.fuel_oil_cost | money }}</td>
             <td>{{ data.pct.fuel_oil_cost | percent }}</td>
-            <td>{{ data.rank.fuel_oil_cost | money }}</td>
+            <td>{{ data.rank.fuel_oil_cost | number }}</td>
           </tr>
           <tr>
             <th rowspan="2">Natural Gas</th>
@@ -142,7 +142,7 @@
             <td>{{ data.bldg.natural_gas_cost | money }}</td>
             <td>{{ data.all.natural_gas_cost | money }}</td>
             <td>{{ data.pct.natural_gas_cost | percent }}</td>
-            <td>{{ data.rank.natural_gas_cost | money }}</td>
+            <td>{{ data.rank.natural_gas_cost | number }}</td>
           </tr>
           <tr>
             <th rowspan="2">District Heat</th>
@@ -157,7 +157,7 @@
             <td>{{ data.bldg.district_heat_cost | money }}</td>
             <td>{{ data.all.district_heat_cost | money }}</td>
             <td>{{ data.pct.district_heat_cost | percent }}</td>
-            <td>{{ data.rank.district_heat_cost | money }}</td>
+            <td>{{ data.rank.district_heat_cost | number }}</td>
           </tr>
           <tr>
             <th>Total Heat Energy</th>
@@ -173,7 +173,7 @@
             <td>{{ data.bldg.total_heat_cost | money }}</td>
             <td>{{ data.all.total_heat_cost | money }}</td>
             <td>{{ data.pct.total_heat_cost | percent }}</td>
-            <td>{{ data.rank.total_heat_cost | money }}</td>
+            <td>{{ data.rank.total_heat_cost | number }}</td>
           </tr>
           <tr>
             <th>EUI</th>
@@ -197,7 +197,7 @@
             <td>{{ data.bldg.eci | money(2) }}</td>
             <td>{{ data.all.eci | money(2) }}</td>
             <td>{{ data.pct.eci | percent }}</td>
-            <td>{{ data.rank.eci | money(2) }}</td>
+            <td>{{ data.rank.eci | number }}</td>
           </tr>
         </tbody>
       </table>
