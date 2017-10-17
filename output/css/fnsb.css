@@ -1,0 +1,65 @@
+dt,
+dd {
+  float: left;
+  width: 25%;
+  min-width: 25%;
+  padding: 5px;
+}
+
+section {
+  padding-top: 75px;
+  margin-top: -75px;
+}
+
+section h3 {
+  margin-top: 0;
+}
+
+.container {
+  width: 90%;
+}
+
+.graph {
+  width: 100%;
+}
+
+.page-header {
+  margin-top: 60px;
+}
+
+.table {
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.table td,
+.table th {
+  text-align: left;
+}
+
+.table.centered td,
+.table.centered th {
+  text-align: center;
+}
+
+.table.valign-middle td,
+.table.valign-middle th {
+  vertical-align: middle;
+}
+
+.table.clickable td,
+.table.clickable th {
+  cursor: pointer;
+}
+
+.table-of-contents {
+  position: fixed;
+}
+
+.id-col {
+  width: 15%;
+}
+
+.name-col {
+  width: 85%;
+}
