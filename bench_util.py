@@ -2,7 +2,6 @@
 """
 Utilities for assisting with the benchmarking analysis process.
 """
-
 from collections import namedtuple
 import pandas as pd
 import numpy as np
@@ -197,11 +196,11 @@ class Util:
                 skiprows=3, 
                 index_col='site_id'
                 )
-        # Create a named tuple to hold info for each building
-        # The fields of the tuple are the columns from the spreadsheet that
+        # Create a dictionary to hold info for each building
+        # The keys of the dictionary are the columns from the spreadsheet that
         # was just read, but also a number of other fields related to 
         # service providers and account numbers.
-        tup_fields = list(df_bldg.columns) + [
+        dict_keys = list(df_bldg.columns) + [
             'source_elec',
             'source_oil',
             'source_nat_gas',
@@ -218,11 +217,9 @@ class Util:
             'acct_refuse',
         ]
             
-        BldgInfo = namedtuple('BldgInfo', tup_fields)
-        
         # make a dictionary with default values for all fields (use empty
         # string for defaults)
-        default_info = dict(zip(tup_fields, [''] * len(tup_fields)))
+        default_info = dict(zip(dict_keys, [''] * len(dict_keys)))
 
         def find_src_acct(dfs, service_type):
             """Function used below to return service provider and account
@@ -277,7 +274,7 @@ class Util:
                 rec['source_{}'.format(abbrev)] = source
                 rec['acct_{}'.format(abbrev)] = accounts
                 
-            self._bldg_info[row.name] = BldgInfo(**rec)
+            self._bldg_info[row.name] = rec
             
             # add in the site_id to the record so the DataFrame has this
             # column.
@@ -326,7 +323,7 @@ class Util:
             self._fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
 
     def building_info(self, site_id):
-        """Returns building information, a named tuple, for the facility
+        """Returns building information, a dictionary, for the facility
         identified by 'site_id'.  Throws a KeyError if the site is not present.
         """
         return self._bldg_info[site_id]
@@ -363,7 +360,7 @@ class Util:
         """
         dd_col = []
         for ix, row in df.iterrows():
-            deg_days = self._dd.get((row.fiscal_year, row.fiscal_mo, self._bldg_info[row.site_id].dd_site), np.NaN)
+            deg_days = self._dd.get((row.fiscal_year, row.fiscal_mo, self._bldg_info[row.site_id]['dd_site']), np.NaN)
             dd_col.append(deg_days)
         
         df['degree_days'] = dd_col
@@ -380,7 +377,7 @@ class Util:
             recs.append(
                 {'fiscal_year': yr, 
                  'fiscal_mo': mo, 
-                 'dd': self._dd.get((yr, mo, self._bldg_info[site_id].dd_site), np.NaN)
+                 'dd': self._dd.get((yr, mo, self._bldg_info[site_id]['dd_site']), np.NaN)
                 }
             )
         dfdd = pd.DataFrame(data=recs)
