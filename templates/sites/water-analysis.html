@@ -43,7 +43,7 @@
             <td>{{ row.sewer_cost_pct_change | percent }}</td>
             <td>{{ row.total_cost | money }}</td>
             <td>{{ row.total_cost_pct_change | percent }}</td>
-            <td>{{ row.total_unit_cost | money_accurate }}</td>
+            <td>{{ row.total_unit_cost | money(3) }}</td>
             <td>{{ row.total_unit_cost_pct_change | percent }}</td>
           </tr>
         {% endfor %}

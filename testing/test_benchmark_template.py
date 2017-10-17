@@ -5,47 +5,36 @@ import yaml
 import os
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import numpy as np
 
 def is_blank(val):
-    return (val is None) or (val == "nan")
+    try:
+        return not np.isfinite(val)
+    except:
+        return True
 
 def filter_blank(val):
-    if is_blank(val):
-        return ''
-    else:
-        return val
+    if is_blank(val): return ''
+    return val
 
-def filter_money(val):
-    try:
-        return "${:,}".format(val)
-    except TypeError:
-        return ''
-    except ValueError:
-        return val
+def filter_money(val, precision = 2):
+    if is_blank(val): return ''
+    return "$" + filter_number(val, precision)
 
-def filter_money_accurate(val):
-    try:
-        return "${:,.3f}".format(val)
-    except TypeError:
-        return ''
-    except ValueError:
-        return val
-
-def filter_number(val):
-    try:
-        return '{:,}'.format(val)
-    except TypeError:
-        return ''
-    except ValueError:
-        return val
+def filter_number(val, precision = 0):
+    if is_blank(val): return ''
+    default = "${:,}"
+    format_string = {
+        0: "{:,.0f}",
+        1: "{:,.1f}",
+        2: "{:,.2f}",
+        3: "{:,.3f}"
+    }
+    return format_string.get(precision, default).format(val)
 
 def filter_percent(val):
-    try:
-        return "{:.0%}".format(val)
-    except TypeError:
-        return ''
-    except ValueError:
-        return val
+    if is_blank(val): return ''
+    return "{:.0%}".format(val)
 
 env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/sites"])
@@ -53,7 +42,6 @@ env = Environment(
 
 env.filters['blank'] = filter_blank
 env.filters['money'] = filter_money
-env.filters['money_accurate'] = filter_money_accurate
 env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
 

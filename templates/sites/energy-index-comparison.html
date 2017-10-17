@@ -194,10 +194,10 @@
           <tr>
             <th>ECI</th>
             <td>$/sqft</td>
-            <td>{{ data.bldg.eci | money_accurate }}</td>
-            <td>{{ data.all.eci | money_accurate }}</td>
+            <td>{{ data.bldg.eci | money(3) }}</td>
+            <td>{{ data.all.eci | money(3) }}</td>
             <td>{{ data.pct.eci | percent }}</td>
-            <td>{{ data.rank.eci | money_accurate }}</td>
+            <td>{{ data.rank.eci | money(3) }}</td>
           </tr>
         </tbody>
       </table>
