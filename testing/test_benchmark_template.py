@@ -17,24 +17,20 @@ def filter_blank(val):
     if is_blank(val): return ''
     return val
 
-def filter_money(val, precision = 2):
+def filter_money(val, precision = 0):
     if is_blank(val): return ''
-    return "$" + filter_number(val, precision)
+    format_string = "${:,.%sf}" % precision
+    return format_string.format(val)
 
 def filter_number(val, precision = 0):
     if is_blank(val): return ''
-    default = "${:,}"
-    format_string = {
-        0: "{:,.0f}",
-        1: "{:,.1f}",
-        2: "{:,.2f}",
-        3: "{:,.3f}"
-    }
-    return format_string.get(precision, default).format(val)
+    format_string = "{:,.%sf}" % precision
+    return format_string.format(val)
 
-def filter_percent(val):
+def filter_percent(val, precision = 1):
     if is_blank(val): return ''
-    return "{:.0%}".format(val)
+    format_string = "{:.%s%%}" % precision
+    return format_string.format(val)
 
 env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/sites"])
