@@ -58,8 +58,9 @@ env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
 
 sample_building = yaml.load(open("./data/sample_benchmark_data_new.yaml").read())
-buildings_template_folder = "sites/"
+sites_template_folder = "sites/"
 output_folder = "output/"
+output_sites_folder = output_folder + sites_template_folder
 
 """Example
 template = Template(open("../templates/example.html").read())
@@ -67,17 +68,17 @@ result = template.render(sample_building)
 open("output/example.html", "w").write(result)
 """
 
-# TODO: Give template a list of buildings
-buildings = yaml.load(open("./data/sample_buildings_list.yaml").read())
+# TODO: Give template a list of sites
+sites = yaml.load(open("./data/sample_buildings_list.yaml").read())
 template = env.get_template("index.html")
-result = template.render(buildings)
+result = template.render(sites)
 open("output/index.html", "w").write(result)
 
 # TODO: Loop through each building and render template
 building_id = "ANSBG1" # TODO: This will be determined by the loop
 
 # template filename matches output filename just in different directory
-template_filename = buildings_template_folder + "index.html"
+template_filename = sites_template_folder + "index.html"
 
 # read Jinja2 template
 template = env.get_template(template_filename)
