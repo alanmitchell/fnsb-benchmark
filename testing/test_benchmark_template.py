@@ -74,5 +74,8 @@ template = env.get_template(template_filename)
 # render the Jinja2 template with the building info
 result = template.render(sample_building)
 
+# ensure the sites directory exists before we try writing file
+os.makedirs(output_sites_folder, 0o777, True)
+
 # write the contents of the rendered report to the corresponding file
-open(output_folder + "/" + building_id + ".html", "w").write(result)
+open(output_sites_folder + building_id + ".html", "w").write(result)

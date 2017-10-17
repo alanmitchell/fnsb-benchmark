@@ -9,7 +9,7 @@
   <div class="row">
     {% for graph in energy_cost_usage.graphs %}
       <div class="col-md-4 col-12">
-        <img class="graph" src="{{ graph }}" />
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>
       {%- if loop.index0 % 3 == 2 %}
         </div><div class="row">

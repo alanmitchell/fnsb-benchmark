@@ -48,7 +48,7 @@
   <div class="row">
     {% for graph in electrical_usage_analysis.graphs %}
       <div class="col-md-6 col-12">
-        <img class="graph" src="{{ graph }}" />
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>
     {% endfor %}
   </div>
