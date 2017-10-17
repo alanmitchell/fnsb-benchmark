@@ -25,6 +25,34 @@ months = mdates.MonthLocator()
 # This formats the months as three-letter abbreviations
 months_format = mdates.DateFormatter('%b')
 
+def color_formatter(col_name_list):
+    """This function takes in a list of dataframe column names and then
+    converts them to standardized colors so that the final graphs show 
+    each fuel type using the same color.
+    """
+    color_dict = {}
+    
+    for col_name in col_name_list:
+        if 'natural' in col_name:
+            color_dict[col_name] = '#1f78b4'
+        elif 'fuel' in col_name:
+            color_dict[col_name] = '#e31a1c'
+        elif 'water' in col_name:
+            color_dict[col_name] = '#b3df8a'
+        elif 'sewer' in col_name:
+            color_dict[col_name] = '#fdbf6f'
+        elif 'district' in col_name:
+            color_dict[col_name] = '#fb9a99'
+        elif 'electricity' in col_name or 'kwh' in col_name or 'Electricity' in col_name:
+            color_dict[col_name] = '#a6cee3'
+        elif 'kw_' in col_name:
+            color_dict[col_name] = '#33a02c'
+        else:
+            color_dict[col_name] = '#000000'
+            
+    return color_dict
+
+
 def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Inputs include the dataframe, the column name for the fiscal year column, and the list of column names for the 
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
@@ -35,15 +63,25 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Take costs for each utility type and convert to percent of total cost by fiscal year
     df['total_costs'] = df[utility_col_list].sum(axis=1)
 
+   
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(utility_col_list)
+    
+    
     percent_columns = []
 
+    # Create dictionary for differently named keys
+    percent_col_colors = {}
+    
     for col in utility_col_list:
         percent_col = "Percent " + col
         percent_columns.append(percent_col)
         df[percent_col] = df[col] / df.total_costs
+        percent_col_colors[percent_col] = color_dict[col]
 
     # Create stacked area plot
-    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns)
+    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns,
+                colors=[ percent_col_colors[i] for i in percent_columns])
 
     # Format the y axis to be in percent
     ax.yaxis.set_major_formatter(FuncFormatter('{0:.0%}'.format))
@@ -71,19 +109,27 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
 
     fig, ax = plt.subplots()
 
-    
     # Take usage for each utility type and convert to percent of total cost by fiscal year
     df['total_use'] = df[utility_col_list].sum(axis=1)
-
+    
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(utility_col_list)
+    
     percent_columns = []
+    
+    # Create dictionary for differently named keys
+    percent_col_colors = {}
 
     for col in utility_col_list:
         percent_col = "Percent " + col
         percent_columns.append(percent_col)
         df[percent_col] = df[col] / df.total_use
+        percent_col_colors[percent_col] = color_dict[col]
+ 
 
     # Create stacked area plot
-    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns)
+    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns, 
+                 colors=[ percent_col_colors[i] for i in percent_columns])
 
 
     # Format the y axis to be in percent
@@ -117,13 +163,15 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     # Set the bar width
     width = 0.50
     
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(column_name_list)
     
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
     
     for col in column_name_list:
         col_name = col
-        col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name)
+        col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
       
     # label axes
@@ -158,6 +206,8 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     # Set the bar width
     width = 0.50
     
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(column_name_list)
     
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
@@ -165,7 +215,8 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     for col in column_name_list:
       
         col_name = col
-        col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name)
+        col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name, 
+                          color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
       
     # label axes
@@ -198,6 +249,8 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
     # use_or_cost_cols: a list of the energy usage or energy cost column names
     # chart_type: 1 for an energy use pie chart, 2 for an energy cost pie chart
 
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(use_or_cost_cols)
     
     # Get the three most recent complete years of data
     sorted_completes = df.sort_index(ascending=False)
@@ -229,7 +282,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         fig, ax = plt.subplots()
 
         ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
-        shadow=True, startangle=90)
+        shadow=True, startangle=90, colors=[ color_dict[i] for i in use_or_cost_cols])
         
         plt.tick_params(axis='both', which='both', labelsize=16)
     
@@ -329,6 +382,8 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # Set the bar width
     width = 0.50
     
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(bar_col_list)
     
     # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
     previous_col_name = 0
@@ -336,7 +391,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     for col in bar_col_list:
         col_name = col
-        col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name)
+        col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
       
     # label axes
@@ -372,17 +427,16 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
     
-    
-    # Will need to change these ultimately to match the color scheme
-    color_list = ['r', 'b', 'g']
+    # Standardize colors using color_formatter utility
+    color_dict = color_formatter(unit_cost_cols)
 
     fig, ax = plt.subplots()
 
-    i = 0 
+    # Plot the fuel unit costs for each fuel type
     for col in unit_cost_cols:
-        plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_list[i])
-        i +=1
+        plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_dict[col])
 
+    # Plot the building unit cost for fuels used
     plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col], label=bldg_unit_cost_col, linestyle='-', color='k')
 
     plt.ylabel('Energy Cost [$/MMBTU]')
@@ -399,7 +453,7 @@ def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     fig, ax = plt.subplots()
     
     # Create the plot
-    plt.plot(df[date_col], df[graph_col])
+    plt.plot(df[date_col], df[graph_col], color='k')
     
     # Set the ylabel
     plt.ylabel(ylabel)
@@ -426,3 +480,9 @@ def graph_filename_url(site_id, base_graph_name):
     fn = 'output/images/{}_{}.png'.format(site_id, base_graph_name)
     url = '../images/{}_{}.png'.format(site_id, base_graph_name)
     return fn, url
+
+
+            
+        
+            
+    
