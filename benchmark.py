@@ -1000,6 +1000,10 @@ def analyze_site(site, df, ut, report_date_time):
                                   columns=['service_type'],
                                   aggfunc=np.sum
     )
+    
+     # Add in columns for the missing services
+    gal_missing_services = bu.missing_services(water_gal_df.columns)
+    bu.add_columns(water_gal_df, gal_missing_services)
 
     # Use only required columns 
     water_gal_df = water_gal_df[['Water']]
@@ -1058,6 +1062,7 @@ def analyze_site(site, df, ut, report_date_time):
                                                            })
 
     # ---- Create Water Cost Stacked Bar Graph - Page 10 Graph 1
+    
     p10g1_filename, p10g1_url = gu.graph_filename_url(site, "water_analysis_g1")
     gu.create_stacked_bar(water_use_and_cost.reset_index(), 'fiscal_year', ['sewer_cost', 'water_cost'], 
                           'Utility Cost [$]', "Annual Water and Sewer Costs", p10g1_filename)
