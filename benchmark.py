@@ -445,6 +445,9 @@ def analyze_site(site, df, ut, report_date_time):
     
     # Reset the index so the fiscal year column can be passed to the graphing utility
     reset_df2 = df2.reset_index()
+    
+    # Save this DataFrame for use in the Heating Cost Analysis Report
+    df_energy_cost = reset_df2.copy()
 
     # Get appropriate file names and URLs for the graph
     g1_fn, g1_url = gu.graph_filename_url(site, 'util_cost_ovw_g1')
@@ -464,6 +467,608 @@ def analyze_site(site, df, ut, report_date_time):
         table={'rows': bu.df_to_dictionaries(df2)},
     )
 
+    # -------------------- Energy Use Overview Report -----------------------
+
+    # From the main DataFrame, get only the rows for this site, and only get
+    # the needed columns for this analysis
+    usage_df1 = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'mmbtu']]
+
+    # Total mmbtu by service type and year.
+    usage_df2 = pd.pivot_table(
+        usage_df1, 
+        values='mmbtu', 
+        index=['fiscal_year'], 
+        columns=['service_type'],
+        aggfunc=np.sum
+    )
+
+    # drop non-energy columns
+    usage_df2 = usage_df2.drop(labels=['Sewer', 'Water'], axis=1)
+
+    # Add in columns for the missing services
+    missing_services = bu.missing_energy_services(usage_df2.columns)
+    bu.add_columns(usage_df2, missing_services)
+
+    # Add a Total column that sums the other columns
+    usage_df2['total_energy'] = usage_df2.sum(axis=1)
+    cols = ['{}_mmbtu'.format(bu.change_name(col)) for col in usage_df2.columns]
+    usage_df2.columns = cols
+
+    # Create a list of columns to loop through and calculate percent total energy
+    usage_cols = list(usage_df2.columns.values)
+    usage_cols.remove('total_energy_mmbtu')
+
+    for col in usage_cols:
+        col_name = col.split('_mmbtu')[0] + "_pct"
+        usage_df2[col_name] = usage_df2[col] / usage_df2.total_energy_mmbtu
+
+    # Add in degree days
+    months_present = bu.months_present(usage_df1)
+    deg_days = ut.degree_days_yearly(months_present, site)
+    usage_df2['hdd'] = deg_days
+
+    # Add in a column to show the numbers of months present for each year
+    # This will help to identify partial years.
+    mo_count = bu.month_count(months_present)
+    usage_df2['month_count'] = mo_count
+
+    # Calculate total heat energy and normalized heating usage
+    usage_df2['total_heat_mmbtu'] = usage_df2.total_energy_mmbtu - usage_df2.electricity_mmbtu
+    usage_df2['total_specific_heat'] = usage_df2.total_heat_mmbtu * 1000 / usage_df2.hdd
+    usage_df2 = usage_df2.query("month_count == 12").copy()
+
+    # Reverse the DataFrame
+    usage_df2.sort_index(ascending=False, inplace=True)
+    usage_df2 = usage_df2.drop('month_count', axis=1)
+
+    # --- Create Energy Usage Overview Graphs
+
+    # Reset the index so the fiscal year column can be passed to the graphing function
+    reset_usage_df2 = usage_df2.reset_index()
+
+    p4g2_filename, p4g2_url = gu.graph_filename_url(site, 'energy_usage_ovw_g2')
+
+    # Create the area graph
+    gu.area_use_distribution(reset_usage_df2, 'fiscal_year', usage_cols, p4g2_filename)
+
+    # The stacked bar graph
+    p4g1_filename, p4g1_url = gu.graph_filename_url(site, 'energy_usage_ovw_g1')
+    gu.energy_use_stacked_bar(reset_usage_df2, 'fiscal_year', usage_cols, p4g1_filename)
+
+    # Convert df to dictionary
+    energy_use_overview_rows = bu.df_to_dictionaries(usage_df2)
+
+    # Add data and graphs to main dictionary
+    template_data['energy_usage_overview'] = dict(
+        graphs=[p4g1_url, p4g2_url],
+        table={'rows': energy_use_overview_rows},
+    )
+
+    # ---------------- Energy Usage and Cost Pie Charts -----------------------
+
+    p5g1_filename, p5g1_url = gu.graph_filename_url(site, "energy_usage_cost_g1")
+    gu.usage_pie_charts(usage_df2, usage_cols, 1, p5g1_filename)
+
+    # Add pie charts to template dictionary
+    template_data['energy_cost_usage'] = dict(
+        graphs=[p5g1_url])
+
+    # -------------------- Electrical Usage Analysis -------------------------
+
+    site_df = df.query("site_id == @site")
+
+    # only look at elecricity records
+    electric_df = site_df.query("service_type == 'Electricity'")
+    electric_df = electric_df.query("units == 'kWh' or units == 'kW'")
+
+    electric_pivot_monthly = pd.pivot_table(electric_df,
+                                            index=['fiscal_year', 'fiscal_mo'], 
+                                            columns=['units'],
+                                            values='usage',
+                                            aggfunc=np.sum)
+
+    # if there is no kW usage for this building, add a kW column with 0s.
+    if 'kW' not in electric_pivot_monthly.columns:
+        electric_pivot_monthly['kW'] = 0.0
+
+    # Do a month count for the elecricity bills 
+    elec_months_present = bu.months_present(electric_pivot_monthly.reset_index())
+    elec_mo_count = bu.month_count(elec_months_present)
+    elec_mo_count_df = pd.DataFrame(elec_mo_count)
+
+    electric_pivot_annual = pd.pivot_table(electric_df,
+                                           index=['fiscal_year'],
+                                           columns=['units'],
+                                           values='usage',
+                                           aggfunc=np.sum
+                                          )
+                                           
+    electric_use_annual = electric_pivot_annual[['kWh']]
+    electric_use_annual = electric_use_annual.rename(columns={'kWh':'ann_electric_usage_kWh'})
+
+    # Get average annual demand usage
+    electric_demand_avg = electric_pivot_monthly.groupby(['fiscal_year']).mean()
+    electric_demand_avg = electric_demand_avg[['kW']]
+    electric_demand_avg = electric_demand_avg.rename(columns={'kW': 'avg_demand_kW'})
+
+    # Find annual maximum demand usage
+    electric_demand_max = electric_pivot_monthly.groupby(['fiscal_year']).max()
+    electric_demand_max = electric_demand_max[['kW']]
+    electric_demand_max = electric_demand_max.rename(columns={'kW': 'max_demand_kW'})
+
+    # Combine dataframes
+    electric_demand_join = pd.merge(electric_demand_max, electric_demand_avg, how='outer', left_index=True, right_index=True)
+    annual_electric_data = pd.merge(electric_demand_join, electric_use_annual, how='outer', left_index=True, right_index=True)
+
+    # Add percent change columns
+    annual_electric_data['usage_pct_change'] = annual_electric_data.ann_electric_usage_kWh.pct_change()
+    annual_electric_data['avg_demand_pct_change'] = annual_electric_data.avg_demand_kW.pct_change()
+    annual_electric_data['max_demand_pct_change'] = annual_electric_data.max_demand_kW.pct_change()
+    annual_electric_data = annual_electric_data.rename(columns={'avg_demand_kW': 'Average kW',
+                                                               'ann_electric_usage_kWh': 'Total kWh'})
+    annual_electric_data = pd.merge(annual_electric_data, elec_mo_count_df, left_index=True, right_index=True, how='left')
+    annual_electric_data = annual_electric_data.query("month == 12")
+    annual_electric_data = annual_electric_data.sort_index(ascending=False)
+    annual_electric_data = annual_electric_data.rename(columns={'max_demand_kW':'kw_max',
+                                                               'Average kW':'kw_avg',
+                                                               'Total kWh':'kwh',
+                                                               'usage_pct_change':'kwh_pct_change',
+                                                               'avg_demand_pct_change':'kw_avg_pct_change',
+                                                               'max_demand_pct_change':'kw_max_pct_change'})
+    annual_electric_data = annual_electric_data.drop('month', axis=1)
+
+    # ---- Create Electrical Usage Analysis Graphs - Page 6
+
+    # Axes labels
+    ylabel1 = 'Electricity Usage [kWh]'
+    ylabel2 = 'Electricity Demand [kW]'
+
+    p6g1_filename, p6g1_url = gu.graph_filename_url(site, "electricity_usage_g1")
+    gu.stacked_bar_with_line(annual_electric_data.reset_index(), 'fiscal_year', ['kwh'], 'kw_avg', 
+                          ylabel1, ylabel2, p6g1_filename)
+
+
+    p6g2_filename, p6g2_url = gu.graph_filename_url(site, "electricity_usage_g2")
+    gu.create_monthly_profile(electric_pivot_monthly, 'kWh', 'Monthly Electricity Usage Profile [kWh]', 'blue',
+                             p6g2_filename)
+
+    # Convert df to dictionary
+    electric_use_rows = bu.df_to_dictionaries(annual_electric_data)
+
+    # Add data and graphs to main dictionary
+    template_data['electrical_usage_analysis'] = dict(
+        graphs=[p6g1_url, p6g2_url],
+        table={'rows': electric_use_rows},
+    )
+
+
+    # -------------------- Electrical Cost Analysis Table ---------------------
+
+    # only look at elecricity records
+    electric_cost_df = site_df.query("service_type == 'Electricity'").copy()
+
+    # Costs don't always have units, so split the data into demand charges and usage charges (which includes other charges)
+    electric_cost_df['cost_categories'] = np.where(electric_cost_df.item_desc.isin(['KW Charge', 'On peak demand', 'Demand Charge']),
+                                                   'demand_cost', 'usage_cost')
+
+    # Sum costs by demand and usage
+    electric_annual_cost = pd.pivot_table(electric_cost_df,
+                                           index=['fiscal_year'],
+                                           columns=['cost_categories'],
+                                           values='cost',
+                                           aggfunc=np.sum
+                                          )
+    # If there is no demand cost for this building, add a zero column for it.
+    if 'demand_cost' not in electric_annual_cost.columns:
+        electric_annual_cost['demand_cost'] = 0.0
+    
+    # Create a total column
+    electric_annual_cost['Total Cost'] = electric_annual_cost.demand_cost + electric_annual_cost.usage_cost
+
+    # Add percent change columns
+    electric_annual_cost['usage_cost_pct_change'] = electric_annual_cost.usage_cost.pct_change()
+    electric_annual_cost['demand_cost_pct_change'] = electric_annual_cost.demand_cost.pct_change()
+    electric_annual_cost['total_cost_pct_change'] = electric_annual_cost['Total Cost'].pct_change()
+
+    # Left join the cost data to the annual electric data, which only shows complete years
+    electric_use_and_cost = pd.merge(annual_electric_data, electric_annual_cost, left_index=True, right_index=True, how='left')
+    electric_use_and_cost = electric_use_and_cost.sort_index(ascending=False)
+    electric_use_and_cost = electric_use_and_cost.drop(['kw_max', 'kw_max_pct_change'], axis=1)
+    electric_use_and_cost = electric_use_and_cost.rename(columns={'demand_cost':'kw_avg_cost',
+                                                                  'usage_cost':'kwh_cost',
+                                                                  'Total Cost':'total_cost',
+                                                                  'usage_cost_pct_change':'kwh_cost_pct_change',
+                                                                  'demand_cost_pct_change':'kw_avg_cost_pct_change'
+                                                                 })
+    # --- Create Electrical Cost Analysis Graphs
+
+    p7g1_filename, p7g1_url = gu.graph_filename_url(site, "electrical_cost_g1")
+
+    renamed_use_and_cost = electric_use_and_cost.rename(columns={'kwh_cost':'Electricity Usage Cost [$]',
+                                                                'kw_avg_cost':'Electricity Demand Cost [$]'})
+    gu.create_stacked_bar(renamed_use_and_cost.reset_index(), 'fiscal_year', ['Electricity Usage Cost [$]', 
+                                                                              'Electricity Demand Cost [$]'], 
+                          'Electricity Cost [$]', p7g1_filename)
+
+    # Create Monthly Profile of Electricity Demand
+    p7g2_filename, p7g2_url = gu.graph_filename_url(site, "electrical_cost_g2")
+    gu.create_monthly_profile(electric_pivot_monthly, 'kW', 'Monthly Electricity Demand Profile [kW]', 'blue', 
+                              p7g2_filename)
+
+    # Convert df to dictionary
+    electric_cost_rows = bu.df_to_dictionaries(electric_use_and_cost)
+
+    # Add data and graphs to main dictionary
+    template_data['electrical_cost_analysis'] = dict(
+        graphs=[p7g1_url, p7g2_url],
+        table={'rows': electric_cost_rows},
+    )
+
+    # --------------------Heating Usage Analysis Table ------------------------
+
+    # Take only needed columns from earlier usage df
+    heating_usage = usage_df2[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
+
+    # Add in percent change columns
+    heating_usage['fuel_oil_pct_change'] = heating_usage.fuel_oil_mmbtu.pct_change()
+    heating_usage['natural_gas_pct_change'] = heating_usage.natural_gas_mmbtu.pct_change()
+    heating_usage['district_heat_pct_change'] = heating_usage.district_heat_mmbtu.pct_change()
+    heating_usage['total_heat_pct_change'] = heating_usage.total_heat_mmbtu.pct_change()
+
+    # Get the number of gallons, ccf, and 1,000 pounds of district heat by converting MMBTUs using the supplied conversions
+    heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.fuel_btus_per_unit('Oil #1', 'gallons')
+    heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.fuel_btus_per_unit('Natural Gas', 'ccf')
+
+    # ----- Create Heating Usage Analysis Graphs
+
+    p8g1_filename, p8g1_url = gu.graph_filename_url(site, "heating_usage_g1")
+    gu.stacked_bar_with_line(heating_usage.reset_index(), 'fiscal_year', ['natural_gas_mmbtu', 'fuel_oil_mmbtu',
+                                                                                    'district_heat_mmbtu'], 'hdd',
+                            'Heating Fuel Usage [MMBTU/yr]', 'Heating Degree Days [Base 65F]', p8g1_filename)
+
+
+    # --- Create Monthly Heating Usage dataframe for graph
+
+    monthly_heating = pd.pivot_table(usage_df1,
+                                    values='mmbtu',
+                                    index=['fiscal_year', 'fiscal_mo'],
+                                    columns=['service_type'],
+                                    aggfunc=np.sum
+                                    )
+
+    # Add in columns for the missing energy services
+    missing_services = bu.missing_energy_services(monthly_heating.columns)
+    bu.add_columns(monthly_heating, missing_services)
+
+    # Drop the non-heating services
+    monthly_heating = monthly_heating.drop(labels=['Electricity', 'Sewer', 'Water'], axis=1)
+
+    # Create a total heating column
+    monthly_heating['total_heating_energy'] = monthly_heating.sum(axis=1)
+
+    p8g2_filename, p8g2_url = gu.graph_filename_url(site, "heating_usage_g2")
+    gu.create_monthly_profile(monthly_heating, 'total_heating_energy', "Monthly Heating Energy Profile [MMBTU]", 'red',
+                              p8g2_filename)
+
+    # Convert df to dictionary
+    heating_use_rows = bu.df_to_dictionaries(heating_usage)
+
+    # Add data and graphs to main dictionary
+    template_data['heating_usage_analysis'] = dict(
+        graphs=[p8g1_url, p8g2_url],
+        table={'rows': heating_use_rows},
+    )
+
+    # ------------------- Heating Cost Analysis Table -----------------------
+
+    # Use the DataFrame from the Energy Cost Analysis report, 3rd report created
+    # above.
+    df2 = df_energy_cost
+
+    # Use only necessary columns
+    heating_cost = df2[['fiscal_year', 'natural_gas', 'fuel_oil', 'district_heat', 'total', 'pct_change']]
+
+    # Change column names so they aren't the same as the heating usage dataframe
+    heating_cost = heating_cost.rename(columns={'natural_gas':'natural_gas_cost',
+                                               'fuel_oil': 'fuel_oil_cost',
+                                               'district_heat': 'district_heat_cost',
+                                               'total': 'total_heat_cost',
+                                               'pct_change': 'total_heat_cost_pct_change'})
+
+    # Combine the heating cost and heating use dataframes
+    heating_cost_and_use = pd.merge(heating_cost, heating_usage, left_on='fiscal_year', right_index=True, how='right')
+
+    # Create percent change columns
+    heating_cost_and_use['fuel_oil_pct_change'] = heating_cost_and_use.fuel_oil_cost.pct_change()
+    heating_cost_and_use['natural_gas_pct_change'] = heating_cost_and_use.natural_gas_cost.pct_change()
+    heating_cost_and_use['district_heat_pct_change'] = heating_cost_and_use.district_heat_cost.pct_change()
+
+    # Create unit cost columns
+    heating_cost_and_use['fuel_oil_unit_cost'] = heating_cost_and_use.fuel_oil_cost / heating_cost_and_use.fuel_oil_mmbtu
+    heating_cost_and_use['natural_gas_unit_cost'] = heating_cost_and_use.natural_gas_cost / heating_cost_and_use.natural_gas_mmbtu
+    heating_cost_and_use['district_heat_unit_cost'] = heating_cost_and_use.district_heat_cost / heating_cost_and_use.district_heat_mmbtu
+    heating_cost_and_use['building_heat_unit_cost'] = heating_cost_and_use.total_heat_cost / heating_cost_and_use.total_heat_mmbtu
+
+    # Remove all columns not needed for the Heating Cost Analysis Table
+    heating_cost_and_use = heating_cost_and_use[['fiscal_year',
+                                                  'fuel_oil_cost',
+                                                  'fuel_oil_pct_change',
+                                                  'natural_gas_cost',
+                                                  'natural_gas_pct_change',
+                                                  'district_heat_cost',
+                                                  'district_heat_pct_change',
+                                                  'fuel_oil_unit_cost',
+                                                  'natural_gas_unit_cost',
+                                                  'district_heat_unit_cost',
+                                                  'building_heat_unit_cost',
+                                                  'total_heat_cost',
+                                                  'total_heat_cost_pct_change']]
+
+    # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
+
+    # Filter out natural gas customer charges as the unit cost goes to infinity if there is a charge but no use
+    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
+
+    # Filter out records with zero usage, which correspond to things like customer charges, etc.
+    nonzero_usage = df_no_gas_cust_charges.query("usage > 0")
+
+    nonzero_usage = nonzero_usage.query("mmbtu > 0")
+
+    # Filter out zero cost or less records (these are related to waste oil)
+    nonzero_usage = nonzero_usage.query("cost > 0")
+
+    # Get the total fuel cost and usage for all buildings by year and month
+    grouped_nonzero_usage = nonzero_usage.groupby(['service_type', 'fiscal_year', 'fiscal_mo']).sum()
+
+    # Divide the total cost for all building by the total usage for all buildings so that the average is weighted correctly
+    grouped_nonzero_usage['avg_price_per_mmbtu'] = grouped_nonzero_usage.cost / grouped_nonzero_usage.mmbtu
+
+    # Get only the desired outcome, price per million BTU for each fuel type, and the number of calendar months it is based on
+    # i.e. the number of months of bills for each fuel for all buildings for that particular month.
+    grouped_nonzero_usage = grouped_nonzero_usage[['avg_price_per_mmbtu', 'cal_mo']]
+
+    # Drop electricity from the dataframe.
+    grouped_nonzero_usage = grouped_nonzero_usage.reset_index()
+    grouped_nonzero_heatfuel_use = grouped_nonzero_usage.query("service_type != 'Electricity'")
+
+    # Create a column for each service type
+    grouped_nonzero_heatfuel_use = pd.pivot_table(grouped_nonzero_heatfuel_use,
+                                                  values='avg_price_per_mmbtu',
+                                                  index=['fiscal_year', 'fiscal_mo'],
+                                                  columns='service_type'
+                                                    )
+    grouped_nonzero_heatfuel_use = grouped_nonzero_heatfuel_use.reset_index()
+
+    # --- Monthly Cost Per MMBTU: Data and Graphs
+
+    # Exclude other charges from the natural gas costs.  This is because the unit costs for natural gas go to infinity
+    # when there is zero usage but a customer charge
+    cost_df1 = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
+    cost_df1.query("service_type == 'Natural Gas'").head()
+
+    # Create cost dataframe for given site from processed data
+    cost_df1 = cost_df1.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'cost']]
+
+    # Split out by service type
+    monthly_heating_cost = pd.pivot_table(cost_df1,
+                                    values='cost',
+                                    index=['fiscal_year', 'fiscal_mo'],
+                                    columns=['service_type'],
+                                    aggfunc=np.sum
+                                    )
+
+    # Add in columns for the missing energy services
+    missing_services = bu.missing_energy_services(monthly_heating_cost.columns)
+    bu.add_columns(monthly_heating_cost, missing_services)
+
+    # Drop the non-heating services
+    monthly_heating_cost = monthly_heating_cost.drop(labels=['Electricity', 'Sewer', 'Water'], axis=1)
+
+    # Create a total heating column
+    monthly_heating_cost['total_heating_cost'] = monthly_heating_cost.sum(axis=1)
+
+    monthly_heating_cost = monthly_heating_cost.rename(columns={'Natural Gas':'Natural Gas Cost',
+                                                               'Oil #1':'Oil #1 Cost',
+                                                               'Steam': 'Steam Cost'})
+
+    monthly_heat_energy_and_use = pd.merge(monthly_heating_cost, monthly_heating, left_index=True, right_index=True, how='outer')
+
+    # Create unit cost columns in $ / MMBTU for each fuel type
+    monthly_heat_energy_and_use['fuel_oil_unit_cost'] = monthly_heat_energy_and_use['Oil #1 Cost'] / monthly_heat_energy_and_use['Oil #1']
+    monthly_heat_energy_and_use['natural_gas_unit_cost'] = monthly_heat_energy_and_use['Natural Gas Cost'] / monthly_heat_energy_and_use['Natural Gas']
+    monthly_heat_energy_and_use['district_heat_unit_cost'] = monthly_heat_energy_and_use['Steam Cost'] / monthly_heat_energy_and_use['Steam']
+    monthly_heat_energy_and_use['building_unit_cost'] = monthly_heat_energy_and_use.total_heating_cost / monthly_heat_energy_and_use.total_heating_energy
+
+    # Reset the index for easier processing
+    monthly_heat_energy_and_use = monthly_heat_energy_and_use.reset_index()
+
+    # Add in unit costs for fuels that are currently blank
+
+    unit_cost_cols = ['fuel_oil_unit_cost', 'natural_gas_unit_cost', 'district_heat_unit_cost']
+    service_types = ['Oil #1_avg_unit_cost', 'Natural Gas_avg_unit_cost', 'Steam_avg_unit_cost']
+
+    unit_cost_dict = dict(zip(unit_cost_cols,service_types))
+
+
+    # Add in average unit costs calculated from all sites for each month
+    monthly_heat_energy_and_use = pd.merge(monthly_heat_energy_and_use, grouped_nonzero_heatfuel_use, 
+                                           left_on=['fiscal_year', 'fiscal_mo'], right_on=['fiscal_year', 'fiscal_mo'],
+                                          how='left', suffixes=('', '_avg_unit_cost'))
+
+    # Check each column to see if it is NaN (identified when the value does not equal itself) and if it is, fill with the average
+    # price per MMBTU taken from all sites
+    for col, service in unit_cost_dict.items():
+        monthly_heat_energy_and_use[col] = np.where(monthly_heat_energy_and_use[col] != monthly_heat_energy_and_use[col],
+                                                   monthly_heat_energy_and_use[service], 
+                                                   monthly_heat_energy_and_use[col])
+
+    def fiscal_to_calendar(fiscal_year, fiscal_mo):
+        """Converts a fiscal year and month into a calendar year and month for graphing purposes.
+        Returns (calendar_year, calendar_month) tuple."""
+        
+        if fiscal_mo > 6:
+            calendar_month = fiscal_mo - 6
+            calendar_year = fiscal_year
+        else:
+            calendar_month = fiscal_mo + 6
+            calendar_year = fiscal_year - 1
+            
+        return (calendar_year, calendar_month)
+
+    # Add calendar year and month columns
+    cal_year = []
+    cal_mo = []
+    for fiscal_year, fiscal_mo in zip(monthly_heat_energy_and_use.fiscal_year, monthly_heat_energy_and_use.fiscal_mo):
+        CalYear, CalMo = fiscal_to_calendar(fiscal_year, fiscal_mo)
+        cal_year.append(CalYear)
+        cal_mo.append(CalMo)
+    monthly_heat_energy_and_use['calendar_year'] = cal_year
+    monthly_heat_energy_and_use['calendar_mo'] = cal_mo
+
+    # Create a date column using the calendar year and month to pass to the graphing function
+
+    def get_date(row):
+        return datetime.date(year=row['calendar_year'], month=row['calendar_mo'], day=1)
+
+    monthly_heat_energy_and_use['date'] = monthly_heat_energy_and_use[['calendar_year','calendar_mo']].apply(get_date, axis=1)
+
+    p9g1_filename, p9g1_url = gu.graph_filename_url(site, "heating_cost_g1")
+    gu.fuel_price_comparison_graph(monthly_heat_energy_and_use, 'date', unit_cost_cols, 'building_unit_cost', p9g1_filename)
+
+
+    # --- Realized Savings from Fuel Switching: Page 9, Graph 2
+
+    old_usage_cols = ['Natural Gas', 'Oil #1', 'Steam']
+
+
+    # Create an indicator for whether a given heating fuel is available for the facility.  This is done by checking the use for all
+    # months- if it is zero, then that building doesn't have the option to use that type of fuel.
+    for col in old_usage_cols:
+        new_col_name = col + "_available"
+        monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
+
+    # Calculate what it would have cost if the building used only one fuel type
+    available_cols = ['Oil #1_available','Natural Gas_available','Steam_available']
+    available_dict = dict(zip(unit_cost_cols, available_cols))
+    hypothetical_cost_cols = []
+
+    for unit_cost, avail_col in available_dict.items():
+        new_col_name = unit_cost + "_hypothetical"
+        hypothetical_cost_cols.append(new_col_name)
+        monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] *     monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
+
+    # Calculate the monthly savings to the building by not using the most expensive available fuel entirely
+    monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1)                                                         - monthly_heat_energy_and_use.total_heating_cost
+
+    # Sort dataframe to calculate cumulative value
+    monthly_heat_energy_and_use = monthly_heat_energy_and_use.sort_values(by='date', ascending=True)
+
+    # Calculate cumulative value
+    monthly_heat_energy_and_use['cumulative_fuel_switching_savings'] = np.cumsum(monthly_heat_energy_and_use.fuel_switching_savings)
+
+    p9g2_filename, p9g2_url = gu.graph_filename_url(site, "heating_cost_g2")
+    gu.create_monthly_line_graph(monthly_heat_energy_and_use, 'date', 'cumulative_fuel_switching_savings',
+                                'Cumulative Fuel Switching Savings Realized [$]', p9g2_filename)
+
+    # Convert df to dictionary
+    heating_cost_rows = bu.df_to_dictionaries(heating_cost_and_use)
+
+    # Add data and graphs to main dictionary
+    template_data['heating_cost_analysis'] = dict(
+        graphs=[p9g1_url, p9g2_url],
+        table={'rows': heating_cost_rows},
+    )
+
+    # ---------------------- Water Analysis Table ---------------------------
+
+    water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
+
+    # Create month count field for all months that have water and sewer bills
+    water_use_only = water_use.query("service_type == 'Water'")
+    water_months_present = bu.months_present(water_use_only)
+    water_mo_count = bu.month_count(water_months_present)
+
+    # Create annual water gallon usage dataframe
+    water_gal_df = pd.pivot_table(water_use, 
+                                  values='usage',
+                                  index=['fiscal_year',], 
+                                  columns=['service_type'],
+                                  aggfunc=np.sum
+    )
+
+    # Use only required columns 
+    water_gal_df = water_gal_df[['Water']]
+
+    # Calculate percent change column
+    water_gal_df['water_use_pct_change'] = water_gal_df.Water.pct_change()
+
+    # Create annual water and sewer cost dataframe
+    water_cost_df = pd.pivot_table(water_use, 
+                                  values='cost',
+                                  index=['fiscal_year',], 
+                                  columns=['service_type'],
+                                  aggfunc=np.sum
+    )
+
+    # Calculate totals, percent change
+    water_cost_df = water_cost_df[['Sewer', 'Water']]
+    water_cost_df = water_cost_df.rename(columns={'Sewer': 'Sewer Cost',
+                                                 'Water': 'Water Cost'})
+    water_cost_df['total_water_sewer_cost'] = water_cost_df['Sewer Cost'] + water_cost_df['Water Cost']
+    water_cost_df['water_cost_pct_change'] = water_cost_df['Water Cost'].pct_change()
+    water_cost_df['sewer_cost_pct_change'] = water_cost_df['Sewer Cost'].pct_change()
+    water_cost_df['total_water_sewer_cost_pct_change'] = water_cost_df.total_water_sewer_cost.pct_change()
+
+    # Merge use and cost dataframes
+    water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='outer')
+
+    water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.Water
+    water_use_and_cost['water_unit_cost_pct_change'] = water_use_and_cost.water_unit_cost.pct_change()
+
+    # Use only complete years 
+    water_use_and_cost['month_count'] = water_mo_count
+    water_use_and_cost = water_use_and_cost.query("month_count == 12")
+    water_use_and_cost = water_use_and_cost.drop('month_count', axis=1)
+    water_use_and_cost = water_use_and_cost.sort_index(ascending=False)
+    water_use_and_cost = water_use_and_cost.rename(columns={'Sewer Cost':'sewer_cost',
+                                                           'Water Cost':'water_cost',
+                                                           'total_water_sewer_cost':'total_cost',
+                                                           'total_water_sewer_cost_pct_change':'total_cost_pct_change',
+                                                           'Water':'total_usage',
+                                                           'water_usage_pct_change':'total_usage_pct_change',
+                                                           'water_unit_cost':'total_unit_cost',
+                                                           'water_unit_cost_pct_change':'total_unit_cost_pct_change'
+                                                           })
+
+    # ---- Create Water Cost Stacked Bar Graph - Page 10 Graph 1
+    p10g1_filename, p10g1_url = gu.graph_filename_url(site, "water_analysis_g1")
+    gu.create_stacked_bar(water_use_and_cost.reset_index(), 'fiscal_year', ['sewer_cost', 'water_cost'], 
+                          'Utility Cost [$]', p10g1_filename)
+
+    # ---- Create Monthly Water Profile Graph
+
+    # Create monthly water gallon dataframe
+    water_gal_df_monthly = pd.pivot_table(water_use, 
+                                  values='usage',
+                                  index=['fiscal_year', 'fiscal_mo'], 
+                                  columns=['service_type'],
+                                  aggfunc=np.sum
+    )
+
+    p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
+    gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', p10g2_filename)
+
+    # Convert df to dictionary
+    water_rows = bu.df_to_dictionaries(water_use_and_cost)
+
+    # Add data and graphs to main dictionary
+    template_data['water_analysis'] = dict(
+        graphs=[p10g1_url, p10g2_url],
+        table={'rows': water_rows},
+    )
+
+    # ------------------ Return the final Data Dictionary ---------------------
+    
     return template_data
     
 

@@ -12,7 +12,7 @@ type of Python code is possible.
 # benchmark script.  The path should be expressed relative to this directory
 # (the directory where settings.py and benchmark.py reside). 
 #(string file path, use forward slashes for directory separators)
-UTILITY_BILL_FILE_PATH = 'data/20171017 AllDataExport.CSV'
+UTILITY_BILL_FILE_PATH = 'data/20171017_AllDataExport.CSV'
 
 # This is the path to the Other Data spreadsheet that holds additional
 # information about the buildings (e.g. square feet, address) and degreee-day
