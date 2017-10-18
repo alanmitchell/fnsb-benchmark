@@ -10,21 +10,21 @@
   <div class="row">
     <div class="col-12">
       <dt>Building Name:</dt>
-      <dd>{{ building_info.bldg.site_name }}</dd>
+      <dd>{{ building_info.bldg.site_name | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-12">
       <dt>Address:</dt>
-      <dd>{{ building_info.bldg.address }}, {{ building_info.bldg.city }}</dd>
+      <dd>{{ building_info.bldg.address | only_string }}, {{ building_info.bldg.city | only_string }}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-12">
       <dt>Primary Function:</dt>
-      <dd>{{ building_info.bldg.primary_func | blank }}</dd>
+      <dd>{{ building_info.bldg.primary_func | only_string }}</dd>
     </div>
   </div>
 
@@ -50,33 +50,33 @@
   <div class="row">
     <div class="col-6">
       <dt>Electricity Source:</dt>
-      <dd>{{ building_info.bldg.source_elec | blank }}</dd>
+      <dd>{{ building_info.bldg.source_elec | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_elec | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_elec | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Fuel Oil Source:</dt>
-      <dd>{{ building_info.bldg.source_oil | blank }}</dd>
+      <dd>{{ building_info.bldg.source_oil | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_oil | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_oil | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Natural Gas Source:</dt>
-      <dd>{{ building_info.bldg.source_nat_gas | blank }}</dd>
+      <dd>{{ building_info.bldg.source_nat_gas | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_nat_gas | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_nat_gas | only_string}}</dd>
     </div>
   </div>
 
@@ -94,51 +94,51 @@
   <div class="row">
     <div class="col-6">
       <dt>Water Source:</dt>
-      <dd>{{ building_info.bldg.source_water | blank }}</dd>
+      <dd>{{ building_info.bldg.source_water | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_water | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_water | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Steam Source:</dt>
-      <dd>{{ building_info.bldg.source_steam | blank }}</dd>
+      <dd>{{ building_info.bldg.source_steam | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_steam | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_steam | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Sewer Source:</dt>
-      <dd>{{ building_info.bldg.source_sewer | blank }}</dd>
+      <dd>{{ building_info.bldg.source_sewer | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_sewer | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_sewer | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Refuse Source:</dt>
-      <dd>{{ building_info.bldg.source_refuse | blank }}</dd>
+      <dd>{{ building_info.bldg.source_refuse | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_refuse | blank }}</dd>
+      <dd>{{ building_info.bldg.acct_refuse | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-12">
       <dt>Onsite Generation:</dt>
-      <dd>{{ building_info.bldg.onsite_gen | blank }}</dd>
+      <dd>{{ building_info.bldg.onsite_gen | only_string}}</dd>
     </div>
   </div>
 </section>

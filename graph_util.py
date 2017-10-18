@@ -540,7 +540,7 @@ def graph_filename_url(site_id, base_graph_name):
         the Site ID is ANSBG1.
     """
     fn = 'output/images/{}_{}.png'.format(site_id, base_graph_name)
-    url = '../images/{}_{}.png'.format(site_id, base_graph_name)
+    url = 'images/{}_{}.png'.format(site_id, base_graph_name)
     return fn, url
 
 

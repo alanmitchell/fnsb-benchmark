@@ -24,7 +24,7 @@ def filter_blank(val):
 
 def filter_money(val, precision = 0):
     if is_blank(val): return ''
-    format_string = "${:,.%sf}" % precision
+    format_string = "$ {:,.%sf}" % precision
     return format_string.format(val)
 
 def filter_number(val, precision = 0):
@@ -37,12 +37,20 @@ def filter_percent(val, precision = 1):
     format_string = "{:.%s%%}" % precision
     return format_string.format(val)
 
+def filter_only_string(val):
+    'Return blank for anything but strings.'
+    if type(val) is str:
+        return val
+    else:
+        return ''
+
 # -------------- Assign the custom filters to the Environment
     
 env.filters['blank'] = filter_blank
 env.filters['money'] = filter_money
 env.filters['number'] = filter_number
 env.filters['percent'] = filter_percent
+env.filters['only_string'] = filter_only_string
 
 # ------------- Utility Functions -----------------
 

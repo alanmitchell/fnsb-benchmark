@@ -46,6 +46,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import bench_util as bu
+import graph_util as gu
 import template_util
 import settings       # the file holding settings for this script
 
@@ -190,8 +191,275 @@ def analyze_site(site, df, ut, report_date_time):
         report_date_time: A date/time string indicating when this benchmarking
                    report was done.
     """
+    # Start the final data dictionary that is returend.
+    template_data = {}
 
-    return {}
+    # --------------------- Building Information Report -----------------------
+    
+    # This function returns all the needed info for the report, except
+    # the date updated
+    info = ut.building_info(site)
+    
+    template_data['building_info'] = {
+        'date_updated': report_date_time,
+        'bldg': info
+    }
+
+    # ----------- DataFrame for "Energy Index Comparison" Report --------------
+    
+    # --------- Table 1, Yearly Table
+    
+    # Filter down to just this site's bills and only services that
+    # are energy services.
+    energy_services = bu.missing_energy_services([])
+    df1 = df.query('site_id==@site and service_type==@energy_services')
+    
+    # Sum Energy Costs and Usage
+    df2 = pd.pivot_table(df1, index='fiscal_year', values=['cost', 'mmbtu'], aggfunc=np.sum)
+    
+    # Add a column showing number of months present in each fiscal year.
+    bu.add_month_count_column(df2, df1)
+    
+    # Make a column with just the Heat MMBtu
+    df2['heat_mmbtu'] = df2.mmbtu - df1.query("service_type=='Electricity'").groupby('fiscal_year').sum()['mmbtu']
+    
+    # Add in degree days to DataFrame
+    months_present = bu.months_present(df1)
+    deg_days = ut.degree_days_yearly(months_present, site)
+    df2['hdd'] = deg_days
+    
+    # Get building square footage and calculate EUIs and ECI.
+    sq_ft = ut.building_info(site)['sq_ft']
+    df2['eui'] = df2.mmbtu * 1e3 / sq_ft
+    df2['eci'] = df2.cost / sq_ft
+    df2['specific_eui'] = df2.heat_mmbtu * 1e6 / df2.hdd / sq_ft
+    
+    # Restrict to full years
+    df2 = df2.query("month_count == 12")
+    
+    # get the rows as a list of dictionaries and put into
+    # final template data dictionary.
+    template_data['energy_index_comparison'] = {
+        'yearly_table': {'rows': bu.df_to_dictionaries(df2)}
+    }
+    
+    # ---------- Table 2, Details Table
+
+    # Determine month count by year for Electricity to determine the latest
+    # complete year.
+    electric_only = df.query("service_type == 'Electricity'")
+    electric_months_present = bu.months_present(electric_only)
+    electric_mo_count = bu.month_count(electric_months_present)
+    last_complete_year = max(electric_mo_count[electric_mo_count==12].index)
+    
+    # Filter down to just the records of the targeted fiscal year
+    df1 = df.query('fiscal_year == @last_complete_year')
+
+    # Get Total Utility cost by building. This includes non-energy utilities as well.
+    df2 = df1.pivot_table(index='site_id', values=['cost'], aggfunc=np.sum)
+    df2.columns = ['total_cost']
+    
+    # Save this into the Final DataFrame that we will build up as we go.
+    df_final = df2.copy()
+    
+    # Get a list of the Energy Services and restrict the data to
+    # just these services
+    energy_svcs = bu.missing_energy_services([])
+    df2 = df1.query('service_type == @energy_svcs')
+    
+    # Summarize Cost by Service Type
+    df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='cost', aggfunc=np.sum)
+    
+    # Change column names
+    cols = ['{}_cost'.format(bu.change_name(col)) for col in df3.columns]
+    df3.columns = cols
+    
+    # Add a total energy cost column
+    df3['total_energy_cost'] = df3.sum(axis=1)
+    
+    # Add a total Heat Cost Column
+    df3['total_heat_cost'] = df3.total_energy_cost.fillna(0.0) - df3.electricity_cost.fillna(0.0)
+    
+    # Add this to the final DataFrame
+    df_final = pd.concat([df_final, df3], axis=1)
+    
+    # Summarize MMBtu by Service Type
+    df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='mmbtu', aggfunc=np.sum)
+    
+    # Change column names
+    cols = ['{}_mmbtu'.format(bu.change_name(col)) for col in df3.columns]
+    df3.columns = cols
+    
+    # Add a total mmbtu column
+    df3['total_mmbtu'] = df3.sum(axis=1)
+    
+    # Add a total Heat mmbtu Column
+    df3['total_heat_mmbtu'] = df3.total_mmbtu.fillna(0.0) - df3.electricity_mmbtu.fillna(0.0)
+    
+    # Add this to the final DataFrame
+    df_final = pd.concat([df_final, df3], axis=1)
+    
+    # Electricity kWh summed by building
+    df3 = pd.pivot_table(df2.query('units == "kWh"'), index='site_id', values='usage', aggfunc=np.sum)
+    df3.columns = ['electricity_kwh']
+    
+    # Include in Final DF
+    df_final = pd.concat([df_final, df3], axis=1)
+    
+    # Electricity kW, both Average and Max by building
+    df3 = pd.pivot_table(df2.query('units == "kW"'), index='site_id', values='usage', aggfunc=[np.mean, np.max])
+    df3.columns = ['electricity_kw_average', 'electricity_kw_max']
+    
+    # Add into Final Frame
+    df_final = pd.concat([df_final, df3], axis=1)
+    
+    # Add in Square footage info
+    df_bldg = ut.building_info_df()[['sq_ft']]
+    
+    # Add into Final Frame.  I do a merge here so as not to bring
+    # in buildings from the building info spreadsheet that are not in this
+    # dataset; this dataset has been restricted to one year.
+    df_final = pd.merge(df_final, df_bldg, how='left', left_index=True, right_index=True)
+    
+    # Build a DataFrame that has monthly degree days for each site/year/month
+    # combination.
+    combos = set(zip(df1.site_id, df1.fiscal_year, df1.fiscal_mo))
+    df_dd = pd.DataFrame(data=list(combos), columns=['site_id', 'fiscal_year', 'fiscal_mo'])
+    ut.add_degree_days_col(df_dd)
+    
+    # Add up the degree days by site (we've already filtered down to one year or less
+    # of data.)
+    dd_series = df_dd.groupby('site_id').sum()['degree_days']
+
+    # Put in final DataFrame
+    df_final = pd.concat([df_final, dd_series], axis=1)
+    
+    # Calculate per square foot values for each building.
+    df_final['eui'] = df_final.total_mmbtu * 1e3 / df_final.sq_ft
+    df_final['eci'] = df_final.total_energy_cost / df_final.sq_ft
+    df_final['specific_eui'] = df_final.total_heat_mmbtu * 1e6 / df_final.sq_ft / df_final.degree_days
+    
+    # Get the totals across all buildings
+    totals_all_bldgs = df_final.sum()
+
+    # Total Degree-Days are not relevant
+    totals_all_bldgs.drop(['degree_days'], inplace=True)
+    
+    # Only use the set of buildings that have some energy use and non-zero
+    # square footage to determine EUI's and ECI's
+    energy_bldgs = df_final.query("total_mmbtu > 0 and sq_ft > 0")
+    
+    # Get total square feet, energy use, and energy cost for these buildings
+    # and calculate EUI and ECI
+    sq_ft_energy_bldgs = energy_bldgs.sq_ft.sum()
+    energy_in_energy_bldgs = energy_bldgs.total_mmbtu.sum()
+    energy_cost_in_energy_bldgs = energy_bldgs.total_energy_cost.sum()
+    totals_all_bldgs['eui'] = energy_in_energy_bldgs * 1e3 / sq_ft_energy_bldgs
+    totals_all_bldgs['eci'] = energy_cost_in_energy_bldgs / sq_ft_energy_bldgs
+    
+    # For calculating heating specific EUI, further filter the set of
+    # buildings down to those that have heating fuel use.
+    # Get separate square footage total and weighted average degree-day for these.
+    heat_bldgs = energy_bldgs.query("total_heat_mmbtu > 0")
+    heat_bldgs_sq_ft = heat_bldgs.sq_ft.sum()
+    heat_bldgs_heat_mmbtu = heat_bldgs.total_heat_mmbtu.sum()
+    heat_bldgs_degree_days = (heat_bldgs.total_heat_mmbtu * heat_bldgs.degree_days).sum() / heat_bldgs.total_heat_mmbtu.sum()
+    totals_all_bldgs['specific_eui'] = heat_bldgs_heat_mmbtu * 1e6 / heat_bldgs_sq_ft / heat_bldgs_degree_days
+    
+    # calculate a rank DataFrame
+    df_rank = pd.DataFrame()
+    for col in df_final.columns:
+        df_rank[col] = df_final[col].rank(ascending=False)
+    
+    if site in df_final.index:
+        # The site exists in the DataFrame
+        site_info = df_final.loc[site]
+        site_pct = site_info / totals_all_bldgs
+        site_rank = df_rank.loc[site]
+    else:
+        # Site is not there, probabaly because not present in this year.
+        # Make variables with NaN values for all elements.
+        site_info = df_final.iloc[0].copy()   # Just grab the first row to start with
+        site_info[:] = np.NaN                 # Put 
+        site_pct = site_info.copy()
+        site_rank = sit_info.copy()
+    
+    # Make a final dictioary to hold all the results for this table
+    tbl2_data = {
+        'fiscal_year': 'FY {}'.format(last_complete_year),
+        'bldg': site_info.to_dict(),
+        'all': totals_all_bldgs.to_dict(),
+        'pct': site_pct.to_dict(),
+        'rank': site_rank.to_dict()
+    }
+    template_data['energy_index_comparison']['details_table'] = tbl2_data
+    
+    # ------------ DataFrame for "Utility Cost Overview" Report ---------------
+    
+    # From the main DataFrame, get only the rows for this site, and only get
+    # the needed columns for this analysis
+    df1 = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'cost']]
+
+    # Summarize cost by fiscal year and service type.    
+    df2 = pd.pivot_table(
+        df1, 
+        values='cost', 
+        index=['fiscal_year'], 
+        columns=['service_type'],
+        aggfunc=np.sum
+    )
+    
+    # Add in columns for the missing services
+    missing_services = bu.missing_services(df2.columns)
+    bu.add_columns(df2, missing_services)
+    
+    # Add a Total column that sums the other columns
+    df2['Total'] = df2.sum(axis=1)
+    
+    # Add a percent change column
+    df2['pct_change'] = df2.Total.pct_change()
+    
+    # Add in degree days
+    months_present = bu.months_present(df1)
+    deg_days = ut.degree_days_yearly(months_present, site)
+    df2['hdd'] = deg_days
+    
+    # Add in a column to show the numbers of months present for each year
+    # This will help to identify partial years.
+    bu.add_month_count_column(df2, df1)
+    
+    # trim out the partial years
+    df2 = df2.query("month_count == 12").copy()
+    
+    # Reverse the DataFrame
+    df2.sort_index(ascending=False, inplace=True)
+    
+    # Standardize column names
+    df2.columns = [bu.change_name(col) for col in df2.columns]
+    
+    # Reset the index so the fiscal year column can be passed to the graphing utility
+    reset_df2 = df2.reset_index()
+
+    # Get appropriate file names and URLs for the graph
+    g1_fn, g1_url = gu.graph_filename_url(site, 'util_cost_ovw_g1')
+    
+    # make the area cost distribution graph
+    utility_list = ['electricity', 'natural_gas', 'fuel_oil', 'sewer', 'water', 'refuse', 'district_heat']
+    gu.area_cost_distribution(reset_df2, 'fiscal_year', utility_list, g1_fn);
+    
+    # make the stacked bar graph
+    g2_fn, g2_url = gu.graph_filename_url(site, 'util_cost_ovw_g2')
+    gu.create_stacked_bar(reset_df2, 'fiscal_year', utility_list, 'Utility Cost ($)', g2_fn)
+
+    # Put results into the final dictionary that will be passed to the Template.
+    # A function is used to convert the DataFrame into a list of dictionaries.
+    template_data['utility_cost_overview'] = dict(
+        graphs=[g1_url, g2_url],
+        table={'rows': bu.df_to_dictionaries(df2)},
+    )
+
+    return template_data
+    
 
 #******************************************************************************
 #******************************************************************************

@@ -23,7 +23,7 @@
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.eci | money(2) }}</td>
             <td>{{ row.eui | number }}</td>
-            <td>{{ row.specific_eui | number }}</td>
+            <td>{{ row.specific_eui | number(2) }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -88,24 +88,24 @@
           <tr>
             <th rowspan="4">Electricity</th>
             <td>kWh</td>
-            <td>{{ data.bldg.electricity_kWh | number }}</td>
-            <td>{{ data.all.electricity_kWh | number }}</td>
-            <td>{{ data.pct.electricity_kWh | percent }}</td>
-            <td>{{ data.rank.electricity_kWh | number }}</td
+            <td>{{ data.bldg.electricity_kwh | number }}</td>
+            <td>{{ data.all.electricity_kwh | number }}</td>
+            <td>{{ data.pct.electricity_kwh | percent }}</td>
+            <td>{{ data.rank.electricity_kwh | number }}</td
           </tr>
           <tr>
             <td>kW average</td>
-            <td>{{ data.bldg.electricity_kW_average | number }}</td>
-            <td>{{ data.all.electricity_kW_average | number }}</td>
-            <td>{{ data.pct.electricity_kW_average | percent }}</td>
-            <td>{{ data.rank.electricity_kW_average | number }}</td>
+            <td>{{ data.bldg.electricity_kw_average | number }}</td>
+            <td>{{ data.all.electricity_kw_average | number }}</td>
+            <td>{{ data.pct.electricity_kw_average | percent }}</td>
+            <td>{{ data.rank.electricity_kw_average | number }}</td>
           </tr>
           <tr>
             <td>kW max</td>
-            <td>{{ data.bldg.electricity_kW_max | number }}</td>
-            <td>{{ data.all.electricity_kW_max | number }}</td>
-            <td>{{ data.pct.electricity_kW_max | percent }}</td>
-            <td>{{ data.rank.electricity_kW_max | number }}</td>
+            <td>{{ data.bldg.electricity_kw_max | number }}</td>
+            <td>{{ data.all.electricity_kw_max | number }}</td>
+            <td>{{ data.pct.electricity_kw_max | percent }}</td>
+            <td>{{ data.rank.electricity_kw_max | number }}</td>
           </tr>
           <tr>
             <td>$</td>
@@ -186,8 +186,8 @@
           <tr>
             <th>HDD Specific EUI</th>
             <td>Btu/sqft-HDD</td>
-            <td>{{ data.bldg.specific_eui | number }}</td>
-            <td>{{ data.all.specific_eui | number }}</td>
+            <td>{{ data.bldg.specific_eui | number(2) }}</td>
+            <td>{{ data.all.specific_eui | number(2) }}</td>
             <td>{{ data.pct.specific_eui | percent }}</td>
             <td>{{ data.rank.specific_eui | number }}</td>
           </tr>
