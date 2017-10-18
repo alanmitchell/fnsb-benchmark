@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import matplotlib as mpl
 import matplotlib.dates as mdates
-import datetime
 import bench_util as bu
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
@@ -128,7 +127,7 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
 	
 	
 def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
@@ -181,7 +180,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
 	
 	
 def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, filename):
@@ -208,7 +207,6 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
     df = df.fillna(0)
     
     for col in column_name_list:
-        col_name = col
         col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
       
@@ -231,7 +229,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
 	
 	
 def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
@@ -259,7 +257,6 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     for col in column_name_list:
       
-        col_name = col
         col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name, 
                           color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
@@ -285,7 +282,7 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
 	
 	
 def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
@@ -351,7 +348,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         plt.savefig(new_filename)
         figs.append(fig)
         
-    return figs
+    plt.close('all')
 		
 		
 def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, title, filename):
@@ -411,8 +408,7 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, titl
 
     # Save and show
     plt.savefig(filename)
-    return fig
-
+    plt.close('all')
 		
 		
 def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, ylabel2, title, filename):
@@ -446,7 +442,6 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     df = df.fillna(0)
     
     for col in bar_col_list:
-        col_name = col
         col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
         previous_col_name = previous_col_name + df[col]
       
@@ -479,7 +474,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
     
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
@@ -511,7 +506,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
     
 
 def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
@@ -530,7 +525,7 @@ def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     
     # Save and show
     plt.savefig(filename)
-    return fig
+    plt.close('all')
     
 def graph_filename_url(site_id, base_graph_name):
     """This function returns a two-tuple: graph file name, graph URL.
