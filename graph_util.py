@@ -338,7 +338,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         if chart_type == 1:
             title = "FY " + str(year) + " Energy Usage [MMBTU]"
         else:
-            titel = "FY " + str(year) + " Energy Cost [$]"
+            title = "FY " + str(year) + " Energy Cost [$]"
             
         plt.title(title, fontsize=20)
 

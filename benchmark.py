@@ -546,8 +546,14 @@ def analyze_site(site, df, ut, report_date_time):
 
     # ---------------- Energy Usage and Cost Pie Charts -----------------------
 
+    # Shorten the utility list to include only energy-related columns
+    utility_list = set(utility_list) - set(['sewer', 'water', 'refuse'])
+    
     p5g1_filename, p5g1_url = gu.graph_filename_url(site, "energy_usage_cost_g1")
     gu.usage_pie_charts(usage_df2, usage_cols, 1, p5g1_filename)
+    
+    p5g2_filename, p5g2_url = gu.graph_filename_url(site, "energy_usage_cost_g2")
+    gu.usage_pie_charts(df2, utility_list, 2, p5g1_filename)
 
     # Add pie charts to template dictionary
     template_data['energy_cost_usage'] = dict(
