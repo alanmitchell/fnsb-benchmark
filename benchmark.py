@@ -483,7 +483,7 @@ def analyze_site(site, df, ut, report_date_time):
     )
 
     # drop non-energy columns
-    usage_df2 = usage_df2.drop(labels=['Sewer', 'Water', 'Refuse'], axis=1)
+    usage_df2 = usage_df2[usage_df2.columns.difference(['Sewer', 'Water', 'Refuse'])]
 
     # Add in columns for the missing services
     missing_services = bu.missing_energy_services(usage_df2.columns)
@@ -497,7 +497,6 @@ def analyze_site(site, df, ut, report_date_time):
     # Create a list of columns to loop through and calculate percent total energy
     usage_cols = list(usage_df2.columns.values)
     usage_cols.remove('total_energy_mmbtu')
-    usage_df2 = usage_df2.fillna(0.0)
 
     for col in usage_cols:
         col_name = col.split('_mmbtu')[0] + "_pct"
@@ -551,10 +550,10 @@ def analyze_site(site, df, ut, report_date_time):
     utility_list = list(set(utility_list) - set(['sewer', 'water', 'refuse']))
     
     p5g1_filename, p5g1_url = gu.graph_filename_url(site, "energy_usage_cost_g1")
-    gu.usage_pie_charts(usage_df2, usage_cols, 1, p5g1_filename)
+    gu.usage_pie_charts(usage_df2.fillna(0.0), usage_cols, 1, p5g1_filename)
     
     p5g2_filename, p5g2_url = gu.graph_filename_url(site, "energy_usage_cost_g2")
-    gu.usage_pie_charts(df2, utility_list, 2, p5g1_filename)
+    gu.usage_pie_charts(df2.fillna(0.0), utility_list, 2, p5g1_filename)
 
     # Add pie charts to template dictionary
     template_data['energy_cost_usage'] = dict(
@@ -749,7 +748,7 @@ def analyze_site(site, df, ut, report_date_time):
     bu.add_columns(monthly_heating, missing_services)
 
     # Drop the non-heating services
-    monthly_heating = monthly_heating.drop(labels=['Electricity', 'Sewer', 'Water'], axis=1)
+    monthly_heating = monthly_heating[monthly_heating.columns.difference(['Sewer', 'Water', 'Refuse'])]
 
     # Create a total heating column
     monthly_heating['total_heating_energy'] = monthly_heating.sum(axis=1)
@@ -870,7 +869,7 @@ def analyze_site(site, df, ut, report_date_time):
     bu.add_columns(monthly_heating_cost, missing_services)
 
     # Drop the non-heating services
-    monthly_heating_cost = monthly_heating_cost.drop(labels=['Electricity', 'Sewer', 'Water'], axis=1)
+    monthly_heating_cost = monthly_heating_cost[monthly_heating_cost.columns.difference(['Sewer', 'Water', 'Refuse'])]
 
     # Create a total heating column
     monthly_heating_cost['total_heating_cost'] = monthly_heating_cost.sum(axis=1)
@@ -1019,7 +1018,8 @@ def analyze_site(site, df, ut, report_date_time):
     )
 
     # Calculate totals, percent change
-    water_cost_df = water_cost_df[['Sewer', 'Water']]
+    water_cost_df = water_cost_df[water_cost_df.columns.difference(['Electricity', 'Natural Gas', 'Oil #1', 'Steam', 'Refuse'])]
+    
     water_cost_df = water_cost_df.rename(columns={'Sewer': 'Sewer Cost',
                                                  'Water': 'Water Cost'})
     water_cost_df['total_water_sewer_cost'] = water_cost_df['Sewer Cost'] + water_cost_df['Water Cost']
