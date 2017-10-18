@@ -15,9 +15,8 @@ directory of the project, run:
 Before running the benchmarking script, some setup is required.  A settings file
 controls a few different aspects of how the script runs.  There is a sample settings
 file in the root directory called `settings_example.py`.  Copy that file to a new
-file called `settings.py`.  This `settings.py` file is the actual file used to control
-the script; it is *not* stored in the GitHub repository, so it will not affect other
-users.
+file called `settings.py` in the same directory.  This `settings.py` file is the actual file used to control
+the script.  This file is *not* stored in the GitHub repository as it has been set to be ignored, so it will not affect other users.
 
 Open the `settings.py` file in an editor and read the comments for each settings
 to determine the proper value.  Important settings are the path to the Utility Bill
@@ -43,13 +42,19 @@ so rows should not be added or deleted above that point on the Excel sheet.
 
 ## Running the Script
 
-The script is compatible with Python 3.5 or higher (it probably works with Python 2.7, but
-has not been tested with that version).  To run the script, change into the root directory of
+The script is compatible with Python 3.5 or higher.  To run the script, change into the root directory of
 the project on a command line.  One of the following commands should start the script:
 
     python benchmark.py       # if 'python' starts Python 3 on your computer
     python3 benchmark.py      # some Python installs use 'python3' to start
     ./benchmark.py            # on Linux or Max OSX, if you set 'benchmark.py' to be executable
+
+If you have multiple anaconda environments installed, you will need to first activate the one running Python 3.5 by using the following command:
+
+	conda list envs					# Shows the names of your possible environments
+	activate [your python 3.5 env]	# Activates the correct environment
+	python benchmark.py				# Runs the script in the chosen environment
+
 
 The script will print messages to the console about its progress; cumulative execution time
 will also be shown at each step.  This script will take a number of minutes to run.
