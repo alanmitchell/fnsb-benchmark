@@ -1041,7 +1041,7 @@ def analyze_site(site, df, ut, report_date_time):
                                                            'total_water_sewer_cost':'total_cost',
                                                            'total_water_sewer_cost_pct_change':'total_cost_pct_change',
                                                            'Water':'total_usage',
-                                                           'water_usage_pct_change':'total_usage_pct_change',
+                                                           'water_use_pct_change':'total_usage_pct_change',
                                                            'water_unit_cost':'total_unit_cost',
                                                            'water_unit_cost_pct_change':'total_unit_cost_pct_change'
                                                            })

@@ -44,10 +44,10 @@
             <td>{{ row.natural_gas_pct_change | percent }}</td>
             <td>{{ row.district_heat_cost | money }}</td>
             <td>{{ row.district_heat_pct_change | percent }}</td>
-            <td>{{ row.fuel_oil_unit_cost | money }}</td>
-            <td>{{ row.natural_gas_unit_cost | money }}</td>
-            <td>{{ row.district_heat_unit_cost | money }}</td>
-            <td>{{ row.building_heat_unit_cost | money }}</td>
+            <td>{{ row.fuel_oil_unit_cost | money(2) }}</td>
+            <td>{{ row.natural_gas_unit_cost | money(2) }}</td>
+            <td>{{ row.district_heat_unit_cost | money(2) }}</td>
+            <td>{{ row.building_heat_unit_cost | money(2) }}</td>
             <td>{{ row.total_heat_cost | money }}</td>
             <td>{{ row.total_heat_cost_pct_change | percent }}</td>
           </tr>
