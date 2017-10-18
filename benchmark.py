@@ -1015,18 +1015,29 @@ def analyze_site(site, df, ut, report_date_time):
                                   aggfunc=np.sum
     )
 
+    
+    # Add in columns for the missing services
+    water_missing_services = bu.missing_services(water_cost_df.columns)
+    bu.add_columns(water_cost_df, water_missing_services)
+    
     # Calculate totals, percent change
     water_cost_df = water_cost_df[water_cost_df.columns.difference(['Electricity', 'Natural Gas', 'Oil #1', 'Steam', 'Refuse'])]
     
-    water_cost_df = water_cost_df.rename(columns={'Sewer': 'Sewer Cost',
-                                                 'Water': 'Water Cost'})
-    water_cost_df['total_water_sewer_cost'] = water_cost_df['Sewer Cost'] + water_cost_df['Water Cost']
+    rename_dict = {'Sewer': 'Sewer Cost',
+                   'Water': 'Water Cost'}
+    
+    water_cost_df = water_cost_df.rename(columns=rename_dict)
+    
+    # First check to make sure sewer data is included; if so, calculate total cost
+    water_cost_df['total_water_sewer_cost'] = water_cost_df.sum(axis=1)
+    
     water_cost_df['water_cost_pct_change'] = water_cost_df['Water Cost'].pct_change()
     water_cost_df['sewer_cost_pct_change'] = water_cost_df['Sewer Cost'].pct_change()
+                                                              
     water_cost_df['total_water_sewer_cost_pct_change'] = water_cost_df.total_water_sewer_cost.pct_change()
 
     # Merge use and cost dataframes
-    water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='outer')
+    water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='left')
 
     water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.Water
     water_use_and_cost['water_unit_cost_pct_change'] = water_use_and_cost.water_unit_cost.pct_change()
