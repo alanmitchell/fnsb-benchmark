@@ -8,13 +8,13 @@ import datetime
 import bench_util as bu
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
-mpl.rcParams['axes.labelsize'] = 16
-mpl.rcParams['axes.titlesize'] = 20
-mpl.rcParams['legend.fontsize'] = 16
-mpl.rcParams['font.size'] = 16.0
+mpl.rcParams['axes.labelsize'] = 20
+mpl.rcParams['axes.titlesize'] = 24
+mpl.rcParams['legend.fontsize'] = 20
+mpl.rcParams['font.size'] = 20.0
 mpl.rcParams['figure.figsize'] = [15,10]
-mpl.rcParams['xtick.labelsize'] = 16
-mpl.rcParams['ytick.labelsize'] = 16
+mpl.rcParams['xtick.labelsize'] = 20
+mpl.rcParams['ytick.labelsize'] = 20
 
 # Set the style for the graphs
 plt.style.use('bmh')
@@ -184,7 +184,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     return fig
 	
 	
-def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
+def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, filename):
     
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
@@ -226,6 +226,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, filename):
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
     
+    plt.title(title)
     plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
     
     # Save and show
@@ -353,7 +354,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
     return figs
 		
 		
-def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, filename):
+def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, title, filename):
     # Parameters: 
         # df: A dataframe with the fiscal_year, fiscal_mo, and appropriate graph column name ('kWh', 'kW', etc.)
         # graph_column_name: The name of the column containing the data to be graphed on the y-axis
@@ -406,6 +407,7 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
     plt.xlabel('Month of Year')
     plt.ylabel(yaxis_name)
     plt.legend()
+    plt.title(title)
 
     # Save and show
     plt.savefig(filename)
@@ -413,7 +415,7 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, file
 
 		
 		
-def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, ylabel2, filename):
+def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, ylabel2, title, filename):
     
     # Parameters:
     # fiscal_year_col: the name of the column where the fiscal year is listed (use reset_index() if it is currently the index
@@ -473,6 +475,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1+h2, l1+l2, loc='lower left')
+    plt.title(title)
     
     # Save and show
     plt.savefig(filename)
@@ -502,6 +505,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
 
     plt.ylabel('Energy Cost [$/MMBTU]')
     plt.xlabel('Date')
+    plt.title("Heating Fuel Unit Price Comparison [$/MMBTU]")
 
     plt.legend()
     
@@ -522,6 +526,7 @@ def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    plt.title("Realized Cumulative Energy Savings from Fuel Switching")
     
     # Save and show
     plt.savefig(filename)

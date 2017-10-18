@@ -458,7 +458,7 @@ def analyze_site(site, df, ut, report_date_time):
     
     # make the stacked bar graph
     g2_fn, g2_url = gu.graph_filename_url(site, 'util_cost_ovw_g2')
-    gu.create_stacked_bar(reset_df2, 'fiscal_year', utility_list, 'Utility Cost ($)', g2_fn)
+    gu.create_stacked_bar(reset_df2, 'fiscal_year', utility_list, 'Utility Cost ($)', "Annual Cost by Utility Type",g2_fn)
 
     # Put results into the final dictionary that will be passed to the Template.
     # A function is used to convert the DataFrame into a list of dictionaries.
@@ -533,7 +533,7 @@ def analyze_site(site, df, ut, report_date_time):
 
     # The stacked bar graph
     p4g1_filename, p4g1_url = gu.graph_filename_url(site, 'energy_usage_ovw_g1')
-    gu.energy_use_stacked_bar(reset_usage_df2, 'fiscal_year', usage_cols, p4g1_filename)
+    gu.energy_use_stacked_bar(reset_usage_df2, 'fiscal_year', usage_cols, "Annual Energy Usage by Fuel Type", p4g1_filename)
 
     # Convert df to dictionary
     energy_use_overview_rows = bu.df_to_dictionaries(usage_df2)
@@ -625,12 +625,12 @@ def analyze_site(site, df, ut, report_date_time):
 
     p6g1_filename, p6g1_url = gu.graph_filename_url(site, "electricity_usage_g1")
     gu.stacked_bar_with_line(annual_electric_data.reset_index(), 'fiscal_year', ['kwh'], 'kw_avg', 
-                          ylabel1, ylabel2, p6g1_filename)
+                          ylabel1, ylabel2, "Annual Electricity Usage and Demand", p6g1_filename)
 
 
     p6g2_filename, p6g2_url = gu.graph_filename_url(site, "electricity_usage_g2")
     gu.create_monthly_profile(electric_pivot_monthly, 'kWh', 'Monthly Electricity Usage Profile [kWh]', 'blue',
-                             p6g2_filename)
+                             "Monthly Electricity Usage Profile by Fiscal Year",p6g2_filename)
 
     # Convert df to dictionary
     electric_use_rows = bu.df_to_dictionaries(annual_electric_data)
@@ -688,12 +688,12 @@ def analyze_site(site, df, ut, report_date_time):
                                                                 'kw_avg_cost':'Electricity Demand Cost [$]'})
     gu.create_stacked_bar(renamed_use_and_cost.reset_index(), 'fiscal_year', ['Electricity Usage Cost [$]', 
                                                                               'Electricity Demand Cost [$]'], 
-                          'Electricity Cost [$]', p7g1_filename)
+                          'Electricity Cost [$]', "Annual Electricity Usage and Demand Costs", p7g1_filename)
 
     # Create Monthly Profile of Electricity Demand
     p7g2_filename, p7g2_url = gu.graph_filename_url(site, "electrical_cost_g2")
     gu.create_monthly_profile(electric_pivot_monthly, 'kW', 'Monthly Electricity Demand Profile [kW]', 'blue', 
-                              p7g2_filename)
+                              "Monthly Electricity Demand Profile by Fiscal Year",p7g2_filename)
 
     # Convert df to dictionary
     electric_cost_rows = bu.df_to_dictionaries(electric_use_and_cost)
@@ -724,7 +724,8 @@ def analyze_site(site, df, ut, report_date_time):
     p8g1_filename, p8g1_url = gu.graph_filename_url(site, "heating_usage_g1")
     gu.stacked_bar_with_line(heating_usage.reset_index(), 'fiscal_year', ['natural_gas_mmbtu', 'fuel_oil_mmbtu',
                                                                                     'district_heat_mmbtu'], 'hdd',
-                            'Heating Fuel Usage [MMBTU/yr]', 'Heating Degree Days [Base 65F]', p8g1_filename)
+                            'Heating Fuel Usage [MMBTU/yr]', 'Heating Degree Days [Base 65F]', 
+                             "Annual Heating Energy Use and Degree Day Comparison", p8g1_filename)
 
 
     # --- Create Monthly Heating Usage dataframe for graph
@@ -748,7 +749,7 @@ def analyze_site(site, df, ut, report_date_time):
 
     p8g2_filename, p8g2_url = gu.graph_filename_url(site, "heating_usage_g2")
     gu.create_monthly_profile(monthly_heating, 'total_heating_energy', "Monthly Heating Energy Profile [MMBTU]", 'red',
-                              p8g2_filename)
+                              "Monthly Heating Energy Usage Profile by Fiscal Year", p8g2_filename)
 
     # Convert df to dictionary
     heating_use_rows = bu.df_to_dictionaries(heating_usage)
@@ -1043,7 +1044,7 @@ def analyze_site(site, df, ut, report_date_time):
     # ---- Create Water Cost Stacked Bar Graph - Page 10 Graph 1
     p10g1_filename, p10g1_url = gu.graph_filename_url(site, "water_analysis_g1")
     gu.create_stacked_bar(water_use_and_cost.reset_index(), 'fiscal_year', ['sewer_cost', 'water_cost'], 
-                          'Utility Cost [$]', p10g1_filename)
+                          'Utility Cost [$]', "Annual Water and Sewer Costs", p10g1_filename)
 
     # ---- Create Monthly Water Profile Graph
 
@@ -1055,8 +1056,9 @@ def analyze_site(site, df, ut, report_date_time):
                                   aggfunc=np.sum
     )
 
-    p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
-    gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', p10g2_filename)
+    p10g2_filename, p10g2_url = ..graph_filename_url(site, "water_analysis_g2")
+    gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
+                              "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
 
     # Convert df to dictionary
     water_rows = bu.df_to_dictionaries(water_use_and_cost)
