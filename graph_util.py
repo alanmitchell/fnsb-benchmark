@@ -285,11 +285,18 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     plt.close('all')
 	
 	
-def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
+def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
     
     # df: A dataframe with the fiscal_year as the index and needs to include the values for the passed in list of columns.
     # use_or_cost_cols: a list of the energy usage or energy cost column names
     # chart_type: 1 for an energy use pie chart, 2 for an energy cost pie chart
+    # base_filename: Base filename for that graph. A final filename will be 
+    #    created that includes the Site ID, the correct output directory, and 
+    #    the pertinent year.
+    # site_id:  The Site ID to be used to create the filename.
+    # 
+    # This function returns a list of the URLs that can be used to access the
+    # three graphs from the report page.
 
     # Makes the legend prettier.
     df, use_or_cost_cols = beautify_legend(df, use_or_cost_cols)
@@ -311,7 +318,11 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
     most_recent_complete_years = most_recent_complete_years.drop('Totals', axis=1)
 
     
+    # List holding the Matplotlib figures created.
     figs = []
+    
+    # List holding the URLs that will access the saved graph image files.
+    urls = []
     
     # Create a pie chart for each of 3 most recent complete years
     for year in years:
@@ -342,13 +353,18 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, filename):
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
      
-        new_filename = 'output/images/' + str(year) + '_' + filename.split('/')[-1]
+        # Include the year in the file
+        fn_with_yr = '{}_{}'.format(base_filename, year)
+        final_fn, url = graph_filename_url(site_id, fn_with_yr)
+        urls.append(url)
         
         # Save and show
-        plt.savefig(new_filename)
+        plt.savefig(final_fn)
         figs.append(fig)
         
     plt.close('all')
+    
+    return urls
 		
 		
 def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, title, filename):
