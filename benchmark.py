@@ -42,7 +42,7 @@ import pickle
 import glob
 import os
 import pprint
-from datetime import datetime
+import datetime
 import pandas as pd
 import numpy as np
 import bench_util as bu
@@ -1096,7 +1096,7 @@ if __name__=="__main__":
     msg('Benchmarking Script starting!')
     
     # Get a Date/Time String for labeling this report
-    report_date_time = datetime.now().strftime('%B %d, %Y %I:%M %p')
+    report_date_time = datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')
     
     # Read and Preprocess the data in the Utility Bill file, acquiring
     # a DataFrame of preprocessed data and a utility function object that is
