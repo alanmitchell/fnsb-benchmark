@@ -32,6 +32,13 @@ def filter_percent(val, precision = 1):
     format_string = "{:.%s%%}" % precision
     return format_string.format(val)
 
+def filter_only_string(val):
+    'Return blank for anything but strings.'
+    if type(val) is str:
+        return val
+    else:
+        return ''
+
 env = Environment(
     loader=FileSystemLoader(["../templates", "../templates/sites"])
 )
@@ -39,6 +46,7 @@ env = Environment(
 env.filters['blank'] = filter_blank
 env.filters['money'] = filter_money
 env.filters['number'] = filter_number
+env.filters['only_string'] = filter_only_string
 env.filters['percent'] = filter_percent
 
 sample_building = yaml.load(open("./data/sample_benchmark_data_new.yaml").read())
