@@ -1,5 +1,4 @@
-output/*.html
-output/sites/*.html
+output/
 *.png
 ~$*.xlsx
 *.csv
