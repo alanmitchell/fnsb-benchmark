@@ -483,7 +483,7 @@ def analyze_site(site, df, ut, report_date_time):
     )
 
     # drop non-energy columns
-    usage_df2 = usage_df2.drop(labels=['Sewer', 'Water'], axis=1)
+    usage_df2 = usage_df2.drop(labels=['Sewer', 'Water', 'Refuse'], axis=1)
 
     # Add in columns for the missing services
     missing_services = bu.missing_energy_services(usage_df2.columns)
@@ -497,6 +497,7 @@ def analyze_site(site, df, ut, report_date_time):
     # Create a list of columns to loop through and calculate percent total energy
     usage_cols = list(usage_df2.columns.values)
     usage_cols.remove('total_energy_mmbtu')
+    usage_df2 = usage_df2.fillna(0.0)
 
     for col in usage_cols:
         col_name = col.split('_mmbtu')[0] + "_pct"
@@ -547,7 +548,7 @@ def analyze_site(site, df, ut, report_date_time):
     # ---------------- Energy Usage and Cost Pie Charts -----------------------
 
     # Shorten the utility list to include only energy-related columns
-    utility_list = set(utility_list) - set(['sewer', 'water', 'refuse'])
+    utility_list = list(set(utility_list) - set(['sewer', 'water', 'refuse']))
     
     p5g1_filename, p5g1_url = gu.graph_filename_url(site, "energy_usage_cost_g1")
     gu.usage_pie_charts(usage_df2, usage_cols, 1, p5g1_filename)
