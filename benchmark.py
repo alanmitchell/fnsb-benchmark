@@ -1,9 +1,35 @@
 #!/usr/bin/env python3
 """ -------------------- MAIN BENCHMARKING SCRIPT -----------------------
 
-Fairbanks North Star Borough Utility Benchmarking script.
+Run this script by executing the following from a command prompt:
+    
+    python3 benchmark.py
+    
+Or, use just "python benchmark.py" if that is how you normally access Python 3.
+One some operating systems (Linux, Mac OSX), you may be able to run the script
+by executing "./benchmark.py" if you have changed the file mode of the file
+to be executable.
 
-** See Instructions for Use in the README.md file found in this directory **
+This script uses settings from a "settings.py" file, which should be placed
+in the same directory as this script.  Start by copying "settings_example.py"
+to "settings.py" and then modify settings in that copied file.
+
+In the settings file, you can specify the path to the Utility Bill CSV file you 
+want to read and the spreadsheet Other Data file, which contains the list of 
+sites to process, information (e.g. square feet) about each site, and degree day 
+data.  Modify this spreadsheet according to your needs; create multiple
+versions if you sometimes only want to process some of the sites.  The "data"
+directory is the best place to put Utility Bill and Other Data files.
+
+All reports and other output from this script appear in the "output" directory.
+View the resulting benchmarking report by opening the "output/index.html" file.
+Other useful data is put in the "output/extra_data" directory, including a 
+spreadsheet that summarizes utility information for all of the buildings.
+
+Each time the script is run, all files in the output directory are deleted and
+replaced with new files. So, if you have modified any of these files and want
+to save your modifications, copy the files to a location outside the output
+directory.
 
 The main script code is found at the *bottom* of this file; prior to the script
 are the functions that do that main work.  This code handles the main control
@@ -507,7 +533,7 @@ def analyze_site(site, df, ut, report_date_time):
 
     # The stacked bar graph
     p4g1_filename, p4g1_url = gu.graph_filename_url(site, 'energy_usage_ovw_g1')
-    gu.energy_use_stacked_bar(reset_usage_df2, 'fiscal_year', usage_cols, "Annual Energy Usage by Fuel Type", p4g1_filename)
+    gu.energy_use_stacked_bar(reset_usage_df2, 'fiscal_year', usage_cols, p4g1_filename)
 
     # Convert df to dictionary
     energy_use_overview_rows = bu.df_to_dictionaries(usage_df2)
@@ -1030,7 +1056,7 @@ def analyze_site(site, df, ut, report_date_time):
                                   aggfunc=np.sum
     )
 
-    p10g2_filename, p10g2_url = ..graph_filename_url(site, "water_analysis_g2")
+    p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
     gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
                               "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
 
