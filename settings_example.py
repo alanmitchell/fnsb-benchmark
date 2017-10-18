@@ -22,7 +22,8 @@ OTHER_DATA_FILE_PATH = 'data/Other_Building_Data.xlsx'
 # Set the following to True if you want to use the same Utility Bill and Other 
 # Data from the last run of the benchmark script.  This will substantially
 # speed up the time required to run the script, since reading the CSV file and
-# preprocessing the data are skipped. (True / False)
+# preprocessing the data are skipped. Useful for debugging code that doesn't 
+# affect the preprocessing routine.  (True / False)
 USE_DATA_FROM_LAST_RUN = False
 
 # If the following setting is True, debug information will be written to the
