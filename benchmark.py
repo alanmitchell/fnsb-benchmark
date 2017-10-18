@@ -339,6 +339,12 @@ def analyze_site(site, df, ut, report_date_time):
     df_final['eci'] = df_final.total_energy_cost / df_final.sq_ft
     df_final['specific_eui'] = df_final.total_heat_mmbtu * 1e6 / df_final.sq_ft / df_final.degree_days
     
+    # Save this to a spreadsheet, if it has not already been saved
+    fn = 'output/extra_data/site_summary_FY{}.xlsx'.format(last_complete_year)
+    if not os.path.exists(fn):
+        excel_writer = pd.ExcelWriter(fn)
+        df_final.to_excel(excel_writer, sheet_name='Sites')
+    
     # Get the totals across all buildings
     totals_all_bldgs = df_final.sum()
 
@@ -382,7 +388,7 @@ def analyze_site(site, df, ut, report_date_time):
         site_info = df_final.iloc[0].copy()   # Just grab the first row to start with
         site_info[:] = np.NaN                 # Put 
         site_pct = site_info.copy()
-        site_rank = sit_info.copy()
+        site_rank = site_info.copy()
     
     # Make a final dictioary to hold all the results for this table
     tbl2_data = {
