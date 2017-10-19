@@ -1188,12 +1188,12 @@ if __name__=="__main__":
                 pprint.pprint(template_data, fout)
 
         # create report file
-        try:
-            result = site_template.render(template_data)
-            with open('output/sites/{}.html'.format(site_id), 'w') as fout:
-                fout.write(result)
-        except:
-            print('error')
+		if template_data is None:
+			continue
+		else:
+			result = site_template.render(template_data)
+	 +      with open('output/sites/{}.html'.format(site_id), 'w') as fout:
+	 +      	fout.write(result)
         
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
