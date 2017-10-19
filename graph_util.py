@@ -195,7 +195,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
     
     # Check to see if the dataframe is empty, and if so, set the saved figure as an empty filename
     if df.empty:
-        shutil.copyfile(os.path.abspath('data/water_sewer_no_data_available.png'), os.path.abspath(filename))
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
     else:
         # Makes the legend prettier.
         df, column_name_list = beautify_legend(df, column_name_list)

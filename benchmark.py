@@ -673,7 +673,7 @@ def analyze_site(site, df, ut, report_date_time):
             electric_annual_cost['demand_cost'] = 0.0
 
         # Create a total column
-        electric_annual_cost['Total Cost'] = electric_annual_cost.demand_cost + electric_annual_cost.usage_cost
+        electric_annual_cost['Total Cost'] = electric_annual_cost[['demand_cost', 'usage_cost']].sum(axis=1)
 
         # Add percent change columns
         electric_annual_cost['usage_cost_pct_change'] = electric_annual_cost.usage_cost.pct_change()
