@@ -19,6 +19,19 @@ def calendar_to_fiscal(cal_year, cal_mo):
 
     return fiscal_year, fiscal_month
 
+def fiscal_to_calendar(fiscal_year, fiscal_mo):
+    """Converts a fiscal year and month into a calendar year and month for graphing purposes.
+    Returns (calendar_year, calendar_month) tuple."""
+    
+    if fiscal_mo > 6:
+        calendar_month = fiscal_mo - 6
+        calendar_year = fiscal_year
+    else:
+        calendar_month = fiscal_mo + 6
+        calendar_year = fiscal_year - 1
+        
+    return (calendar_year, calendar_month)
+
 # Fiscal Month labels, both as a list and as a dictionary
 mo_list = [
     'Jul',
