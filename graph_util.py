@@ -73,6 +73,8 @@ def color_formatter(col_name_list):
             color_dict[col_name] = '#33a02c'
         elif 'electricity' in col_name.lower() or 'kwh' in col_name.lower() or 'Electricity' in col_name:
             color_dict[col_name] = '#a6cee3'
+        elif 'refuse' in col_name.lower():
+            color_dict[col_name] = '#ff7f00'
         else:
             color_dict[col_name] = '#000000'
             
@@ -304,6 +306,8 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
     # This function returns a list of the URLs that can be used to access the
     # three graphs from the report page.
 
+    mpl.rcParams.update({'font.size': 32})
+
     # Makes the legend prettier.
     df, use_or_cost_cols = beautify_legend(df, use_or_cost_cols)
     
@@ -350,7 +354,7 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
         ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
         shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
         
-        plt.tick_params(axis='both', which='both', labelsize=20)
+        plt.tick_params(axis='both', which='both', labelsize=28)
     
         # Create the title based on whether it is an energy use or energy cost pie chart.  
         if chart_type == 1:
