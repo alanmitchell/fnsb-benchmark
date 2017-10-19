@@ -209,6 +209,13 @@ class Util:
                 skiprows=3, 
                 index_col='site_id'
                 )
+
+        # Add a full address column, combo of address and city.
+        df_bldg['full_address'] = df_bldg.address.str.strip() + ', ' + \
+            df_bldg.city.str.strip()
+        # now remove any leading or trailing commas.
+        df_bldg.full_address = df_bldg.full_address.str.strip(',') 
+        
         # Create a dictionary to hold info for each building
         # The keys of the dictionary are the columns from the spreadsheet that
         # was just read, but also a number of other fields related to 
@@ -419,12 +426,4 @@ class Util:
         source spreadsheet, 0.0 is returned.
         """
         return self._fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
-
-
-if __name__=='__main__':
-    import pickle
-    df_raw = pickle.load(open('testing/df_raw.pkl', 'rb'))
-    other_pth = 'data/Other_Building_Data.xlsx'
-    ut = Util(df_raw, other_pth)
-    print(ut.bldg_info['03'])
     
