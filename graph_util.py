@@ -7,6 +7,7 @@ import matplotlib.dates as mdates
 import bench_util as bu
 import shutil
 import os
+from matplotlib import font_manager as fm
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
 mpl.rcParams['axes.labelsize'] = 20
@@ -306,8 +307,6 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
     # This function returns a list of the URLs that can be used to access the
     # three graphs from the report page.
 
-    mpl.rcParams.update({'font.size': 32})
-
     # Makes the legend prettier.
     df, use_or_cost_cols = beautify_legend(df, use_or_cost_cols)
     
@@ -351,10 +350,11 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
 
         fig, ax = plt.subplots()
 
-        ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
-        shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
         
-        plt.tick_params(axis='both', which='both', labelsize=28)
+        patches, texts, autotexts = ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
+                                                shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
+        
+        plt.tick_params(axis='both', which='both', labelsize=32)
     
         # Create the title based on whether it is an energy use or energy cost pie chart.  
         if chart_type == 1:
@@ -362,11 +362,18 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
         else:
             title = "FY " + str(year) + " Energy Cost [$]"
             
-        plt.title(title, fontsize=20)
-
+        plt.title(title)
+        
+        # Make the graph take up a larger portion of the figure 
+        plt.axis([0.75, 0.75, 0.75, 0.75])
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-     
+        
+        # Increase the font size of the labels
+        props = fm.FontProperties()
+        props.set_size(32)
+        plt.setp(autotexts, fontproperties=props)
+        plt.setp(texts, fontproperties=props)
+        
         # Include the year in the file
         fn_with_yr = '{}_{}'.format(base_filename, year)
         final_fn, url = graph_filename_url(site_id, fn_with_yr)
@@ -379,8 +386,8 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
     plt.close('all')
     
     return urls
-		
-		
+
+
 def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, title, filename):
     # Parameters: 
         # df: A dataframe with the fiscal_year, fiscal_mo, and appropriate graph column name ('kWh', 'kW', etc.)
