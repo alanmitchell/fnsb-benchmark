@@ -913,24 +913,11 @@ def analyze_site(site, df, ut, report_date_time):
                                                        monthly_heat_energy_and_use[service], 
                                                        monthly_heat_energy_and_use[col])
 
-        def fiscal_to_calendar(fiscal_year, fiscal_mo):
-            """Converts a fiscal year and month into a calendar year and month for graphing purposes.
-            Returns (calendar_year, calendar_month) tuple."""
-
-            if fiscal_mo > 6:
-                calendar_month = fiscal_mo - 6
-                calendar_year = fiscal_year
-            else:
-                calendar_month = fiscal_mo + 6
-                calendar_year = fiscal_year - 1
-
-            return (calendar_year, calendar_month)
-
         # Add calendar year and month columns
         cal_year = []
         cal_mo = []
         for fiscal_year, fiscal_mo in zip(monthly_heat_energy_and_use.fiscal_year, monthly_heat_energy_and_use.fiscal_mo):
-            CalYear, CalMo = fiscal_to_calendar(fiscal_year, fiscal_mo)
+            CalYear, CalMo = bu.fiscal_to_calendar(fiscal_year, fiscal_mo)
             cal_year.append(CalYear)
             cal_mo.append(CalMo)
         monthly_heat_energy_and_use['calendar_year'] = cal_year
