@@ -15,8 +15,27 @@
     overflow: visible !important;
   }
 
+  h1 {
+    margin-top: 50%;
+    text-align: center;
+  }
+
+  section h2 {
+    page-break-before: always;
+  }
+
+  section.energy-cost-usage .graph {
+    max-width: 33%;
+    width: 33%;
+  }
+
   .graph {
     display: inline-block;
+    float: left;
+    margin-top: 50px;
+    max-width: 50%;
+    text-align: center;
+    width: 50%;
   }
 
   .navbar {
