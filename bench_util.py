@@ -127,12 +127,9 @@ def add_month_count_column(df_target, df_detail, yr_col='fiscal_year', mo_col='f
     mo_count = month_count(mo_present)
     df_target['month_count'] = mo_count
 
-def missing_services(services_present):
-    """Returns a list of the Service Types that are *not* present in the 
-    'services_present' input list.
-    """
-    # I'm leaving out Oil #2 here.
-    all_services = set([
+# List of all possible services
+# I'm leaving out Oil #2 here.
+all_services = [
         'Oil #1',
         'Natural Gas',
         'Electricity',
@@ -140,22 +137,32 @@ def missing_services(services_present):
         'Water',
         'Sewer',
         'Refuse'
-    ])
-    
-    return list(all_services - set(services_present))
+]
+
+all_energy_services = [
+    'Oil #1',
+    'Natural Gas',
+    'Electricity',
+    'Steam'
+]
+
+all_heat_services = [
+    'Oil #1',
+    'Natural Gas',
+    'Steam'
+]
+
+def missing_services(services_present):
+    """Returns a list of the Service Types that are *not* present in the 
+    'services_present' input list.
+    """
+    return list(set(all_services) - set(services_present))
 
 def missing_energy_services(services_present):
     """Returns a list of the Energy-related Service Types that are *not* present
     in the 'services_present' input list.
     """
-    energy_services= set([
-        'Oil #1',
-        'Natural Gas',
-        'Electricity',
-        'Steam'
-    ])
-
-    return list(energy_services - set(services_present))
+    return list(set(all_energy_services) - set(services_present))
 
 def add_columns(df, col_names):
     """Adds a new column to the DataFrame df for each column name in the list
@@ -163,6 +170,17 @@ def add_columns(df, col_names):
     """
     for col in col_names:
         df[col] = 0.0
+
+def add_missing_columns(df_in, required_columns, fill_val=0.0):
+    """Adds columns to the DataFrame 'df' if it does not contain all of the
+    columns in the list 'required_columns'.  'fill_val' is the value that is used
+    to fill the new columns.
+    """
+    missing_cols = set(required_columns) - set(df_in.columns)
+    for col in missing_cols:
+        df_in[col] = fill_val
+
+    return df_in
 
 def df_to_dictionaries(df, change_names={}, include_index=True):
     """Returns a list of dictionaries, one dictionary for each row in the 
