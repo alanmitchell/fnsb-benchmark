@@ -45,6 +45,7 @@ section h3 {
 
 .container {
   width: 90%;
+  overflow: visible;
 }
 
 .graph {
