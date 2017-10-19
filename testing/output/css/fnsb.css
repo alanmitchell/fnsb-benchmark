@@ -79,6 +79,10 @@ section h3 {
   position: relative;
 }
 
+.modal-dialog button.close {
+  font-size: 32px;
+}
+
 .modal-header {
   -webkit-filter: none;
   background-image: -o-linear-gradient(#fff, #eee 50%, #e4e4e4);
