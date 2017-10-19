@@ -10,9 +10,12 @@
     <link rel="stylesheet" type="text/css" media="print" href="{{ root_path }}/css/print.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="/js/html5shiv.js"></script>
-      <script src="/js/respond.min.js"></script>
+      <script src="{{ root_path }}/js/html5shiv.js"></script>
+      <script src="{{ root_path }}/js/respond.min.js"></script>
     <![endif]-->
+    <script src="{{ root_path }}/js/jquery-3.2.1.min.js"></script>
+    <script src="{{ root_path }}/js/tether.min.js"></script>
+    <script src="{{ root_path }}/js/bootstrap.min.js"></script>
   </head>
   <body>
     <div class="navbar navbar-default navbar-fixed-top">
@@ -56,5 +59,7 @@
       </footer>
 
     </div>
+
+    {% include "image-modal.html" %}
   </body>
 </html>

@@ -10,9 +10,12 @@
     <link rel="stylesheet" type="text/css" media="print" href="./css/print.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="/js/html5shiv.js"></script>
-      <script src="/js/respond.min.js"></script>
+      <script src="./js/html5shiv.js"></script>
+      <script src="./js/respond.min.js"></script>
     <![endif]-->
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/tether.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
   </head>
   <body>
     <div class="navbar navbar-default navbar-fixed-top">
@@ -779,5 +782,29 @@
       </footer>
 
     </div>
+
+    <div class="modal fade" id="imagemodal" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img class="imagepreview" src="" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $(".graph").on("click", function() {
+      $(".imagepreview").attr("src", $(this).attr("src"));
+      $("#imagemodal").modal("show");
+    });
+  })
+</script>
   </body>
 </html>

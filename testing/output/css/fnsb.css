@@ -49,6 +49,7 @@ section h3 {
 }
 
 .graph {
+  cursor: pointer;
   width: 100%;
 }
 
