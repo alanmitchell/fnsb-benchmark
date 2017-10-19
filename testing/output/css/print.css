@@ -24,6 +24,10 @@
     page-break-before: always;
   }
 
+  section.utility-information h2 {
+    page-break-before: avoid;
+  }
+
   section.energy-cost-usage .graph {
     max-width: 29%;
     width: 29%;
