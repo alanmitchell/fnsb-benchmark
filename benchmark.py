@@ -866,7 +866,6 @@ def analyze_site(site, df, ut, report_date_time):
         # Exclude other charges from the natural gas costs.  This is because the unit costs for natural gas go to infinity
         # when there is zero usage but a customer charge
         cost_df1 = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
-        cost_df1.query("service_type == 'Natural Gas'").head()
 
         # Create cost dataframe for given site from processed data
         cost_df1 = cost_df1.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'cost']]
@@ -884,7 +883,7 @@ def analyze_site(site, df, ut, report_date_time):
         bu.add_columns(monthly_heating_cost, missing_services)
 
         # Drop the non-heating services
-        monthly_heating_cost = monthly_heating_cost[monthly_heating_cost.columns.difference(['Sewer', 'Water', 'Refuse'])]
+        monthly_heating_cost = monthly_heating_cost[monthly_heating_cost.columns.difference(['Electricity', 'Sewer', 'Water', 'Refuse'])]
 
         # Create a total heating column
         monthly_heating_cost['total_heating_cost'] = monthly_heating_cost.sum(axis=1)
@@ -1087,7 +1086,7 @@ def analyze_site(site, df, ut, report_date_time):
             gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
                                       "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
         else:
-            shutil.copyfile(os.path.abspath('data/water_sewer_no_data_available.png'), os.path.abspath(p10g2_filename))
+            shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(p10g2_filename))
 
         # Convert df to dictionary
         water_rows = bu.df_to_dictionaries(water_use_and_cost)
