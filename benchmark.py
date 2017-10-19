@@ -752,7 +752,7 @@ def analyze_site(site, df, ut, report_date_time):
         bu.add_columns(monthly_heating, missing_services)
 
         # Drop the non-heating services
-        monthly_heating = monthly_heating[monthly_heating.columns.difference(['Sewer', 'Water', 'Refuse'])]
+        monthly_heating = monthly_heating[monthly_heating.columns.difference(['Sewer', 'Water', 'Refuse', 'Electricity'])]
 
         # Create a total heating column
         monthly_heating['total_heating_energy'] = monthly_heating.sum(axis=1)
@@ -1187,13 +1187,13 @@ if __name__=="__main__":
             with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
                 pprint.pprint(template_data, fout)
 
-        # create report file
-		if template_data is None:
-			continue
-		else:
-			result = site_template.render(template_data)
-	 +      with open('output/sites/{}.html'.format(site_id), 'w') as fout:
-	 +      	fout.write(result)
+        # create report file if there is template_data
+        if template_data is None:
+            continue
+        else:
+            result = site_template.render(template_data)
+            with open('output/sites/{}.html'.format(site_id), 'w') as fout:
+                fout.write(result)
         
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
