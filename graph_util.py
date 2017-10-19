@@ -336,17 +336,21 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
         # Make current year dataframe
         year_df = most_recent_complete_years.query("fiscal_year == @year")
     
+        updated_use_or_cost_cols = []
+        
         # Drop columns that only have zero usage
         for col in use_or_cost_cols:
             if year_df[col].iloc[0] == 0:
                 year_df = year_df.drop(col, axis=1)
+            else:
+                updated_use_or_cost_cols.append(col)
 
         fig, ax = plt.subplots()
 
         ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
-        shadow=True, startangle=90, colors=[ color_dict[i] for i in use_or_cost_cols])
+        shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
         
-        plt.tick_params(axis='both', which='both', labelsize=16)
+        plt.tick_params(axis='both', which='both', labelsize=20)
     
         # Create the title based on whether it is an energy use or energy cost pie chart.  
         if chart_type == 1:
