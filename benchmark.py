@@ -216,7 +216,8 @@ def analyze_site(site, df, ut, report_date_time):
     df1 = df.query('site_id==@site and service_type==@energy_services')
     
     if df1.empty:
-        return template_data
+        return None
+    
     else:
     
         # Sum Energy Costs and Usage
