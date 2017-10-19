@@ -17,7 +17,7 @@
   <div class="row">
     <div class="col-12">
       <dt>Address:</dt>
-      <dd>{{ building_info.bldg.address | only_string }}, {{ building_info.bldg.city | only_string }}</dd>
+      <dd>{{ building_info.bldg.full_address | only_string }}</dd>
     </div>
   </div>
 
@@ -31,7 +31,7 @@
   <div class="row">
     <div class="col-6">
       <dt>Year Built:</dt>
-      <dd>{{ building_info.bldg.year_built | int }}</dd>
+      <dd>{{ building_info.bldg.year_built | number(0, False) }}</dd>
     </div>
     <div class="col-6">
       <dt>Square Footage:</dt>

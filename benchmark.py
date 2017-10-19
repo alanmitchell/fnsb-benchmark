@@ -448,7 +448,7 @@ def analyze_site(site, df, ut, report_date_time):
     reset_df2 = df2.reset_index()
     
     # Save this DataFrame for use in the Heating Cost Analysis Report
-    df_energy_cost = reset_df2.copy()
+    df_utility_cost = reset_df2.copy()
 
     # Get appropriate file names and URLs for the graph
     g1_fn, g1_url = gu.graph_filename_url(site, 'util_cost_ovw_g1')
@@ -767,19 +767,28 @@ def analyze_site(site, df, ut, report_date_time):
 
     # ------------------- Heating Cost Analysis Table -----------------------
 
-    # Use the DataFrame from the Energy Cost Analysis report, 3rd report created
-    # above.
-    df2 = df_energy_cost
+    # Use the df_utility_cost DataFrame from the Energy Cost Analysis report, 
+    # 3rd report created above.
+    
+    # Put DataFrame back into ascending order, as we need to calculate a percent
+    # change column.
+    # Index is NOT Years
+    df_utility_cost.sort_values('fiscal_year', ascending=True, inplace=True)
+
+    # Make a total heat cost column and it's percent change
+    df_utility_cost['total_heat_cost'] = df_utility_cost[['natural_gas', 'fuel_oil', 'district_heat']].sum(axis=1)
+    df_utility_cost['total_heat_cost_pct_change'] = df_utility_cost.total_heat_cost.pct_change()
+    
+    # Index is not years. Now back in descending order
+    df_utility_cost.sort_values('fiscal_year', ascending=False, inplace=True)
 
     # Use only necessary columns
-    heating_cost = df2[['fiscal_year', 'natural_gas', 'fuel_oil', 'district_heat', 'total', 'pct_change']]
+    heating_cost = df_utility_cost[['fiscal_year', 'natural_gas', 'fuel_oil', 'district_heat', 'total_heat_cost', 'total_heat_cost_pct_change']]
 
     # Change column names so they aren't the same as the heating usage dataframe
     heating_cost = heating_cost.rename(columns={'natural_gas':'natural_gas_cost',
                                                'fuel_oil': 'fuel_oil_cost',
-                                               'district_heat': 'district_heat_cost',
-                                               'total': 'total_heat_cost',
-                                               'pct_change': 'total_heat_cost_pct_change'})
+                                               'district_heat': 'district_heat_cost'})
 
     # Combine the heating cost and heating use dataframes
     heating_cost_and_use = pd.merge(heating_cost, heating_usage, left_on='fiscal_year', right_index=True, how='right')
@@ -908,24 +917,11 @@ def analyze_site(site, df, ut, report_date_time):
                                                    monthly_heat_energy_and_use[service], 
                                                    monthly_heat_energy_and_use[col])
 
-    def fiscal_to_calendar(fiscal_year, fiscal_mo):
-        """Converts a fiscal year and month into a calendar year and month for graphing purposes.
-        Returns (calendar_year, calendar_month) tuple."""
-        
-        if fiscal_mo > 6:
-            calendar_month = fiscal_mo - 6
-            calendar_year = fiscal_year
-        else:
-            calendar_month = fiscal_mo + 6
-            calendar_year = fiscal_year - 1
-            
-        return (calendar_year, calendar_month)
-
     # Add calendar year and month columns
     cal_year = []
     cal_mo = []
     for fiscal_year, fiscal_mo in zip(monthly_heat_energy_and_use.fiscal_year, monthly_heat_energy_and_use.fiscal_mo):
-        CalYear, CalMo = fiscal_to_calendar(fiscal_year, fiscal_mo)
+        CalYear, CalMo = bu.fiscal_to_calendar(fiscal_year, fiscal_mo)
         cal_year.append(CalYear)
         cal_mo.append(CalMo)
     monthly_heat_energy_and_use['calendar_year'] = cal_year
@@ -1183,12 +1179,9 @@ if __name__=="__main__":
                 pprint.pprint(template_data, fout)
 
         # create report file
-        try:
-            result = site_template.render(template_data)
-            with open('output/sites/{}.html'.format(site_id), 'w') as fout:
-                fout.write(result)
-        except:
-            print('error')
+        result = site_template.render(template_data)
+        with open('output/sites/{}.html'.format(site_id), 'w') as fout:
+            fout.write(result)
         
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:

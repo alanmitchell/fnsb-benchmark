@@ -19,6 +19,19 @@ def calendar_to_fiscal(cal_year, cal_mo):
 
     return fiscal_year, fiscal_month
 
+def fiscal_to_calendar(fiscal_year, fiscal_mo):
+    """Converts a fiscal year and month into a calendar year and month for graphing purposes.
+    Returns (calendar_year, calendar_month) tuple."""
+    
+    if fiscal_mo > 6:
+        calendar_month = fiscal_mo - 6
+        calendar_year = fiscal_year
+    else:
+        calendar_month = fiscal_mo + 6
+        calendar_year = fiscal_year - 1
+        
+    return (calendar_year, calendar_month)
+
 # Fiscal Month labels, both as a list and as a dictionary
 mo_list = [
     'Jul',
@@ -196,6 +209,13 @@ class Util:
                 skiprows=3, 
                 index_col='site_id'
                 )
+
+        # Add a full address column, combo of address and city.
+        df_bldg['full_address'] = df_bldg.address.str.strip() + ', ' + \
+            df_bldg.city.str.strip()
+        # now remove any leading or trailing commas.
+        df_bldg.full_address = df_bldg.full_address.str.strip(',') 
+        
         # Create a dictionary to hold info for each building
         # The keys of the dictionary are the columns from the spreadsheet that
         # was just read, but also a number of other fields related to 
@@ -406,12 +426,4 @@ class Util:
         source spreadsheet, 0.0 is returned.
         """
         return self._fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
-
-
-if __name__=='__main__':
-    import pickle
-    df_raw = pickle.load(open('testing/df_raw.pkl', 'rb'))
-    other_pth = 'data/Other_Building_Data.xlsx'
-    ut = Util(df_raw, other_pth)
-    print(ut.bldg_info['03'])
     
