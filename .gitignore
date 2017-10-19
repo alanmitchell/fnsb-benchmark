@@ -3,7 +3,6 @@ output/
 ~$*.xlsx
 *.csv
 *.zip
-
 # Files created by Python pickle.dump
 *.pkl
 
@@ -12,6 +11,10 @@ output/
 
 # the user's settings file for the benchmark script
 settings.py    
+
+# PyCharm creates some of these:
+*.xml
+*.iml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
