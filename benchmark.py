@@ -48,6 +48,7 @@ import numpy as np
 import bench_util as bu
 import graph_util as gu
 import template_util
+import shutil
 import settings       # the file holding settings for this script
 
 #*****************************************************************************
@@ -1076,10 +1077,14 @@ def analyze_site(site, df, ut, report_date_time):
                                   columns=['service_type'],
                                   aggfunc=np.sum
     )
-
+    
     p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
-    gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
-                              "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
+    
+    if 'Water' in list(water_gal_df_monthly.columns.values):
+        gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
+                                  "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
+    else:
+        shutil.copyfile(os.path.abspath('data/water_sewer_no_data_available.png'), os.path.abspath(p10g2_filename))
 
     # Convert df to dictionary
     water_rows = bu.df_to_dictionaries(water_use_and_cost)
@@ -1164,6 +1169,7 @@ if __name__=="__main__":
     
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
+        if site_id < '15': continue        # new line of code, pick whatever Site ID you want to start with
 
         msg("Site '{}' is being processed...".format(site_id))
         

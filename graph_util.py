@@ -5,6 +5,8 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib as mpl
 import matplotlib.dates as mdates
 import bench_util as bu
+import shutil
+import os
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
 mpl.rcParams['axes.labelsize'] = 20
@@ -188,48 +190,52 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
     
-    # Makes the legend prettier.
-    df, column_name_list = beautify_legend(df, column_name_list)
-    
-    # Create the figure
-    fig, ax = plt.subplots()
-    
-    # Set the bar width
-    width = 0.50
-    
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(column_name_list)
-    
-    # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
-    previous_col_name = 0
-    
-    # Fill the NaNs
-    df = df.fillna(0)
-    
-    for col in column_name_list:
-        col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
-        previous_col_name = previous_col_name + df[col]
-      
-    # label axes
-    plt.ylabel(ylabel)
-    plt.xlabel('Fiscal Year')
-    
-    # Make one bar for each fiscal year
-    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
-               np.sort(list(df[fiscal_year_col].unique())))
-    
-    df['total_cost'] = df[column_name_list].sum(axis=1)
-    ax.set_ylim(bottom=0, top=df.total_cost.max() + df.total_cost.max()*0.10)
-    
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    
-    plt.title(title)
-    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
+    # Check to see if the dataframe is empty, and if so, set the saved figure as an empty filename
+    if df.empty:
+        shutil.copyfile(os.path.abspath('data/water_sewer_no_data_available.png'), os.path.abspath(filename))
+    else:
+        # Makes the legend prettier.
+        df, column_name_list = beautify_legend(df, column_name_list)
+
+        # Create the figure
+        fig, ax = plt.subplots()
+
+        # Set the bar width
+        width = 0.50
+
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(column_name_list)
+
+        # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
+        previous_col_name = 0
+
+        # Fill the NaNs
+        df = df.fillna(0)
+
+        for col in column_name_list:
+            col_name = plt.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
+            previous_col_name = previous_col_name + df[col]
+
+        # label axes
+        plt.ylabel(ylabel)
+        plt.xlabel('Fiscal Year')
+
+        # Make one bar for each fiscal year
+        plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
+                   np.sort(list(df[fiscal_year_col].unique())))
+
+        df['total_cost'] = df[column_name_list].sum(axis=1)
+        ax.set_ylim(bottom=0, top=df.total_cost.max() + df.total_cost.max()*0.10)
+
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+
+        plt.title(title)
+        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
 	
 	
 def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
