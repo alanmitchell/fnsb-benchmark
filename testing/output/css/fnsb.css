@@ -53,6 +53,55 @@ section h3 {
   width: 100%;
 }
 
+.modal-body {
+  height: 100%;
+  min-height: 100%;
+  text-align: center;
+}
+
+.modal-content {
+  height: 100%;
+  min-height: 100%;
+  border-radius: 0;
+}
+
+.modal-content img {
+  height: 90%;
+  min-height: 90%;
+  margin: auto;
+}
+
+.modal-dialog {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.modal-header {
+  -webkit-filter: none;
+  background-image: -o-linear-gradient(#fff, #eee 50%, #e4e4e4);
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(#fff),
+    color-stop(50%, #eee),
+    to(#e4e4e4)
+  );
+  background-image: -webkit-linear-gradient(#fff, #eee 50%, #e4e4e4);
+  background-image: linear-gradient(#fff, #eee 50%, #e4e4e4);
+  background-repeat: no-repeat;
+  border: 1px solid #d5d5d5;
+  filter: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(
+      startColorstr='#ffffffff',
+      endColorstr='#ffe4e4e4',
+      GradientType=0
+    );
+}
+
 .page-header {
   margin-top: 60px;
 }
