@@ -1,13 +1,13 @@
 @media print {
   body,
+  div,
   h1,
   h2,
   h3,
   ol,
-  ul,
-  div,
+  p,
   span,
-  p {
+  ul {
     display: block !important;
     width: auto !important;
     float: none !important;
@@ -25,17 +25,19 @@
   }
 
   section.energy-cost-usage .graph {
-    max-width: 33%;
-    width: 33%;
+    max-width: 29%;
+    width: 29%;
+    margin: 2%;
   }
 
   .graph {
     display: inline-block;
     float: left;
     margin-top: 50px;
-    max-width: 50%;
+    max-width: 46%;
+    margin: 2%;
     text-align: center;
-    width: 50%;
+    width: 46%;
   }
 
   .navbar {
