@@ -121,6 +121,11 @@ section h3 {
   max-width: 100px;
 }
 
+.table td.wide,
+.table th.wide {
+  max-width: 200px;
+}
+
 .table.centered td,
 .table.centered th {
   text-align: center;
