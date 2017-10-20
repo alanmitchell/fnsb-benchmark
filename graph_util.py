@@ -464,62 +464,66 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # ylabel1 and ylabel2: Strings to name the y-axes
     # filename: A string with the filename where the output should be saved.
     
-    # Makes the legend prettier.
-    df, bar_col_list = beautify_legend(df, bar_col_list)
-    
-     # Makes the legend prettier.
-    df_line, line_col = beautify_legend(df, [line_col])
-    
-    # Create the figure
-    fig, ax = plt.subplots()
-    
-    # Set the bar width
-    width = 0.50
-    
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(bar_col_list)
-    
-    # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
-    previous_col_name = 0
-    
-    # Fill the NaNs
-    df = df.fillna(0)
-    df_line = df_line.fillna(0)
-    
-    for col in bar_col_list:
-        col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
-        previous_col_name = previous_col_name + df[col]
-      
-    # label axes
-    ax.set_ylabel(ylabel1)
-    ax.set_xlabel('Fiscal Year')
-    
-    # Make one bar for each fiscal year
-    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
-               np.sort(list(df[fiscal_year_col].unique())))
-    
-    ax.set_ylim(bottom=0, top=previous_col_name.max() + previous_col_name.max()*0.10)
-    
-    # Create the line on the same graph but on a separate axis.
-    ax2 = ax.twinx()
-    ax2.plot(df_line[fiscal_year_col], df_line[line_col[0]], label=line_col[0], color='k',linewidth=5, marker='D', markersize=10)
-    ax2.set_ylabel(ylabel2)
-    
-    # Ensure that the axis starts at 0.
-    ax2.set_ylim(bottom=0, top=df_line[line_col[0]].max() + df_line[line_col[0]].max()*0.10)
-    
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    ax2.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    
-    h1, l1 = ax.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    ax.legend(h1+h2, l1+l2, loc='lower left')
-    plt.title(title)
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
+    # Test to see if the dataframe is empty or if all values equal zero
+    if df.empty or (df == 0.0).all().all():
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+    else:
+        # Makes the legend prettier.
+        df, bar_col_list = beautify_legend(df, bar_col_list)
+        
+         # Makes the legend prettier.
+        df_line, line_col = beautify_legend(df, [line_col])
+        
+        # Create the figure
+        fig, ax = plt.subplots()
+        
+        # Set the bar width
+        width = 0.50
+        
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(bar_col_list)
+        
+        # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
+        previous_col_name = 0
+        
+        # Fill the NaNs
+        df = df.fillna(0)
+        df_line = df_line.fillna(0)
+        
+        for col in bar_col_list:
+            col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
+            previous_col_name = previous_col_name + df[col]
+          
+        # label axes
+        ax.set_ylabel(ylabel1)
+        ax.set_xlabel('Fiscal Year')
+        
+        # Make one bar for each fiscal year
+        plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
+                   np.sort(list(df[fiscal_year_col].unique())))
+        
+        ax.set_ylim(bottom=0, top=previous_col_name.max() + previous_col_name.max()*0.10)
+        
+        # Create the line on the same graph but on a separate axis.
+        ax2 = ax.twinx()
+        ax2.plot(df_line[fiscal_year_col], df_line[line_col[0]], label=line_col[0], color='k',linewidth=5, marker='D', markersize=10)
+        ax2.set_ylabel(ylabel2)
+        
+        # Ensure that the axis starts at 0.
+        ax2.set_ylim(bottom=0, top=df_line[line_col[0]].max() + df_line[line_col[0]].max()*0.10)
+        
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        ax2.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        h1, l1 = ax.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax.legend(h1+h2, l1+l2, loc='lower left')
+        plt.title(title)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
     
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):

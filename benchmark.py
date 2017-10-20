@@ -578,7 +578,7 @@ def analyze_site(site, df, ut, report_date_time):
                                         aggfunc=np.sum)
         else:
             # Create an empty dataframe with the correct index
-            electric_pivot_monthly = site_df.groupby(['fiscal_year', 'fiscal_mo']).mean()[[]]
+            electric_pivot_monthly = site_df.groupby(level=[0]).mean()[[]]
 
         # Add in missing electricity columns and fill them with zeros
         electric_pivot_monthly = bu.add_missing_columns(electric_pivot_monthly, ['kWh', 'kW'])
@@ -600,7 +600,7 @@ def analyze_site(site, df, ut, report_date_time):
             # Create an empty dataframe with the correct index
             electric_pivot_annual = site_df.groupby(['fiscal_year']).mean()[[]]
 
-        electric_pivot_annual = bu.add_missing_columns(electric_pivot_annual, ['kWh', 'kW'] ,0.0)
+        electric_pivot_annual = bu.add_missing_columns(electric_pivot_annual, ['kWh', 'kW'])
         electric_use_annual = electric_pivot_annual[['kWh']]
         electric_use_annual = electric_use_annual.rename(columns={'kWh':'ann_electric_usage_kWh'})
 
@@ -1192,7 +1192,7 @@ if __name__=="__main__":
     
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
-        if site_id < 'ASLC21': continue        # new line of code, pick whatever Site ID you want to start with
+        if site_id < 'MSLL001': continue        # new line of code, pick whatever Site ID you want to start with
 
         msg("Site '{}' is being processed...".format(site_id))
         
