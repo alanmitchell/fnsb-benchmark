@@ -34,6 +34,17 @@
     margin: 2%;
   }
 
+  /* TODO: Uncomment if you do NOT want the "title page" on the print report */
+  /*
+  #banner {
+    display: none !important;
+  }
+  */
+
+  #imagemodal {
+    display: none !important;
+  }
+
   .graph {
     display: inline-block;
     float: left;
