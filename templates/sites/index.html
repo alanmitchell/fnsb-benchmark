@@ -4,7 +4,7 @@
 {% set root_path = ".." %}
 {% set show_subnav = true %}
 
-{% block date_updated %}{{ building_info.date_updated }}{% endblock %}
+{% set date_updated = building_info.date_updated %}
 {% block page_title %}{{ building_name }}{% endblock %}
 {% block header_title %}{{ building_name }}{% endblock %}
 
