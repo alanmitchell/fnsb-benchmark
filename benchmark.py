@@ -218,121 +218,11 @@ def analyze_site(site, df, ut, report_date_time):
     energy_services = bu.missing_energy_services([])
     df1 = df.query('site_id==@site and service_type==@energy_services')
     
-        # ---------------------- Water Analysis Table ---------------------------
-
-    water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
-
-    # Create month count field for all months that have water and sewer bills
-    water_use_only = water_use.query("service_type == 'Water'")
-    water_months_present = bu.months_present(water_use_only)
-    water_mo_count = bu.month_count(water_months_present)
-
-    # Create annual water gallon usage dataframe
-    water_gal_df = pd.pivot_table(water_use, 
-                                  values='usage',
-                                  index=['fiscal_year',], 
-                                  columns=['service_type'],
-                                  aggfunc=np.sum
-    )
-
-     # Add in columns for the missing services
-    gal_missing_services = bu.missing_services(water_gal_df.columns)
-    bu.add_columns(water_gal_df, gal_missing_services)
-
-    # Use only required columns 
-    water_gal_df = water_gal_df[['Water']]
-
-    # Calculate percent change column
-    water_gal_df['water_use_pct_change'] = water_gal_df.Water.pct_change()
-
-    # Create annual water and sewer cost dataframe
-    water_cost_df = pd.pivot_table(water_use, 
-                                  values='cost',
-                                  index=['fiscal_year',], 
-                                  columns=['service_type'],
-                                  aggfunc=np.sum
-    )
-
-
-    # Add in columns for the missing services
-    water_missing_services = bu.missing_services(water_cost_df.columns)
-    bu.add_columns(water_cost_df, water_missing_services)
-
-    # Calculate totals, percent change
-    water_cost_df = water_cost_df[water_cost_df.columns.difference(['Electricity', 'Natural Gas', 'Oil #1', 'Steam', 'Refuse'])]
-
-    rename_dict = {'Sewer': 'Sewer Cost',
-                   'Water': 'Water Cost'}
-
-    water_cost_df = water_cost_df.rename(columns=rename_dict)
-
-    # First check to make sure sewer data is included; if so, calculate total cost
-    water_cost_df['total_water_sewer_cost'] = water_cost_df.sum(axis=1)
-
-    water_cost_df['water_cost_pct_change'] = water_cost_df['Water Cost'].pct_change()
-    water_cost_df['sewer_cost_pct_change'] = water_cost_df['Sewer Cost'].pct_change()
-
-    water_cost_df['total_water_sewer_cost_pct_change'] = water_cost_df.total_water_sewer_cost.pct_change()
-
-    # Merge use and cost dataframes
-    water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='left')
-
-    water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.Water
-    water_use_and_cost['water_unit_cost_pct_change'] = water_use_and_cost.water_unit_cost.pct_change()
-
-    # Use only complete years 
-    water_use_and_cost['month_count'] = water_mo_count
-    water_use_and_cost = water_use_and_cost.query("month_count == 12")
-    water_use_and_cost = water_use_and_cost.drop('month_count', axis=1)
-    water_use_and_cost = water_use_and_cost.sort_index(ascending=False)
-    water_use_and_cost = water_use_and_cost.rename(columns={'Sewer Cost':'sewer_cost',
-                                                           'Water Cost':'water_cost',
-                                                           'total_water_sewer_cost':'total_cost',
-                                                           'total_water_sewer_cost_pct_change':'total_cost_pct_change',
-                                                           'Water':'total_usage',
-                                                           'water_use_pct_change':'total_usage_pct_change',
-                                                           'water_unit_cost':'total_unit_cost',
-                                                           'water_unit_cost_pct_change':'total_unit_cost_pct_change'
-                                                           })
-
-    # ---- Create Water Cost Stacked Bar Graph - Page 10 Graph 1
-
-    p10g1_filename, p10g1_url = gu.graph_filename_url(site, "water_analysis_g1")
-    gu.create_stacked_bar(water_use_and_cost.reset_index(), 'fiscal_year', ['sewer_cost', 'water_cost'], 
-                          'Utility Cost [$]', "Annual Water and Sewer Costs", p10g1_filename)
-
-    # ---- Create Monthly Water Profile Graph
-
-    # Create monthly water gallon dataframe
-    water_gal_df_monthly = pd.pivot_table(water_use, 
-                                  values='usage',
-                                  index=['fiscal_year', 'fiscal_mo'], 
-                                  columns=['service_type'],
-                                  aggfunc=np.sum
-    )
-
-    p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
-
-    if 'Water' in list(water_gal_df_monthly.columns.values):
-        gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
-                                  "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
-    else:
-        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(p10g2_filename))
-
-    # Convert df to dictionary
-    water_rows = bu.df_to_dictionaries(water_use_and_cost)
-
-    # Add data and graphs to main dictionary
-    template_data['water_analysis'] = dict(
-        graphs=[p10g1_url, p10g2_url],
-        table={'rows': water_rows},
-    )
-    
-    # Check to see if there are any energy services.  If not, return the template data; if so, do the rest of the analysis
     if df1.empty:
-        return template_data
-        
+        return None
+    
     else:
+    
         # Sum Energy Costs and Usage
         df2 = pd.pivot_table(df1, index='fiscal_year', values=['cost', 'mmbtu'], aggfunc=np.sum)
 
@@ -1121,6 +1011,116 @@ def analyze_site(site, df, ut, report_date_time):
             table={'rows': heating_cost_rows},
         )
 
+        # ---------------------- Water Analysis Table ---------------------------
+
+        water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
+
+        # Create month count field for all months that have water and sewer bills
+        water_use_only = water_use.query("service_type == 'Water'")
+        water_months_present = bu.months_present(water_use_only)
+        water_mo_count = bu.month_count(water_months_present)
+
+        # Create annual water gallon usage dataframe
+        water_gal_df = pd.pivot_table(water_use, 
+                                      values='usage',
+                                      index=['fiscal_year',], 
+                                      columns=['service_type'],
+                                      aggfunc=np.sum
+        )
+
+         # Add in columns for the missing services
+        gal_missing_services = bu.missing_services(water_gal_df.columns)
+        bu.add_columns(water_gal_df, gal_missing_services)
+
+        # Use only required columns 
+        water_gal_df = water_gal_df[['Water']]
+
+        # Calculate percent change column
+        water_gal_df['water_use_pct_change'] = water_gal_df.Water.pct_change()
+
+        # Create annual water and sewer cost dataframe
+        water_cost_df = pd.pivot_table(water_use, 
+                                      values='cost',
+                                      index=['fiscal_year',], 
+                                      columns=['service_type'],
+                                      aggfunc=np.sum
+        )
+
+
+        # Add in columns for the missing services
+        water_missing_services = bu.missing_services(water_cost_df.columns)
+        bu.add_columns(water_cost_df, water_missing_services)
+
+        # Calculate totals, percent change
+        water_cost_df = water_cost_df[water_cost_df.columns.difference(['Electricity', 'Natural Gas', 'Oil #1', 'Steam', 'Refuse'])]
+
+        rename_dict = {'Sewer': 'Sewer Cost',
+                       'Water': 'Water Cost'}
+
+        water_cost_df = water_cost_df.rename(columns=rename_dict)
+
+        # First check to make sure sewer data is included; if so, calculate total cost
+        water_cost_df['total_water_sewer_cost'] = water_cost_df.sum(axis=1)
+
+        water_cost_df['water_cost_pct_change'] = water_cost_df['Water Cost'].pct_change()
+        water_cost_df['sewer_cost_pct_change'] = water_cost_df['Sewer Cost'].pct_change()
+
+        water_cost_df['total_water_sewer_cost_pct_change'] = water_cost_df.total_water_sewer_cost.pct_change()
+
+        # Merge use and cost dataframes
+        water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='left')
+
+        water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.Water
+        water_use_and_cost['water_unit_cost_pct_change'] = water_use_and_cost.water_unit_cost.pct_change()
+
+        # Use only complete years 
+        water_use_and_cost['month_count'] = water_mo_count
+        water_use_and_cost = water_use_and_cost.query("month_count == 12")
+        water_use_and_cost = water_use_and_cost.drop('month_count', axis=1)
+        water_use_and_cost = water_use_and_cost.sort_index(ascending=False)
+        water_use_and_cost = water_use_and_cost.rename(columns={'Sewer Cost':'sewer_cost',
+                                                               'Water Cost':'water_cost',
+                                                               'total_water_sewer_cost':'total_cost',
+                                                               'total_water_sewer_cost_pct_change':'total_cost_pct_change',
+                                                               'Water':'total_usage',
+                                                               'water_use_pct_change':'total_usage_pct_change',
+                                                               'water_unit_cost':'total_unit_cost',
+                                                               'water_unit_cost_pct_change':'total_unit_cost_pct_change'
+                                                               })
+
+        # ---- Create Water Cost Stacked Bar Graph - Page 10 Graph 1
+
+        p10g1_filename, p10g1_url = gu.graph_filename_url(site, "water_analysis_g1")
+        gu.create_stacked_bar(water_use_and_cost.reset_index(), 'fiscal_year', ['sewer_cost', 'water_cost'], 
+                              'Utility Cost [$]', "Annual Water and Sewer Costs", p10g1_filename)
+
+        # ---- Create Monthly Water Profile Graph
+
+        # Create monthly water gallon dataframe
+        water_gal_df_monthly = pd.pivot_table(water_use, 
+                                      values='usage',
+                                      index=['fiscal_year', 'fiscal_mo'], 
+                                      columns=['service_type'],
+                                      aggfunc=np.sum
+        )
+
+        p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
+
+        if 'Water' in list(water_gal_df_monthly.columns.values):
+            gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green', 
+                                      "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
+        else:
+            shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(p10g2_filename))
+
+        # Convert df to dictionary
+        water_rows = bu.df_to_dictionaries(water_use_and_cost)
+
+        # Add data and graphs to main dictionary
+        template_data['water_analysis'] = dict(
+            graphs=[p10g1_url, p10g2_url],
+            table={'rows': water_rows},
+        )
+
         # ------------------ Return the final Data Dictionary ---------------------
 
         return template_data
@@ -1195,7 +1195,7 @@ if __name__=="__main__":
     
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
-        if site_id < 'ASLC18': continue        # new line of code, pick whatever Site ID you want to start with
+        if site_id < 'ASLSQD': continue        # new line of code, pick whatever Site ID you want to start with
 
         msg("Site '{}' is being processed...".format(site_id))
         
