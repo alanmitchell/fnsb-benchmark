@@ -1,7 +1,65 @@
-.graph {
-  display: inline-block;
-}
+@media print {
+  body,
+  div,
+  h1,
+  h2,
+  h3,
+  ol,
+  p,
+  span,
+  ul {
+    display: block !important;
+    width: auto !important;
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
+  }
 
-.table-of-contents {
-  display: none;
+  h1 {
+    margin-top: 50%;
+    text-align: center;
+  }
+
+  section h2 {
+    page-break-before: always;
+  }
+
+  section.utility-information h2 {
+    page-break-before: avoid;
+  }
+
+  section.energy-cost-usage .graph {
+    max-width: 29%;
+    width: 29%;
+    margin: 2%;
+  }
+
+  /* TODO: Uncomment if you do NOT want the "title page" on the print report */
+  /*
+  #banner {
+    display: none !important;
+  }
+  */
+
+  #imagemodal {
+    display: none !important;
+  }
+
+  .graph {
+    display: inline-block;
+    float: left;
+    margin-top: 50px;
+    max-width: 46%;
+    margin: 2%;
+    text-align: center;
+    width: 46%;
+  }
+
+  .navbar {
+    display: none !important;
+  }
+
+  .table-of-contents {
+    display: none;
+  }
 }
