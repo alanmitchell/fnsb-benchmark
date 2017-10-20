@@ -13,15 +13,11 @@ class SilentUndefined(Undefined):
     def _fail_with_undefined_error(self, *args, **kwargs):
         return None
 
-
 # Create the Template environment
 env = Environment(
-    loader=FileSystemLoader(['templates', 'templates/sites'])
+    loader=FileSystemLoader(['templates', 'templates/sites']),
+    undefined=SilentUndefined
 )
-
-# Assign the class that will stop errors from occurring if variables
-# aren't present.
-env = Environment(undefined=SilentUndefined)
 
 #------ Below are Custom Filters used for Formatting --------
 
