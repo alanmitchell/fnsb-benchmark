@@ -1195,7 +1195,7 @@ if __name__=="__main__":
     
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
-        if site_id < 'ASLSQD': continue        # new line of code, pick whatever Site ID you want to start with
+        #if site_id < 'ASLSQD': continue        # This line shortens the calculation process to start with whatever Site ID you want to start with
 
         msg("Site '{}' is being processed...".format(site_id))
         
