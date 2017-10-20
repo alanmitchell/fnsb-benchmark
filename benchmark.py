@@ -43,6 +43,7 @@ import glob
 import os
 import pprint
 import datetime
+import warnings
 import pandas as pd
 import numpy as np
 import bench_util as bu
@@ -50,6 +51,8 @@ import graph_util as gu
 import template_util
 import shutil
 import settings       # the file holding settings for this script
+
+warnings.filterwarnings("ignore", module="matplotlib")
 
 #*****************************************************************************
 #*****************************************************************************
