@@ -456,8 +456,6 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # line_col: The column with the data to plot the line
     # ylabel1 and ylabel2: Strings to name the y-axes
     # filename: A string with the filename where the output should be saved.
-    if (df == 0).all(): 
-        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
     
     # Makes the legend prettier.
     df, bar_col_list = beautify_legend(df, bar_col_list)

@@ -730,10 +730,15 @@ def analyze_site(site, df, ut, report_date_time):
         heating_usage = usage_df2[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
 
         # Add in percent change columns
+        # First sort so the percent change column is correct and then re-sort the other direction
+        heating_usage.sort_index(ascending=True, inplace=True)
         heating_usage['fuel_oil_pct_change'] = heating_usage.fuel_oil_mmbtu.pct_change()
         heating_usage['natural_gas_pct_change'] = heating_usage.natural_gas_mmbtu.pct_change()
         heating_usage['district_heat_pct_change'] = heating_usage.district_heat_mmbtu.pct_change()
         heating_usage['total_heat_pct_change'] = heating_usage.total_heat_mmbtu.pct_change()
+        
+        # Now reset the sorting
+        heating_usage.sort_index(ascending=False, inplace=True)
 
         # Get the number of gallons, ccf, and 1,000 pounds of district heat by converting MMBTUs using the supplied conversions
         heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.fuel_btus_per_unit('Oil #1', 'gallons')
@@ -810,11 +815,17 @@ def analyze_site(site, df, ut, report_date_time):
         # Combine the heating cost and heating use dataframes
         heating_cost_and_use = pd.merge(heating_cost, heating_usage, left_on='fiscal_year', right_index=True, how='right')
 
+        # Put DataFrame in ascending order to calculate percent change
+        heating_cost_and_use.sort_values('fiscal_year', ascending=True, inplace=True)
+        
         # Create percent change columns
         heating_cost_and_use['fuel_oil_pct_change'] = heating_cost_and_use.fuel_oil_cost.pct_change()
         heating_cost_and_use['natural_gas_pct_change'] = heating_cost_and_use.natural_gas_cost.pct_change()
         heating_cost_and_use['district_heat_pct_change'] = heating_cost_and_use.district_heat_cost.pct_change()
 
+        # Back to descending order
+        heating_cost_and_use.sort_values('fiscal_year', ascending=False, inplace=True)
+        
         # Create unit cost columns
         heating_cost_and_use['fuel_oil_unit_cost'] = heating_cost_and_use.fuel_oil_cost / heating_cost_and_use.fuel_oil_mmbtu
         heating_cost_and_use['natural_gas_unit_cost'] = heating_cost_and_use.natural_gas_cost / heating_cost_and_use.natural_gas_mmbtu
