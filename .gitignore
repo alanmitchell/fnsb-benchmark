@@ -6,6 +6,7 @@ output/
 */images/*.png
 ~$*.xlsx
 *.csv
+!ddc/data/siemens_sample.csv
 *.zip
 
 # Files created by Python pickle.dump
