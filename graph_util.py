@@ -456,12 +456,14 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # line_col: The column with the data to plot the line
     # ylabel1 and ylabel2: Strings to name the y-axes
     # filename: A string with the filename where the output should be saved.
+    if (df == 0).all(): 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
     
     # Makes the legend prettier.
     df, bar_col_list = beautify_legend(df, bar_col_list)
     
      # Makes the legend prettier.
-    df, line_col = beautify_legend(df, [line_col])
+    df_line, line_col = beautify_legend(df, [line_col])
     
     # Create the figure
     fig, ax = plt.subplots()
@@ -477,6 +479,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Fill the NaNs
     df = df.fillna(0)
+    df_line = df_line.fillna(0)
     
     for col in bar_col_list:
         col_name = ax.bar(df[fiscal_year_col], df[col], width, label=col, bottom=previous_col_name, color=color_dict[col])
@@ -494,11 +497,11 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     
     # Create the line on the same graph but on a separate axis.
     ax2 = ax.twinx()
-    ax2.plot(df[fiscal_year_col], df[line_col[0]], label=line_col[0], color='k',linewidth=5, marker='D', markersize=10)
+    ax2.plot(df_line[fiscal_year_col], df_line[line_col[0]], label=line_col[0], color='k',linewidth=5, marker='D', markersize=10)
     ax2.set_ylabel(ylabel2)
     
     # Ensure that the axis starts at 0.
-    ax2.set_ylim(bottom=0, top=df[line_col[0]].max() + df[line_col[0]].max()*0.10)
+    ax2.set_ylim(bottom=0, top=df_line[line_col[0]].max() + df_line[line_col[0]].max()*0.10)
     
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
