@@ -85,118 +85,123 @@ def color_formatter(col_name_list):
 def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Inputs include the dataframe, the column name for the fiscal year column, and the list of column names for the 
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
-
-    fig, ax = plt.subplots()
-
-    # Makes the legend prettier.
-    df, utility_col_list = beautify_legend(df, utility_col_list)
     
-    # Take costs for each utility type and convert to percent of total cost by fiscal year
-    df['total_costs'] = df[utility_col_list].sum(axis=1)
+    if not df.empty and np.any(df.fillna(0) > 0):
+        fig, ax = plt.subplots()
 
-   
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(utility_col_list)
-    
-    
-    percent_columns = []
-
-    # Create dictionary for differently named keys
-    percent_col_colors = {}
-    
-    for col in utility_col_list:
-        percent_col = "Percent " + col
-        percent_columns.append(percent_col)
-        df[percent_col] = df[col] / df.total_costs
-        percent_col_colors[percent_col] = color_dict[col]
+        # Makes the legend prettier.
+        df, utility_col_list = beautify_legend(df, utility_col_list)
         
-    df = df.fillna(0)
+        # Take costs for each utility type and convert to percent of total cost by fiscal year
+        df['total_costs'] = df[utility_col_list].sum(axis=1)
 
-    # Create stacked area plot
-    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns,
-                colors=[ percent_col_colors[i] for i in percent_columns])
+       
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(utility_col_list)
+        
+        
+        percent_columns = []
 
-    # Format the y axis to be in percent
-    ax.yaxis.set_major_formatter(FuncFormatter('{0:.0%}'.format))
-    
-    # Format the x-axis to include all fiscal years
-    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0))
+        # Create dictionary for differently named keys
+        percent_col_colors = {}
+        
+        for col in utility_col_list:
+            percent_col = "Percent " + col
+            percent_columns.append(percent_col)
+            df[percent_col] = df[col] / df.total_costs
+            percent_col_colors[percent_col] = color_dict[col]
+            
+        df = df.fillna(0)
 
-    # Add title and axis labels
-    plt.title('Annual Utility Cost Distribution')
-    plt.ylabel('Utility Cost Distribution')
-    plt.xlabel('Fiscal Year')
-    
-    # Add legend
-    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
-	
-	
+        # Create stacked area plot
+        ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns,
+                    colors=[ percent_col_colors[i] for i in percent_columns])
+
+        # Format the y axis to be in percent
+        ax.yaxis.set_major_formatter(FuncFormatter('{0:.0%}'.format))
+        
+        # Format the x-axis to include all fiscal years
+        plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0))
+
+        # Add title and axis labels
+        plt.title('Annual Utility Cost Distribution')
+        plt.ylabel('Utility Cost Distribution')
+        plt.xlabel('Fiscal Year')
+        
+        # Add legend
+        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+        
+        
 def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Inputs include the dataframe, the column name for the fiscal year column, and the list of column names for the 
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
     
-    # Makes the legend prettier.
-    df, utility_col_list = beautify_legend(df, utility_col_list)
-    
-    fig, ax = plt.subplots()
+    # Test to see if the dataframe is empty or if all values equal zero
+    if not df.empty and np.any(df.fillna(0) > 0):
+        # Makes the legend prettier.
+        df, utility_col_list = beautify_legend(df, utility_col_list)
+        
+        fig, ax = plt.subplots()
 
-    # Take usage for each utility type and convert to percent of total cost by fiscal year
-    df['total_use'] = df[utility_col_list].sum(axis=1)
-    
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(utility_col_list)
-    
-    percent_columns = []
-    
-    # Create dictionary for differently named keys
-    percent_col_colors = {}
+        # Take usage for each utility type and convert to percent of total cost by fiscal year
+        df['total_use'] = df[utility_col_list].sum(axis=1)
+        
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(utility_col_list)
+        
+        percent_columns = []
+        
+        # Create dictionary for differently named keys
+        percent_col_colors = {}
 
-    for col in utility_col_list:
-        percent_col = "Percent " + col
-        percent_columns.append(percent_col)
-        df[percent_col] = df[col] / df.total_use
-        percent_col_colors[percent_col] = color_dict[col]
- 
-    # Fill the NaNs
-    df = df.fillna(0)
-    
-    # Create stacked area plot
-    ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns, 
-                 colors=[ percent_col_colors[i] for i in percent_columns])
+        for col in utility_col_list:
+            percent_col = "Percent " + col
+            percent_columns.append(percent_col)
+            df[percent_col] = df[col] / df.total_use
+            percent_col_colors[percent_col] = color_dict[col]
+     
+        # Fill the NaNs
+        df = df.fillna(0)
+        
+        # Create stacked area plot
+        ax.stackplot(df[fiscal_year_col], df[percent_columns].T, labels=percent_columns, 
+                     colors=[ percent_col_colors[i] for i in percent_columns])
 
 
-    # Format the y axis to be in percent
-    ax.yaxis.set_major_formatter(FuncFormatter('{0:.0%}'.format))
-    
-    # Format the x-axis to include all fiscal years
-    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0))
+        # Format the y axis to be in percent
+        ax.yaxis.set_major_formatter(FuncFormatter('{0:.0%}'.format))
+        
+        # Format the x-axis to include all fiscal years
+        plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0))
 
-    # Add title and axis labels
-    plt.title('Annual Energy Usage Distribution')
-    plt.ylabel('Annual Energy Usage Distribution')
-    plt.xlabel('Fiscal Year')
-    
-    # Add legend 
-    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
-	
-	
+        # Add title and axis labels
+        plt.title('Annual Energy Usage Distribution')
+        plt.ylabel('Annual Energy Usage Distribution')
+        plt.xlabel('Fiscal Year')
+        
+        # Add legend 
+        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+        
+        
 def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, filename):
     
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
     
-    # Check to see if the dataframe is empty, and if so, set the saved figure as an empty filename
-    if df.empty:
-        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
-    else:
+    # Test to see if the dataframe is empty or if all values equal zero
+    if not df.empty and np.any(df[column_name_list].fillna(0) > 0):
         # Makes the legend prettier.
         df, column_name_list = beautify_legend(df, column_name_list)
 
@@ -239,61 +244,67 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
         # Save and show
         plt.savefig(filename)
         plt.close('all')
-	
-	
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+
+        
 def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     
     # Parameters include the dataframe, the name of the column where the fiscal year is listed, a list of the column names
     # with the correct data for the chart, and the filename where the output should be saved.
     
-    # Makes the legend prettier.
-    df, column_name_list = beautify_legend(df, column_name_list)
-    
-    # Create the figure
-    fig, ax = plt.subplots()
-    
-    # Set the bar width
-    width = 0.50
-    
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(column_name_list)
-    
-    # Fill the NaNs
-    df = df.fillna(0)
-    
-    # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
-    previous_col_name = 0
-    
-    for col in column_name_list:
-      
-        col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name, 
-                          color=color_dict[col])
-        previous_col_name = previous_col_name + df[col]
-      
-    # label axes
-    plt.ylabel('Annual Energy Usage [MMBTU]')
-    plt.xlabel('Fiscal Year')
-    plt.title('Total Annual Energy Usage')
-    
-    
-    # Make one bar for each fiscal year
-    plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
-               np.sort(list(df[fiscal_year_col].unique())))
-    
-    # Set the yticks to go up to the total usage in increments of 1,000
-    df['total_use'] = df[column_name_list].sum(axis=1)
-    plt.yticks(np.arange(0, df.total_use.max()+df.total_use.max()*0.10, 1000))
-    
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    
-    plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
-	
-	
+    # Test to see if the dataframe is empty or if all values equal zero
+    if not df.empty and np.any(df[column_name_list].fillna(0) > 0):
+        # Makes the legend prettier.
+        df, column_name_list = beautify_legend(df, column_name_list)
+        
+        # Create the figure
+        fig, ax = plt.subplots()
+        
+        # Set the bar width
+        width = 0.50
+        
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(column_name_list)
+        
+        # Fill the NaNs
+        df = df.fillna(0)
+        
+        # Create the stacked bars.  The "bottom" is the sum of all previous bars to set the starting point for the next bar.
+        previous_col_name = 0
+        
+        for col in column_name_list:
+          
+            col_name = ax.bar(df[fiscal_year_col].values, df[col].values, width, label=col, bottom=previous_col_name, 
+                              color=color_dict[col])
+            previous_col_name = previous_col_name + df[col]
+          
+        # label axes
+        plt.ylabel('Annual Energy Usage [MMBTU]')
+        plt.xlabel('Fiscal Year')
+        plt.title('Total Annual Energy Usage')
+        
+        
+        # Make one bar for each fiscal year
+        plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
+                   np.sort(list(df[fiscal_year_col].unique())))
+        
+        # Set the yticks to go up to the total usage in increments of 1,000
+        df['total_use'] = df[column_name_list].sum(axis=1)
+        plt.yticks(np.arange(0, df.total_use.max()+df.total_use.max()*0.10, 1000))
+        
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+
+        
 def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
     
     # df: A dataframe with the fiscal_year as the index and needs to include the values for the passed in list of columns.
@@ -402,59 +413,62 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, titl
         # yaxis_name: A string that will be displayed on the y-axis
         # color_choice: 'blue', 'red', or 'green' depending on the desired color palette.  
 
-    
-    # Get five most recent years
-    recent_years = (sorted(list(df.index.levels[0].values), reverse=True)[0:5])
-    
-    # Reset the index of the dataframe for more straightforward queries
-    df_reset = df.reset_index()
+    # Test to see if the dataframe is empty or if all values equal zero
+    if not df.empty and np.any(df.fillna(0) > 0):
+        # Get five most recent years
+        recent_years = (sorted(list(df.index.levels[0].values), reverse=True)[0:5])
+        
+        # Reset the index of the dataframe for more straightforward queries
+        df_reset = df.reset_index()
 
-    # Create a color dictionary of progressively lighter colors of three different shades and convert to dataframe
-    color_dict = {'blue': ['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff'],
-                  'red': ['#a50f15', '#de2d26', '#fb6a4a', '#fcae91', '#fee5d9'],
-                  'green': ['#006d2c', '#31a354', '#74c476', '#bae4b3', '#edf8e9']
-                 }
+        # Create a color dictionary of progressively lighter colors of three different shades and convert to dataframe
+        color_dict = {'blue': ['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff'],
+                      'red': ['#a50f15', '#de2d26', '#fb6a4a', '#fcae91', '#fee5d9'],
+                      'green': ['#006d2c', '#31a354', '#74c476', '#bae4b3', '#edf8e9']
+                     }
 
-    color_df = pd.DataFrame.from_dict(color_dict)
+        color_df = pd.DataFrame.from_dict(color_dict)
 
-    
-    # i is the counter for the different colors
-    i=0
+        
+        # i is the counter for the different colors
+        i=0
 
-    # Create the plots
-    fig, ax = plt.subplots()
+        # Create the plots
+        fig, ax = plt.subplots()
 
-    for year in recent_years:
+        for year in recent_years:
 
-        # Create df for one year only so it's plotted as a single line
-        year_df = df_reset.query("fiscal_year == @year")
+            # Create df for one year only so it's plotted as a single line
+            year_df = df_reset.query("fiscal_year == @year")
 
-        # Plot the data
-        ax.plot_date(year_df['fiscal_mo'], year_df[graph_column_name], fmt='-', color=color_df.iloc[i][color_choice], 
-                     label=str(year_df.fiscal_year.iloc[0]))
+            # Plot the data
+            ax.plot_date(year_df['fiscal_mo'], year_df[graph_column_name], fmt='-', color=color_df.iloc[i][color_choice], 
+                         label=str(year_df.fiscal_year.iloc[0]))
 
-        # Increase counter by one to use the next color
-        i += 1
+            # Increase counter by one to use the next color
+            i += 1
 
-    
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    
-    # Set x-axis labels to be fiscal months, starting in July
-    ax.set_xticks(year_df.fiscal_mo.values)
-    ax.set_xticklabels(bu.mo_list)
+        
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        # Set x-axis labels to be fiscal months, starting in July
+        ax.set_xticks(year_df.fiscal_mo.values)
+        ax.set_xticklabels(bu.mo_list)
 
-    # Add the labels
-    plt.xlabel('Month of Year')
-    plt.ylabel(yaxis_name)
-    plt.legend()
-    plt.title(title)
+        # Add the labels
+        plt.xlabel('Month of Year')
+        plt.ylabel(yaxis_name)
+        plt.legend()
+        plt.title(title)
 
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
-		
-		
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+        
+        
 def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, ylabel2, title, filename):
     
     # Parameters:
@@ -465,9 +479,10 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     # filename: A string with the filename where the output should be saved.
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if df.empty or (df == 0.0).all().all():
-        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
-    else:
+    all_cols = []
+    all_cols.extend(bar_col_list)
+    all_cols.append(line_col)
+    if not df.empty and np.any(df[all_cols].fillna(0) > 0):
         # Makes the legend prettier.
         df, bar_col_list = beautify_legend(df, bar_col_list)
         
@@ -524,57 +539,67 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
         # Save and show
         plt.savefig(filename)
         plt.close('all')
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
     
     
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
     
-    
-    # Makes the legend prettier.
-    unit_cost_df, unit_cost_cols = beautify_legend(unit_cost_df, unit_cost_cols)
-    
-    # Makes the legend prettier.
-    unit_cost_df, bldg_unit_cost_col = beautify_legend(unit_cost_df, [bldg_unit_cost_col])
-    
-    # Standardize colors using color_formatter utility
-    color_dict = color_formatter(unit_cost_cols)
+        # Test to see if the dataframe is empty or if all values equal zero
+    if not unit_cost_df.empty and np.any(unit_cost_df.fillna(0) > 0):
+        # Makes the legend prettier.
+        unit_cost_df, unit_cost_cols = beautify_legend(unit_cost_df, unit_cost_cols)
+        
+        # Makes the legend prettier.
+        unit_cost_df, bldg_unit_cost_col = beautify_legend(unit_cost_df, [bldg_unit_cost_col])
+        
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(unit_cost_cols)
 
-    fig, ax = plt.subplots()
+        fig, ax = plt.subplots()
 
-    # Plot the fuel unit costs for each fuel type
-    for col in unit_cost_cols:
-        plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_dict[col])
+        # Plot the fuel unit costs for each fuel type
+        for col in unit_cost_cols:
+            plt.plot(unit_cost_df[date_col], unit_cost_df[col], label=col, linestyle='--', color=color_dict[col])
 
-    # Plot the building unit cost for fuels used
-    plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col[0]], label=bldg_unit_cost_col[0], linestyle='-', color='k')
+        # Plot the building unit cost for fuels used
+        plt.plot(unit_cost_df[date_col], unit_cost_df[bldg_unit_cost_col[0]], label=bldg_unit_cost_col[0], linestyle='-', color='k')
 
-    plt.ylabel('Energy Cost [$/MMBTU]')
-    plt.xlabel('Date')
-    plt.title("Heating Fuel Unit Price Comparison [$/MMBTU]")
+        plt.ylabel('Energy Cost [$/MMBTU]')
+        plt.xlabel('Date')
+        plt.title("Heating Fuel Unit Price Comparison [$/MMBTU]")
 
-    plt.legend()
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
-    
+        plt.legend()
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else: 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))        
 
 def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     
-    fig, ax = plt.subplots()
-    
-    # Create the plot
-    plt.plot(df[date_col], df[graph_col], color='k')
-    
-    # Set the ylabel
-    plt.ylabel(ylabel)
-    
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
-    plt.title("Realized Cumulative Energy Savings from Fuel Switching")
-    
-    # Save and show
-    plt.savefig(filename)
-    plt.close('all')
+    # Test to see if the dataframe is empty or if all values equal zero
+    if not df.empty and np.any(df.fillna(0) > 0):    
+        fig, ax = plt.subplots()
+        
+        # Create the plot
+        plt.plot(df[date_col], df[graph_col], color='k')
+        
+        # Set the ylabel
+        plt.ylabel(ylabel)
+        
+        if df[graph_col].max() > 1000:
+            # Format the y-axis so a comma is displayed for thousands
+            ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        plt.title("Realized Cumulative Energy Savings from Fuel Switching")
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else: 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))            
     
 def graph_filename_url(site_id, base_graph_name):
     """This function returns a two-tuple: graph file name, graph URL.
