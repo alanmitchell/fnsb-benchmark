@@ -567,32 +567,40 @@ def analyze_site(site, df, ut, report_date_time):
 
         site_df = df.query("site_id == @site")
 
-        # only look at elecricity records
-        electric_df = site_df.query("service_type == 'Electricity'")
-        electric_df = electric_df.query("units == 'kWh' or units == 'kW'")
+        if 'Electricity' in site_df.service_type.unique():
+            # only look at elecricity records
+            electric_df = site_df.query("service_type == 'Electricity'")
+            electric_df = electric_df.query("units == 'kWh' or units == 'kW'")
+            electric_pivot_monthly = pd.pivot_table(electric_df,
+                                        index=['fiscal_year', 'fiscal_mo'], 
+                                        columns=['units'],
+                                        values='usage',
+                                        aggfunc=np.sum)
+        else:
+            # Create an empty dataframe with the correct index
+            electric_pivot_monthly = site_df.groupby(['fiscal_year', 'fiscal_mo']).mean()[[]]
 
-        electric_pivot_monthly = pd.pivot_table(electric_df,
-                                                index=['fiscal_year', 'fiscal_mo'], 
-                                                columns=['units'],
-                                                values='usage',
-                                                aggfunc=np.sum)
-
-        # if there is no kW usage for this building, add a kW column with 0s.
-        if 'kW' not in electric_pivot_monthly.columns:
-            electric_pivot_monthly['kW'] = 0.0
+        # Add in missing electricity columns and fill them with zeros
+        electric_pivot_monthly = bu.add_missing_columns(electric_pivot_monthly, ['kWh', 'kW'])
 
         # Do a month count for the elecricity bills 
         elec_months_present = bu.months_present(electric_pivot_monthly.reset_index())
         elec_mo_count = bu.month_count(elec_months_present)
         elec_mo_count_df = pd.DataFrame(elec_mo_count)
+        elec_mo_count_df.index.name = 'fiscal_year'
 
-        electric_pivot_annual = pd.pivot_table(electric_df,
-                                               index=['fiscal_year'],
-                                               columns=['units'],
-                                               values='usage',
-                                               aggfunc=np.sum
-                                              )
+        if 'kWh' in site_df.units.unique() or 'kW' in site_df.units.unique():
+            electric_pivot_annual = pd.pivot_table(electric_df,
+                                                   index=['fiscal_year'],
+                                                   columns=['units'],
+                                                   values='usage',
+                                                   aggfunc=np.sum
+                                                  )
+        else:
+            # Create an empty dataframe with the correct index
+            electric_pivot_annual = site_df.groupby(['fiscal_year']).mean()[[]]
 
+        electric_pivot_annual = bu.add_missing_columns(electric_pivot_annual, ['kWh', 'kW'] ,0.0)
         electric_use_annual = electric_pivot_annual[['kWh']]
         electric_use_annual = electric_use_annual.rename(columns={'kWh':'ann_electric_usage_kWh'})
 
@@ -661,16 +669,18 @@ def analyze_site(site, df, ut, report_date_time):
         electric_cost_df['cost_categories'] = np.where(electric_cost_df.item_desc.isin(['KW Charge', 'On peak demand', 'Demand Charge']),
                                                        'demand_cost', 'usage_cost')
 
-        # Sum costs by demand and usage
-        electric_annual_cost = pd.pivot_table(electric_cost_df,
-                                               index=['fiscal_year'],
-                                               columns=['cost_categories'],
-                                               values='cost',
-                                               aggfunc=np.sum
-                                              )
-        # If there is no demand cost for this building, add a zero column for it.
-        if 'demand_cost' not in electric_annual_cost.columns:
-            electric_annual_cost['demand_cost'] = 0.0
+        if 'Electricity' in site_df.service_type.unique():
+            # Sum costs by demand and usage
+            electric_annual_cost = pd.pivot_table(electric_cost_df,
+                                                   index=['fiscal_year'],
+                                                   columns=['cost_categories'],
+                                                   values='cost',
+                                                   aggfunc=np.sum
+                                                  )
+        else:
+            electric_annual_cost = site_df.groupby(['fiscal_year']).mean()[[]]
+                                              
+        electric_annual_cost = bu.add_missing_columns(electric_annual_cost, ['demand_cost', 'usage_cost'] ,0.0)
 
         # Create a total column
         electric_annual_cost['Total Cost'] = electric_annual_cost[['demand_cost', 'usage_cost']].sum(axis=1)
@@ -1171,7 +1181,7 @@ if __name__=="__main__":
     
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
-        if site_id < '76': continue        # new line of code, pick whatever Site ID you want to start with
+        if site_id < 'ASLC21': continue        # new line of code, pick whatever Site ID you want to start with
 
         msg("Site '{}' is being processed...".format(site_id))
         
