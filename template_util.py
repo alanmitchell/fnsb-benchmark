@@ -2,13 +2,26 @@
 used by the benchmarking script.
 """
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Undefined
 import numpy as np
+
+
+class SilentUndefined(Undefined):
+    '''
+    Dont break pageloads because vars arent there!
+    '''
+    def _fail_with_undefined_error(self, *args, **kwargs):
+        return None
+
 
 # Create the Template environment
 env = Environment(
     loader=FileSystemLoader(['templates', 'templates/sites'])
 )
+
+# Assign the class that will stop errors from occurring if variables
+# aren't present.
+env = Environment(undefined=SilentUndefined)
 
 #------ Below are Custom Filters used for Formatting --------
 
