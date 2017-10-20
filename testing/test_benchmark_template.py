@@ -22,9 +22,12 @@ def filter_money(val, precision = 0):
     format_string = "${:,.%sf}" % precision
     return format_string.format(val)
 
-def filter_number(val, precision = 0):
+def filter_number(val, precision = 0, commas=True):
     if is_blank(val): return ''
-    format_string = "{:,.%sf}" % precision
+    if commas:
+        format_string = "{:,.%sf}" % precision
+    else:
+        format_string = "{:.%sf}" % precision
     return format_string.format(val)
 
 def filter_percent(val, precision = 1):

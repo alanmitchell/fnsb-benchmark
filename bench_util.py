@@ -172,7 +172,7 @@ def add_columns(df, col_names):
         df[col] = 0.0
 
 def add_missing_columns(df_in, required_columns, fill_val=0.0):
-    """Adds columns to the DataFrame 'df' if it does not contain all of the
+    """Adds columns to the DataFrame 'df_in' if it does not contain all of the
     columns in the list 'required_columns'.  'fill_val' is the value that is used
     to fill the new columns.
     """

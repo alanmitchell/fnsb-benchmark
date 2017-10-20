@@ -44,7 +44,7 @@
             </th>
           </tr>
           <tr>
-            <th>Metric</th>
+            <th class="wide">Metric</th>
             <th>Unit</th>
             <th>Building</th>
             <th>FNSB Buildings Total</th>
@@ -54,7 +54,7 @@
         </thead>
         <tbody>
           <tr>
-            <th>Square Footage</th>
+            <th class="wide">Square Footage</th>
             <td>ft^2</td>
             <td>{{ data.bldg.sq_ft | number }}</td>
             <td>{{ data.all.sq_ft | number }}</td>
@@ -62,7 +62,7 @@
             <td>{{ data.rank.sq_ft | number }}</td>
           </tr>
           <tr>
-            <th>Total Utility Cost</th>
+            <th class="wide">Total Utility Cost</th>
             <td>$</td>
             <td>{{ data.bldg.total_cost | money }}</td>
             <td>{{ data.all.total_cost | money }}</td>
@@ -70,7 +70,7 @@
             <td>{{ data.rank.total_cost | number }}</td>
           </tr>
           <tr>
-            <th>Total Energy Cost</th>
+            <th class="wide">Total Energy Cost</th>
             <td>$</td>
             <td>{{ data.bldg.total_energy_cost | money }}</td>
             <td>{{ data.all.total_energy_cost | money }}</td>
@@ -78,7 +78,7 @@
             <td>{{ data.rank.total_energy_cost | number }}</td
           </tr>
           <tr>
-            <th>Total Energy Usage</th>
+            <th class="wide">Total Energy Usage</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.total_mmbtu | number }}</td>
             <td>{{ data.all.total_mmbtu | number }}</td>
@@ -86,7 +86,7 @@
             <td>{{ data.rank.total_mmbtu | number }}</td
           </tr>
           <tr>
-            <th rowspan="4">Electricity</th>
+            <th rowspan="4" class="wide">Electricity</th>
             <td>kWh</td>
             <td>{{ data.bldg.electricity_kwh | number }}</td>
             <td>{{ data.all.electricity_kwh | number }}</td>
@@ -115,7 +115,7 @@
             <td>{{ data.rank.electricity_cost | number }}</td>
           </tr>
           <tr>
-            <th rowspan="2">Oil #1</th>
+            <th rowspan="2" class="wide">Oil #1</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.fuel_oil_mmbtu | number }}</td>
             <td>{{ data.all.fuel_oil_mmbtu | number }}</td>
@@ -130,7 +130,7 @@
             <td>{{ data.rank.fuel_oil_cost | number }}</td>
           </tr>
           <tr>
-            <th rowspan="2">Natural Gas</th>
+            <th rowspan="2" class="wide">Natural Gas</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.natural_gas_mmbtu | number }}</td>
             <td>{{ data.all.natural_gas_mmbtu | number }}</td>
@@ -145,7 +145,7 @@
             <td>{{ data.rank.natural_gas_cost | number }}</td>
           </tr>
           <tr>
-            <th rowspan="2">District Heat</th>
+            <th rowspan="2" class="wide">District Heat</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.district_heat_mmbtu | number }}</td>
             <td>{{ data.all.district_heat_mmbtu | number }}</td>
@@ -160,7 +160,7 @@
             <td>{{ data.rank.district_heat_cost | number }}</td>
           </tr>
           <tr>
-            <th>Total Heat Energy</th>
+            <th class="wide">Total Heat Energy</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.total_heat_mmbtu | number }}</td>
             <td>{{ data.all.total_heat_mmbtu | number }}</td>
@@ -168,7 +168,7 @@
             <td>{{ data.rank.total_heat_mmbtu | number }}</td>
           </tr>
           <tr>
-            <th>Total Heat Cost</th>
+            <th class="wide">Total Heat Cost</th>
             <td>$</td>
             <td>{{ data.bldg.total_heat_cost | money }}</td>
             <td>{{ data.all.total_heat_cost | money }}</td>
@@ -176,7 +176,7 @@
             <td>{{ data.rank.total_heat_cost | number }}</td>
           </tr>
           <tr>
-            <th>EUI</th>
+            <th class="wide">EUI</th>
             <td>kBTU/sqft</td>
             <td>{{ data.bldg.eui | number }}</td>
             <td>{{ data.all.eui | number }}</td>
@@ -184,7 +184,7 @@
             <td>{{ data.rank.eui | number }}</td>
           </tr>
           <tr>
-            <th>HDD Specific EUI</th>
+            <th class="wide">HDD Specific EUI</th>
             <td>Btu/sqft-HDD</td>
             <td>{{ data.bldg.specific_eui | number(2) }}</td>
             <td>{{ data.all.specific_eui | number(2) }}</td>
@@ -192,7 +192,7 @@
             <td>{{ data.rank.specific_eui | number }}</td>
           </tr>
           <tr>
-            <th>ECI</th>
+            <th class="wide">ECI</th>
             <td>$/sqft</td>
             <td>{{ data.bldg.eci | money(2) }}</td>
             <td>{{ data.all.eci | money(2) }}</td>

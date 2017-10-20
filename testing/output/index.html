@@ -10,26 +10,30 @@
     <link rel="stylesheet" type="text/css" media="print" href="./css/print.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="/js/html5shiv.js"></script>
-      <script src="/js/respond.min.js"></script>
+      <script src="./js/html5shiv.js"></script>
+      <script src="./js/respond.min.js"></script>
     <![endif]-->
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/tether.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
   </head>
   <body>
     <div class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a href="./index.html" class="navbar-brand">Site List</a>
-        </div>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <a href="#">
-              Report Generated:
-              September 24, 2017
-            </a>
-          </li>
-        </ul>
-      </div>
+  <div class="container">
+    <div class="navbar-header">
+      <a href="./index.html" class="navbar-brand">Site List</a>
     </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li>
+        <a href="#">
+          Report Generated:
+          
+        </a>
+      </li>
+    </ul>
+    
+  </div>
+</div>
 
     <div class="container">
       <div class="page-header" id="banner">
@@ -41,8 +45,7 @@
         </div>
       </div>
 
-      <div class="row">
-        
+      
 <div class="col-12">
   
     <h2>Test</h2>
@@ -766,7 +769,6 @@
   
 </div>
 
-      </div>
 
       <footer>
         <div class="row">
@@ -781,5 +783,29 @@
       </footer>
 
     </div>
+
+    <div class="modal" id="imagemodal" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img class="imagepreview" src="" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $(".graph").on("click", function() {
+      $(".imagepreview").attr("src", $(this).attr("src"));
+      $("#imagemodal").modal("show");
+    });
+  })
+</script>
   </body>
 </html>
