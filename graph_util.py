@@ -350,38 +350,45 @@ def usage_pie_charts(df, use_or_cost_cols, chart_type, base_filename, site_id):
 
         fig, ax = plt.subplots()
 
-        
-        patches, texts, autotexts = ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
-                                                shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
-        
-        plt.tick_params(axis='both', which='both', labelsize=32)
-    
-        # Create the title based on whether it is an energy use or energy cost pie chart.  
-        if chart_type == 1:
-            title = "FY " + str(year) + " Energy Usage [MMBTU]"
-        else:
-            title = "FY " + str(year) + " Energy Cost [$]"
+        if year_df.sum(axis=1).values[0] > 0:
+            patches, texts, autotexts = ax.pie(list(year_df.iloc[0].values), labels=list(year_df.columns.values), autopct='%1.1f%%',
+                                                    shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
             
-        plt.title(title)
+            plt.tick_params(axis='both', which='both', labelsize=32)
         
-        # Make the graph take up a larger portion of the figure 
-        plt.axis([0.75, 0.75, 0.75, 0.75])
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        
-        # Increase the font size of the labels
-        props = fm.FontProperties()
-        props.set_size(32)
-        plt.setp(autotexts, fontproperties=props)
-        plt.setp(texts, fontproperties=props)
-        
-        # Include the year in the file
-        fn_with_yr = '{}_{}'.format(base_filename, year)
-        final_fn, url = graph_filename_url(site_id, fn_with_yr)
-        urls.append(url)
-        
-        # Save and show
-        plt.savefig(final_fn)
-        figs.append(fig)
+            # Create the title based on whether it is an energy use or energy cost pie chart.  
+            if chart_type == 1:
+                title = "FY " + str(year) + " Energy Usage [MMBTU]"
+            else:
+                title = "FY " + str(year) + " Energy Cost [$]"
+                
+            plt.title(title)
+            
+            # Make the graph take up a larger portion of the figure 
+            plt.axis([0.75, 0.75, 0.75, 0.75])
+            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            
+            # Increase the font size of the labels
+            props = fm.FontProperties()
+            props.set_size(32)
+            plt.setp(autotexts, fontproperties=props)
+            plt.setp(texts, fontproperties=props)
+            
+            # Include the year in the file
+            fn_with_yr = '{}_{}'.format(base_filename, year)
+            final_fn, url = graph_filename_url(site_id, fn_with_yr)
+            urls.append(url)
+            
+            # Save and show
+            plt.savefig(final_fn)
+            figs.append(fig)
+        else:
+            # Include the year in the file
+            fn_with_yr = '{}_{}'.format(base_filename, year)
+            final_fn, url = graph_filename_url(site_id, fn_with_yr)
+            urls.append(url)
+            shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(final_fn))
+            
         
     plt.close('all')
     
