@@ -18,21 +18,7 @@
     <script src="{{ root_path }}/js/bootstrap.min.js"></script>
   </head>
   <body>
-    <div class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a href="{{ root_path }}/index.html" class="navbar-brand">Site List</a>
-        </div>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <a href="#">
-              Report Generated:
-              {% block date_updated %}{% endblock %}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+    {% include "navbar.html" %}
 
     <div class="container">
       <div class="page-header" id="banner">
