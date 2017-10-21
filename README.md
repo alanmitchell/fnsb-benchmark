@@ -64,7 +64,7 @@ will also be shown at each step.  This script will take a number of minutes to r
 The script places all of the reports and other results in the `output` directory.  The reports
 for all the buildings can be viewed by double-clicking the `index.html` file in the output directory.  There also is a spreadsheet created in the `output/extra_data` directory called
 `site_summary_FY2017.xlsx` that shows summary information for every site for the most recent
-complete fixcal year.
+complete fiscal year.
 
 **NOTE**: All files in the `output/sites`, `output/images`, `output/extra_data`, and `output/debug`
 directories are deleted at the beginning of each run of the benchmark script.  If you have modified
