@@ -504,9 +504,12 @@ def utility_cost_report(site, df, ut):
 
     return template_data, df_utility_cost
 
-# -------------------- Energy Use Overview Report -----------------------
+# -------------------- Energy Use and Cost Reports -----------------------
 
-def energy_use_report(site, df, ut):
+def energy_use_cost_reports(site, df, ut):
+    """This does both the Energy Usage report and the Energy Cost & Usage
+     Pie charts.
+    """
 
     # From the main DataFrame, get only the rows for this site, and only get
     # the needed columns for this analysis
@@ -577,20 +580,16 @@ def energy_use_report(site, df, ut):
     # Convert df to dictionary
     energy_use_overview_rows = bu.df_to_dictionaries(usage_df2)
 
-    # Return data and graphs as a dictionary
-    return dict(
+    # Put data and graphs into a dictionary
+    template_data = dict(
         energy_usage_overview = dict(
             graphs=[p4g1_url, p4g2_url],
             table={'rows': energy_use_overview_rows}
         )
     )
 
-# ---------------- Energy Usage and Cost Pie Charts -----------------------
-
-def energy_cost_usage_report(site, df, ut):
-
-    # Shorten the utility list to include only energy-related columns
-    utility_list = list(set(utility_list) - set(['sewer', 'water', 'refuse']))
+    # Make a utility list to include only energy-related columns
+    utility_list = ['electricity', 'natural_gas', 'fuel_oil', 'district_heat']
 
     pie_urls = gu.usage_pie_charts(usage_df2.fillna(0.0), usage_cols, 1, 'energy_usage_pie', site)
 
@@ -600,9 +599,13 @@ def energy_cost_usage_report(site, df, ut):
     # Add pie charts to template dictionary
     template_data['energy_cost_usage'] = dict(graphs=pie_urls)
 
-# -------------------- Electrical Usage Analysis -------------------------
+    return template_data
 
-def electrical_usage_report(site, df, ut):
+# -------------------- Electrical Usage and Cost Reports  -------------------------
+
+def electrical_usage_and_cost_reports(site, df):
+    """This does both the Electrical Usage and Electrical
+    Cost reports."""
 
     site_df = df.query("site_id == @site")
 
@@ -692,15 +695,13 @@ def electrical_usage_report(site, df, ut):
     # Convert df to dictionary
     electric_use_rows = bu.df_to_dictionaries(annual_electric_data)
 
-    # Add data and graphs to main dictionary
-    template_data['electrical_usage_analysis'] = dict(
-        graphs=[p6g1_url, p6g2_url],
-        table={'rows': electric_use_rows},
+    # Put data and graphs in a dictionary
+    template_data = dict(
+        electrical_usage_analysis = dict(
+            graphs=[p6g1_url, p6g2_url],
+            table={'rows': electric_use_rows}
+        )
     )
-
-# -------------------- Electrical Cost Analysis Report ---------------------
-
-def electrical_cost_report(site, df, ut):
 
     # only look at elecricity records
     electric_cost_df = site_df.query("service_type == 'Electricity'").copy()
@@ -764,9 +765,15 @@ def electrical_cost_report(site, df, ut):
         table={'rows': electric_cost_rows},
     )
 
-# --------------------Heating Usage Analysis Report ------------------------
+    return template_data
 
-def heating_usage_report(site, df, ut):
+# --------------------Heating Usage and Cost Reports ------------------------
+
+def heating_usage_cost_reports(site, df, ut, df_utility_cost):
+    """This produces both the Heating Usage and the Heating Cost
+    reports.
+    'df_utility_cost': The utility cost DataFrame produced in the
+        utility_cost_report function above."""
 
     # Take only needed columns from earlier usage df
     heating_usage = usage_df2[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
@@ -827,16 +834,9 @@ def heating_usage_report(site, df, ut):
         table={'rows': heating_use_rows},
     )
 
-
-# ------------------- Heating Cost Analysis Report -----------------------
-
-def heating_cost_report(site, df, ut):
-
-    # Use the df_utility_cost DataFrame from the Energy Cost Analysis report,
-    # 3rd report created above.
-
-    # Put DataFrame back into ascending order, as we need to calculate a percent
-    # change column.
+    # Using the Utility Cost DataFrame passed in as a parameter,
+    # Put DataFrame back into ascending order, as we need to calculate
+    # a percent change column.
     # Index is NOT Years
     df_utility_cost.sort_values('fiscal_year', ascending=True, inplace=True)
 
@@ -1056,7 +1056,7 @@ def heating_cost_report(site, df, ut):
 
 # ---------------------- Water Analysis Table ---------------------------
 
-def water_report(site, df, ut):
+def water_report(site, df):
 
     water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
 
@@ -1160,10 +1160,12 @@ def water_report(site, df, ut):
     # Convert df to dictionary
     water_rows = bu.df_to_dictionaries(water_use_and_cost)
 
-    # Add data and graphs to main dictionary
-    template_data['water_analysis'] = dict(
-        graphs=[p10g1_url, p10g2_url],
-        table={'rows': water_rows},
+    # Return data and graphs in a dictionary
+    return dict(
+        water_analysis = dict(
+            graphs=[p10g1_url, p10g2_url],
+            table={'rows': water_rows}
+        )
     )
 
 #******************************************************************************
@@ -1261,25 +1263,16 @@ if __name__=="__main__":
         df1 = df.query('site_id==@site_id and service_type==@energy_services')
         if not df1.empty:
 
-            report_data = energy_use_report(site_id, df, util_obj)
+            report_data = energy_use_cost_reports(site_id, df, util_obj)
             template_data.update(report_data)
 
-            report_data = energy_cost_usage_report(site_id, df, util_obj)
+            report_data = electrical_usage_and_cost_reports(site_id, df)
             template_data.update(report_data)
 
-            report_data = electrical_usage_report(site_id, df, util_obj)
+            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost)
             template_data.update(report_data)
 
-            report_data = electrical_cost_report(site_id, df, util_obj)
-            template_data.update(report_data)
-
-            report_data = heating_usage_report(site_id, df, util_obj)
-            template_data.update(report_data)
-
-            report_data = heating_cost_report(site_id, df, util_obj)
-            template_data.update(report_data)
-
-        report_data = water_report(site_id, df, util_obj)
+        report_data = water_report(site_id, df)
         template_data.update(report_data)
 
         # save template data variables to debug file if requested
@@ -1287,13 +1280,10 @@ if __name__=="__main__":
             with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
                 pprint.pprint(template_data, fout)
 
-        # create report file if there is template_data
-        if template_data is None:
-            continue
-        else:
-            result = site_template.render(template_data)
-            with open('output/sites/{}.html'.format(site_id), 'w') as fout:
-                fout.write(result)
+        # create report file
+        result = site_template.render(template_data)
+        with open('output/sites/{}.html'.format(site_id), 'w') as fout:
+            fout.write(result)
         
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
