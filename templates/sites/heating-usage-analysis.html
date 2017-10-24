@@ -32,7 +32,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for row in heating_usage_analysis.table.rows %}
+        {% for row in heating_usage_analysis.table.rows or [] %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.fuel_oil_usage | number }}</td>
@@ -55,7 +55,7 @@
 
 <section>
   <div class="row">
-    {% for graph in heating_usage_analysis.graphs %}
+    {% for graph in heating_usage_analysis.graphs or [] %}
       <div class="col-md-6 col-12">
         <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>

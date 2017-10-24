@@ -27,7 +27,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for row in electrical_usage_analysis.table.rows %}
+        {% for row in electrical_usage_analysis.table.rows or [] %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.kwh | number }}</td>
@@ -46,7 +46,7 @@
 
 <section>
   <div class="row">
-    {% for graph in electrical_usage_analysis.graphs %}
+    {% for graph in electrical_usage_analysis.graphs or [] %}
       <div class="col-md-6 col-12">
         <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>

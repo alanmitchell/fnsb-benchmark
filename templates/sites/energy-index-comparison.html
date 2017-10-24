@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for row in energy_index_comparison.yearly_table.rows %}
+        {% for row in energy_index_comparison.yearly_table.rows or [] %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.eci | money(2) }}</td>

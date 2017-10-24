@@ -25,7 +25,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for row in utility_cost_overview.table.rows %}
+        {% for row in utility_cost_overview.table.rows or [] %}
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.hdd | number }}</td>
@@ -48,7 +48,7 @@
 
 <section>
   <div class="row">
-    {% for graph in utility_cost_overview.graphs %}
+    {% for graph in utility_cost_overview.graphs or [] %}
       <div class="col-md-6 col-12">
         <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>

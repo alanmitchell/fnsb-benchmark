@@ -7,7 +7,7 @@
     </div>
   </div>
   <div class="row">
-    {% for graph in energy_cost_usage.graphs %}
+    {% for graph in energy_cost_usage.graphs or [] %}
       <div class="col-md-4 col-12">
         <img class="graph" src="{{ root_path }}/{{ graph }}" />
       </div>
