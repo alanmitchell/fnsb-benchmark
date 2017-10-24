@@ -257,7 +257,7 @@ def energy_index_report(site, df, ut):
         df2['specific_eui'] = df2.heat_mmbtu * 1e6 / df2.hdd / sq_ft
 
         # Restrict to full years
-        df2 = df2.query("month_count == 12")
+        df2 = df2.query("month_count == 12").copy()
 
         # Reverse the years
         df2.sort_index(ascending=False, inplace=True)
@@ -598,7 +598,8 @@ def energy_use_cost_reports(site, df, ut, df_utility_cost):
     pie_urls = gu.usage_pie_charts(usage_df2.fillna(0.0), usage_cols, 1, 'energy_usage_pie', site)
 
     # Make the other graphs and append the URLs
-    pie_urls += gu.usage_pie_charts(df_utility_cost.set_index('fiscal_year', inplace=True).fillna(0.0),
+    df_ut_cost = df_utility_cost.set_index('fiscal_year')  # need fiscal_year index for graphs
+    pie_urls += gu.usage_pie_charts(df_ut_cost.fillna(0.0),
                                     utility_list,
                                     2,
                                     'energy_cost_pie',
@@ -843,10 +844,12 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     # Convert df to dictionary
     heating_use_rows = bu.df_to_dictionaries(heating_usage)
 
-    # Add data and graphs to main dictionary
-    template_data['heating_usage_analysis'] = dict(
-        graphs=[p8g1_url, p8g2_url],
-        table={'rows': heating_use_rows},
+    # Add data and graphs to a dictionary
+    template_data = dict(
+        heating_usage_analysis = dict(
+            graphs=[p8g1_url, p8g2_url],
+            table={'rows': heating_use_rows}
+        )
     )
 
     # Using the Utility Cost DataFrame passed in as a parameter,
@@ -1068,6 +1071,8 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
         table={'rows': heating_cost_rows},
     )
 
+    return template_data
+
 
 # ---------------------- Water Analysis Table ---------------------------
 
@@ -1254,7 +1259,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        #if site_id < 'ASLSQD': continue
+        # if site_id < 'ASLC18': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
@@ -1278,13 +1283,13 @@ if __name__=="__main__":
         df1 = df.query('site_id==@site_id and service_type==@energy_services')
         if not df1.empty:
 
-            report_data, df_usage = energy_use_cost_reports(site_id, df, util_obj)
+            report_data, df_usage = energy_use_cost_reports(site_id, df, util_obj, df_utility_cost)
             template_data.update(report_data)
 
             report_data = electrical_usage_and_cost_reports(site_id, df)
             template_data.update(report_data)
 
-            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost)
+            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
             template_data.update(report_data)
 
         report_data = water_report(site_id, df)
