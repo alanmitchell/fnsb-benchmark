@@ -8,7 +8,7 @@ import numpy as np
 
 class SilentUndefined(Undefined):
     '''
-    Dont break pageloads because vars arent there!
+    Dont break pageloads because vars aren't there!
     '''
     def _fail_with_undefined_error(self, *args, **kwargs):
         return None
