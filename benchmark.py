@@ -506,9 +506,13 @@ def utility_cost_report(site, df, ut):
 
 # -------------------- Energy Use and Cost Reports -----------------------
 
-def energy_use_cost_reports(site, df, ut):
+def energy_use_cost_reports(site, df, ut, df_utility_cost):
     """This does both the Energy Usage report and the Energy Cost & Usage
-     Pie charts.
+    Pie charts.
+    'df_utility_cost' is a summary utility cost DataFrame from the prior
+         function.
+    As well as returnin the template data, this function returns a summary
+    energy usage dataframe.
     """
 
     # From the main DataFrame, get only the rows for this site, and only get
@@ -594,12 +598,16 @@ def energy_use_cost_reports(site, df, ut):
     pie_urls = gu.usage_pie_charts(usage_df2.fillna(0.0), usage_cols, 1, 'energy_usage_pie', site)
 
     # Make the other graphs and append the URLs
-    pie_urls += gu.usage_pie_charts(df2.fillna(0.0), utility_list, 2, 'energy_cost_pie', site)
+    pie_urls += gu.usage_pie_charts(df_utility_cost.set_index('fiscal_year', inplace=True).fillna(0.0),
+                                    utility_list,
+                                    2,
+                                    'energy_cost_pie',
+                                    site)
 
     # Add pie charts to template dictionary
     template_data['energy_cost_usage'] = dict(graphs=pie_urls)
 
-    return template_data
+    return template_data, usage_df2
 
 # -------------------- Electrical Usage and Cost Reports  -------------------------
 
@@ -769,14 +777,18 @@ def electrical_usage_and_cost_reports(site, df):
 
 # --------------------Heating Usage and Cost Reports ------------------------
 
-def heating_usage_cost_reports(site, df, ut, df_utility_cost):
+def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     """This produces both the Heating Usage and the Heating Cost
     reports.
     'df_utility_cost': The utility cost DataFrame produced in the
-        utility_cost_report function above."""
+        utility_cost_report function above.
+    'df_usage': A summary energy usage DataFrame produced in the prior
+        energy_use_cost_reports function.
+    """
 
-    # Take only needed columns from earlier usage df
-    heating_usage = usage_df2[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
+    # Take only needed columns from the df_usage DataFrame
+    # that was passed in.
+    heating_usage = df_usage[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
 
     # Add in percent change columns
     # First sort so the percent change column is correct and then re-sort the other direction
@@ -804,6 +816,9 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost):
 
     # --- Create Monthly Heating Usage dataframe for graph
 
+    # From the main DataFrame, get only the rows for this site, and only get
+    # the needed columns for this analysis
+    usage_df1 = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'mmbtu']]
     monthly_heating = pd.pivot_table(usage_df1,
                                     values='mmbtu',
                                     index=['fiscal_year', 'fiscal_mo'],
@@ -1263,7 +1278,7 @@ if __name__=="__main__":
         df1 = df.query('site_id==@site_id and service_type==@energy_services')
         if not df1.empty:
 
-            report_data = energy_use_cost_reports(site_id, df, util_obj)
+            report_data, df_usage = energy_use_cost_reports(site_id, df, util_obj)
             template_data.update(report_data)
 
             report_data = electrical_usage_and_cost_reports(site_id, df)
