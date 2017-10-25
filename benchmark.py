@@ -61,7 +61,7 @@ warnings.filterwarnings("ignore", module="matplotlib")
 # ----------------------Function for Preprocessing Data ----------------------
 
 def preprocess_data():
-    """Loads and processes the Utility Bill data into a smaller and more useable
+    """Loads and processes the Utility Bill data into a smaller and more usable
     form.  Returns
         - a DataFrame with the raw billing data,
         - a DataFrame with the preprocessed data,
@@ -78,7 +78,7 @@ def preprocess_data():
     msg('Starting to read Utility Bill Data File.')
     dfu = pd.read_csv(fn, parse_dates=['From', 'Thru'])
 
-    msg('Removing Unneed columns and Combining Charges.')
+    msg('Removing Unneeded columns and Combining Charges.')
     
     # Filter down to the needed columns and rename them
     cols = [
