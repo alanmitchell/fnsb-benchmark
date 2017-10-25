@@ -62,9 +62,11 @@ warnings.filterwarnings("ignore", module="matplotlib")
 
 def preprocess_data():
     """Loads and processes the Utility Bill data into a smaller and more useable
-    form.  Returns a DataFrame with the preprocessed data, and a 
-    bench_util.Util object, which provides useful functions to the analysis
-    portion of this script.
+    form.  Returns
+        - a DataFrame with the raw billing data,
+        - a DataFrame with the preprocessed data,
+        - and a bench_util.Util object, which provides useful functions to
+            the analysis portion of this script.
     
     This the "preprocess_data.ipynb" was used to develop this code and shows
     intermdediate results from each of the steps.
@@ -75,9 +77,6 @@ def preprocess_data():
     fn = settings.UTILITY_BILL_FILE_PATH
     msg('Starting to read Utility Bill Data File.')
     dfu = pd.read_csv(fn, parse_dates=['From', 'Thru'])
-
-    # Pickle it for fast loading later, if needed
-    dfu.to_pickle('df_raw.pkl')
 
     msg('Removing Unneed columns and Combining Charges.')
     
@@ -150,9 +149,6 @@ def preprocess_data():
     fn = settings.OTHER_DATA_FILE_PATH
     ut = bu.Util(dfu, fn)
     
-    # save this object to a pickle file for quick loading
-    pickle.dump(ut, open('util_obj.pkl', 'wb'))
-
     # --- Add Fiscal Year Info and MMBtus
     msg('Add Fiscal Year and MMBtu Information.')
     fyr = []
@@ -171,12 +167,9 @@ def preprocess_data():
         mmbtu.append(row_mmbtu)
     dfu3['mmbtu'] = mmbtu
     
-    # --- Save this DataFrame in a pickle file for fast loading
-    dfu3.to_pickle('df_processed.pkl')
-    
     msg('Preprocessing complete!')
     
-    return dfu3, ut
+    return dfu, dfu3, ut
     
 #******************************************************************************
 #******************************************************************************
@@ -1226,7 +1219,17 @@ if __name__=="__main__":
 
     else:
         # Run the full reading and processing routine
-        df, util_obj = preprocess_data()
+        df_raw, df, util_obj = preprocess_data()
+
+        # Pickle the DataFrames and utility object for fast
+        # loading later, if needed
+        df_raw.to_pickle('df_raw.pkl')
+        df.to_pickle('df_processed.pkl')
+        pickle.dump(util_obj, open('util_obj.pkl', 'wb'))
+
+        # We no longer need the raw DataFrame, so delete it to
+        # save memory
+        del df_raw
 
     # Clean out the output directories to prepare for the new report files
     out_dirs = [
