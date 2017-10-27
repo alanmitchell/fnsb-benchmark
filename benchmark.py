@@ -325,7 +325,9 @@ def energy_index_report(site, df, ut):
     df_final = pd.concat([df_final, df3], axis=1)
 
     # Electricity kW, both Average and Max by building
-    df3 = pd.pivot_table(df2.query('units == "kW"'), index='site_id', values='usage', aggfunc=[np.mean, np.max])
+    # First, sum up kW pieces for each month.
+    df3 = df2.query('units == "kW"').groupby(['site_id', 'fiscal_year', 'fiscal_mo']).sum()
+    df3 = pd.pivot_table(df3.reset_index(), index='site_id', values='usage', aggfunc=[np.mean, np.max])
     df3.columns = ['electricity_kw_average', 'electricity_kw_max']
 
     # Add into Final Frame
@@ -1262,7 +1264,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        # if site_id < 'ASLC18': continue
+        # if site_id < 'DIPMP1': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
