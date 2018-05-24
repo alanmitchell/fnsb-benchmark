@@ -2,9 +2,11 @@
 """
 Utilities for assisting with the benchmarking analysis process.
 """
+import io
 from collections import namedtuple
 import pandas as pd
 import numpy as np
+import requests
 
 def calendar_to_fiscal(cal_year, cal_mo):
     """Converts a calendar year and month into a fiscal year and month.
@@ -336,22 +338,16 @@ class Util:
                 sites.append(dict(id=site_id, name=site_name))
             self._site_categories.append( {'name': nm, 'sites': sites} )
 
-        # read in the degree-day info as well.
-        df_dd = pd.read_excel(
-                other_data_pth, 
-                sheetname='Degree Days', 
-                skiprows=3, 
-                parse_dates=['Month']
-                )
-        sites = list(df_dd.columns)[1:]
-        
+        # read in the degree-day info from AHFC's online file
+        resp = requests.get('http://ahfc.webfactional.com/data/degree_days.pkl').content
+        df_dd = pd.read_pickle(io.BytesIO(resp), compression='bz2')
+
         # make a dictionary keyed on fiscal_yr, fiscal_mo, site_id
         # with a value of degree days.
         self._dd = {}
         for ix, row in df_dd.iterrows():
-            f_yr, f_mo = calendar_to_fiscal(row.Month.year, row.Month.month)
-            for site in sites:
-                self._dd[(f_yr, f_mo, site)] = row[site]
+            f_yr, f_mo = calendar_to_fiscal(row.month.year, row.month.month)
+            self._dd[(f_yr, f_mo, ix)] = row.hdd65
   
         # Get Fuel Btu Information and put it in a dictionary as an object
         # attribute.  Keys are fuel type, fuel unit, both in lower case.
