@@ -218,7 +218,7 @@ class Util:
     
     def __init__(self, util_df, other_data_pth):
         """
-        raw_util_df: DataFrame containing the raw utility bill data
+        util_df: DataFrame containing the raw utility bill data
         other_data_pth: path to the directory containing other application data spreadsheets,
             building info, degree days, etc.
         """
@@ -352,8 +352,7 @@ class Util:
   
         # Get Fuel Btu Information and put it in a dictionary as an object
         # attribute.  Keys are fuel type, fuel unit, both in lower case.
-        df_fuel = pd.read_excel(os.path.join(other_data_pth, 'Fuels.xlsx'), 
-                                sheetname='Fuel Types', skiprows=3)
+        df_fuel = pd.read_excel(os.path.join(other_data_pth, 'Fuels.xlsx'), skiprows=3)
         self._fuel_btus = {}
         for ix, row in df_fuel.iterrows():
             self._fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
