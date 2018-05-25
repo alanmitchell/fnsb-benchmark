@@ -146,8 +146,8 @@ def preprocess_data():
 
     #--- Make a utility function object
     msg('Make an Object containing Useful Utility Functions.')
-    fn = settings.OTHER_DATA_FILE_PATH
-    ut = bu.Util(dfu, fn)
+    dn = settings.OTHER_DATA_DIR_PATH
+    ut = bu.Util(dfu, dn)
     
     # --- Add Fiscal Year Info and MMBtus
     msg('Add Fiscal Year and MMBtu Information.')

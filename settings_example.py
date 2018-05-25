@@ -14,10 +14,11 @@ type of Python code is possible.
 #(string file path, use forward slashes for directory separators)
 UTILITY_BILL_FILE_PATH = 'data/20171017_AllDataExport.CSV'
 
-# This is the path to the Other Data spreadsheet that holds additional
-# information about the buildings (e.g. square feet, address) and degreee-day
-# information. (string file path, use forward slashes for directory separators)
-OTHER_DATA_FILE_PATH = 'data/Other_Building_Data.xlsx'
+# This is the path to the Other Data directory that hold the Buildings.xlsx
+# and Fuels.xlsx spreadsheets.  Those spreadsheets
+# give information about the buildings being benchmarked and general 
+# energy data. (string directory path, use forward slashes for directory separators)
+OTHER_DATA_DIR_PATH = 'data/'
 
 # Set the following to True if you want to use the same Utility Bill and Other 
 # Data from the last run of the benchmark script.  This will substantially
@@ -29,7 +30,7 @@ USE_DATA_FROM_LAST_RUN = False
 # If the following setting is True, debug information will be written to the
 # 'output/debug' directory, including the raw variable values that are passed
 # to the HTML reporting template. (True / False)
-WRITE_DEBUG_DATA = True
+WRITE_DEBUG_DATA = False
 
 # If you are debugging or modifying the code in the benchmark script, it is
 # convenient to only run some of the sites through the benchmark script to save

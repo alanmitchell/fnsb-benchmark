@@ -1,3 +1,5 @@
+.vscode/
+
 # ignore everything in `output` except for persistent `css` and `js` folders
 output/
 !output/css
