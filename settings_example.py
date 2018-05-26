@@ -38,3 +38,14 @@ WRITE_DEBUG_DATA = False
 # want to run all the sites, set the value to 0. The sites are processed in
 # alphabetical order based on their Site ID. (integer)
 MAX_NUMBER_SITES_TO_RUN = 0
+
+# ------------------------------------------------------------------------------
+# The settings below here only apply to use of this script with AHFC ARIS data.
+
+# Base URL to the ARIS API
+ARIS_API_URL = 'http://arisapi.test.ahfc.us/api/buildingenergy'
+
+# Username and Password for the ARIS API
+ARIS_USERNAME = 'buildingenergyapp'
+ARIS_PASSWORD = 'buildingenergyappTest1!'
+
