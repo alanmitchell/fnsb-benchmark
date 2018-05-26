@@ -155,7 +155,9 @@ df_other = dfd.query('EnergyTypeName!=@mo_fuels').copy()
 # combo.  Determine the starting date of the billing period by 
 # bringing forward the date from the prior bill.
 for gp, recs in df_other.groupby(['BuildingId', 'EnergyTypeName']):
-    recs = recs.query('(DollarCost > 0) or (EnergyQuantity > 0)').copy() 
+    recs = recs.query('(DollarCost > 0) or (EnergyQuantity > 0)').copy()
+    if len(recs) == 0:
+        continue
     recs.sort_values(['Thru'], inplace=True)
     # Start date comes from prior record
     recs['From'] = recs.Thru.shift(1)
