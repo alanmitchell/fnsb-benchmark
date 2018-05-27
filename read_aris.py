@@ -87,8 +87,7 @@ for bldg_id in df_bldgs2.site_id.unique():
 dfd = dfd.apply(pd.to_numeric, errors='ignore')
 dfd[['UsageDate', 'MeterReadDate']] = dfd[['UsageDate', 'MeterReadDate']].apply(pd.to_datetime)
 
-# Get rid of unneeded columns
-dfd.drop(columns=['EnergyTypeId', 'EnergyUnitId', 'UsageYear'], inplace=True)
+dfd.to_pickle('dfd.pkl')
 
 # For the usage end date, 'Thru', use the MeterReadDate if available, otherwise
 # use the middle of the UsageDate month.
