@@ -46,6 +46,5 @@ MAX_NUMBER_SITES_TO_RUN = 0
 ARIS_API_URL = 'http://arisapi.test.ahfc.us/api/buildingenergy'
 
 # Username and Password for the ARIS API
-ARIS_USERNAME = 'buildingenergyapp'
-ARIS_PASSWORD = 'buildingenergyappTest1!'
-
+ARIS_USERNAME = 'the_user_name'
+ARIS_PASSWORD = 'the_password'

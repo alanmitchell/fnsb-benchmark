@@ -87,7 +87,8 @@ for bldg_id in df_bldgs2.site_id.unique():
 dfd = dfd.apply(pd.to_numeric, errors='ignore')
 dfd[['UsageDate', 'MeterReadDate']] = dfd[['UsageDate', 'MeterReadDate']].apply(pd.to_datetime)
 
-# Now, need to determine the From and Thru dates for each bill.
+# Get rid of unneeded columns
+dfd.drop(columns=['EnergyTypeId', 'EnergyUnitId', 'UsageYear'], inplace=True)
 
 # For the usage end date, 'Thru', use the MeterReadDate if available, otherwise
 # use the middle of the UsageDate month.
@@ -98,11 +99,94 @@ def thru_date(row):
         return row.MeterReadDate
 dfd['Thru'] = dfd.apply(thru_date, axis=1)
 
-# Start a new DataFrame to accumulate the final usage records.
-df_final = pd.DataFrame()
+# Change 'Demand - Electric' to 'Electric'
+dfd.loc[dfd.EnergyTypeName == 'Demand - Electric', 'EnergyTypeName'] = 'Electric'
 
-# The dictionary that renames the columns to names needed 
-# by the benchmarking script
+# There are a number of records where the EnergyQuantity is 0 or NaN,
+# which probably occurs because someone doesn't have the bill for that 
+# month or there was no fuel fill-up in that month.  We will eliminate
+# those records, because they distort the period over which fuel usage
+# occurred for sporadically bought fuels like oil and wood.  For 
+# monthly-billed fuels, we will later in the code make sure that the 
+# From - Thru billing period only covers 1 month.
+
+# Start by converting 0s to NaN to make future tests easier.
+dfd.loc[dfd.EnergyQuantity == 0.0, 'EnergyQuantity'] = np.NaN
+dfd.loc[dfd.DemandUse == 0.0, 'DemandUse'] = np.NaN
+
+# Also found that there were a bunch of -1.0 values for DemandUse that
+# are very likely not valid.
+dfd.loc[dfd.DemandUse == -1.0, 'DemandUse'] = np.NaN
+
+# Now filter down to just the records where we have a number for
+# either EnergyQuantity or DemandUse.  
+mask = ~(dfd.EnergyQuantity.isnull() & dfd.DemandUse.isnull())
+dfd = dfd[mask].copy()
+
+# Fill out the From date by using the Thru date from the prior bill 
+# for the building and for the particular fuel type
+df_final = None
+for gp, recs in dfd.groupby(['BuildingId', 'EnergyTypeName']):
+    recs = recs.sort_values(['Thru']).copy()
+    # Start date comes from prior record
+    recs['From'] = recs.Thru.shift(1)
+    recs['Item Description'] =  'Energy'
+    if df_final is None:
+        df_final = recs.copy()
+    else:
+        df_final = df_final.append(recs, ignore_index=True)
+
+# For the services that are normally billed on a monthly basis, fill out
+# any missing From dates (e.g. the first bill for a building) with a value
+# 30 days prior to Thru.  Also, restrict the Thru - From difference to 25 to 35 days.
+# If it is outside that range, set to Thru - 30 days.
+
+# Fuel types that are normally billed on a monthly basis
+mo_fuels = ['Electric', 'Natural Gas', 'Steam District Ht', 'Hot Wtr District Ht']
+mask_mo = df_final.EnergyTypeName.isin(mo_fuels)
+
+# Find records of that type that have NaT for From date and 
+# set to 30 days prior to Thru
+df_final.loc[mask_mo & df_final.From.isnull(), 'From'] = df_final.Thru - timedelta(days=30)
+
+# Now find any records where Thru - From is outside 25 - 35 window and fix those.
+# Perhaps they are buildings where there are two separate electric bills.
+bill_len = df_final.Thru - df_final.From
+mask2 = mask_mo & ((bill_len < timedelta(days=25)) | (bill_len > timedelta(days=35)))
+df_final.loc[mask2, 'From'] = df_final.Thru - timedelta(days=30)
+
+# Now work on the fuel types that are not billed monthly. Some of these records
+# have NaT for the From date because they were the first record for the building
+# and a particular fuel type.  We will ultimately delete these.  In this step
+# find sporadically billed records that have a billing length of greater than 450
+# days and put a NaT in for From, so that deleting all From==NaT records will catch
+# them as well. A billing period more than 450 days probably indicates that a fuel
+# fill was missed making the record invalid.
+mask_sporadic = ~mask_mo
+mask3 = mask_sporadic & (bill_len > timedelta(days=450))
+df_final.loc[mask3, 'From'] = pd.NaT
+
+# Now eliminate all the sporadically billed records that have a From
+# with a NaT
+mask_elim = (mask_sporadic & df_final.From.isnull())
+df_final = df_final[~mask_elim].copy()
+
+# Now add the Electric Demand Charge records.  The From-Thru dates on these
+# have already been set. The demand quantity and cost
+# appear in separate, dedicated columns, but we will move them to the 'EnergyQuantity'
+# and 'DollarCost' columns.
+df_demand = df_final.query('DemandUse > 0 and EnergyTypeName=="Electric"').copy()
+df_demand['EnergyQuantity'] = df_demand.DemandUse
+df_demand['DollarCost'] =  df_demand.DemandCost
+df_demand['EnergyUnitTypeName'] = 'kW'
+df_demand['Item Description'] = 'Demand Charge'
+
+# add these to the final DataFrame
+df_final = df_final.append(df_demand, ignore_index=True)
+
+# Eliminate the columns that are not needed
+df_final.drop(columns=['DemandCost', 'DemandUse', 'MeterReadDate', 'UsageDate'], inplace=True)
+
 col_map = {
     'BuildingId': 'Site ID',
     'EnergyTypeName': 'Service Name',
@@ -110,72 +194,9 @@ col_map = {
     'EnergyQuantity': 'Usage',
     'DollarCost': 'Cost',
 }
-def add_to_final(df_to_add):
-    """Adds df_to_add to the df_final DataFrame that is accumulating
-    finished records.
-    """
-    global df_final
-    df_add = df_to_add.copy()
-    df_add.drop(columns=['DemandUse', 'DemandCost', 'UsageDate', 'MeterReadDate'], inplace=True)
-    df_add.rename(columns=col_map, inplace=True)
-    df_final = df_final.append(df_add, ignore_index=True)
-    
-# Change the 'Demand - Electric' Fuel Type to 'Electric'
-dfd.loc[dfd.EnergyTypeName == 'Demand - Electric', 'EnergyTypeName'] = 'Electric'
+df_final.rename(col_map, axis=1, inplace=True)
 
-# Do Fuel types that are normally billed on a monthly basis
-mo_fuels = ['Electric', 'Natural Gas', 'Steam District Ht', 'Hot Wtr District Ht']
-df_mo = dfd.query('EnergyTypeName==@mo_fuels').copy()
-
-df_mo.to_pickle('df_mo.pkl')
-# Assume start date of billing period was one month prior to end date
-df_mo['From'] = df_mo['Thru'] - timedelta(days=30)   # approximate
-# now replace with exactly the day that was in the Thru date
-df_mo['From'] = [d_fr.replace(day=d_th.day) for d_fr, d_th in zip(df_mo.From, df_mo.Thru)]
-df_mo['Item Description'] = 'Energy'   # not critical, except for electric demand
-
-# Add to final DataFrame
-add_to_final(df_mo)
-
-# Now add the Electric Demand Charge records
-df_demand = df_mo.query('DemandCost > 0 and EnergyTypeName=="Electric"').copy()
-df_demand['EnergyQuantity'] = df_demand.DemandUse
-df_demand['DollarCost'] =  df_demand.DemandCost
-df_demand['EnergyUnitTypeName'] = 'kW'
-df_demand['Item Description'] = 'Demand Charge'
-# add this to the final DataFrame
-add_to_final(df_demand)
-
-# Do all the other fuel types that are sporadically delivered. 
-# Assume the start of the billing period is the 15th of the month 
-# containing the prior bill.
-df_other = dfd.query('EnergyTypeName!=@mo_fuels').copy()
-
-# Separate into a group of records for each Building ID / Fuel Type
-# combo.  Determine the starting date of the billing period by 
-# bringing forward the date from the prior bill.
-for gp, recs in df_other.groupby(['BuildingId', 'EnergyTypeName']):
-    recs = recs.query('(DollarCost > 0) or (EnergyQuantity > 0)').copy()
-    if len(recs) == 0:
-        continue
-    recs.sort_values(['Thru'], inplace=True)
-    # Start date comes from prior record
-    recs['From'] = recs.Thru.shift(1)
-    # Drop the first record, cuz no start date for that one
-    recs = recs[1:]
-    recs['Item Description'] =  'Energy'
-    add_to_final(recs)
-
-# Create a column showing length of billing period in days
-df_final['PeriodLength'] = [d.days for d in (df_final.Thru - df_final.From)]
-
-# Eliminate records with a large number of days in the Billing period, and 
-# then drop the PeriodLength column
-df_final.query('PeriodLength < 450', inplace=True)
-df_final.drop(columns=['PeriodLength'], inplace=True)
-
-# These fields are used in the report summarizing vendors.  We don't have the
-# data, so just leave them blank.
+# These fields are used in the report summarizing vendors.
 df_final['Account Number'] = ''
 df_final['Vendor Name'] = ''
 
