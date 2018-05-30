@@ -16,6 +16,8 @@ import numpy as np
 import requests
 import settings         # settings file for this application
 
+print('\nScript started: {}'.format(time.ctime()))
+
 # URLs and Passwords
 base_url = settings.ARIS_API_URL
 my_username = settings.ARIS_USERNAME
@@ -86,8 +88,6 @@ for bldg_id in df_bldgs2.site_id.unique():
 # Change columns to correct data types
 dfd = dfd.apply(pd.to_numeric, errors='ignore')
 dfd[['UsageDate', 'MeterReadDate']] = dfd[['UsageDate', 'MeterReadDate']].apply(pd.to_datetime)
-
-dfd.to_pickle('dfd.pkl')
 
 # For the usage end date, 'Thru', use the MeterReadDate if available, otherwise
 # use the middle of the UsageDate month.
@@ -202,3 +202,5 @@ df_final['Vendor Name'] = ''
 # Save the final results as a CSV file and a pickle
 df_final.to_pickle('data/aris_records.pkl')
 df_final.to_csv('data/aris_records.csv')
+
+print('Script completed: {}'.format(time.ctime()))
