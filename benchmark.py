@@ -131,7 +131,7 @@ def preprocess_data():
             new_row = row_tmpl.copy()
             new_row['cal_year'] = piece.cal_year
             new_row['cal_mo'] = piece.cal_mo
-            new_row['days_served'] = piece.days_served
+            # new_row['days_served'] = piece.days_served    # not really needed
             new_row['usage'] *= piece.bill_frac
             new_row['cost'] *= piece.bill_frac
             recs.append(new_row)
@@ -149,27 +149,40 @@ def preprocess_data():
     dn = settings.OTHER_DATA_DIR_PATH
     ut = bu.Util(dfu, dn)
     
-    # --- Add Fiscal Year Info and MMBtus
-    msg('Add Fiscal Year and MMBtu Information.')
-    fyr = []
-    fmo = []
-    for cyr, cmo in zip(dfu3.cal_year, dfu3.cal_mo):
-        fis_yr, fis_mo = bu.calendar_to_fiscal(cyr, cmo)
-        fyr.append(fis_yr)
-        fmo.append(fis_mo)
-    dfu3['fiscal_year'] = fyr
-    dfu3['fiscal_mo'] = fmo
-
+    # --- Add MMBtus Fiscal Year Info and MMBtus
+    msg('Add MMBtu Information.')
     mmbtu = []
     for ix, row in dfu3.iterrows():
         row_mmbtu = ut.fuel_btus_per_unit(row.service_type, row.units) * row.usage / 1e6
         if np.isnan(row_mmbtu): row_mmbtu = 0.0
         mmbtu.append(row_mmbtu)
     dfu3['mmbtu'] = mmbtu
-    
+
+    # Now that original service types have been used to determine MMBtus,
+    # convert all service types to standard service types.
+    dfu3['service_type'] = dfu3.service_type.map(ut.service_to_category())
+
+    # This may cause multiple rows for a fiscal month and service type.
+    # Re-sum to reduce to least number of rows.
+    dfu4 = dfu3.groupby(
+        ['site_id', 'service_type', 'cal_year', 'cal_mo', 'item_desc', 'units']
+    ).sum()
+    dfu4 = dfu4.reset_index()
+
+    # Add the fiscal year information
+    msg('Add Fiscal Year Information.')
+    fyr = []
+    fmo = []
+    for cyr, cmo in zip(dfu4.cal_year, dfu4.cal_mo):
+        fis_yr, fis_mo = bu.calendar_to_fiscal(cyr, cmo)
+        fyr.append(fis_yr)
+        fmo.append(fis_mo)
+    dfu4['fiscal_year'] = fyr
+    dfu4['fiscal_mo'] = fmo
+
     msg('Preprocessing complete!')
     
-    return dfu, dfu3, ut
+    return dfu, dfu4, ut
     
 #******************************************************************************
 #******************************************************************************
@@ -236,7 +249,11 @@ def energy_index_report(site, df, ut):
         bu.add_month_count_column(df2, df1)
 
         # Make a column with just the Heat MMBtu
-        df2['heat_mmbtu'] = df2.mmbtu - df1.query("service_type=='Electricity'").groupby('fiscal_year').sum()['mmbtu']
+        dfe = df1.query("service_type=='electricity'").groupby('fiscal_year').sum()[['mmbtu']]
+        dfe.rename(columns={'mmbtu': 'elec_mmbtu'}, inplace = True)
+        df2 = df2.merge(dfe, how='left', left_index=True, right_index=True)
+        df2['elec_mmbtu'] = df2['elec_mmbtu'].fillna(0.0)
+        df2['heat_mmbtu'] = df2.mmbtu - df2.elec_mmbtu
 
         # Add in degree days to DataFrame
         months_present = bu.months_present(df1)
@@ -265,7 +282,7 @@ def energy_index_report(site, df, ut):
 
     # Determine month count by year for Electricity to determine the latest
     # complete year.
-    electric_only = df.query("service_type == 'Electricity'")
+    electric_only = df.query("service_type == 'electricity'")
     electric_months_present = bu.months_present(electric_only)
     electric_mo_count = bu.month_count(electric_months_present)
     last_complete_year = max(electric_mo_count[electric_mo_count==12].index)
@@ -289,7 +306,7 @@ def energy_index_report(site, df, ut):
     df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='cost', aggfunc=np.sum)
 
     # Change column names
-    cols = ['{}_cost'.format(bu.change_name(col)) for col in df3.columns]
+    cols = ['{}_cost'.format(col) for col in df3.columns]
     df3.columns = cols
 
     # Add a total energy cost column
@@ -305,7 +322,7 @@ def energy_index_report(site, df, ut):
     df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='mmbtu', aggfunc=np.sum)
 
     # Change column names
-    cols = ['{}_mmbtu'.format(bu.change_name(col)) for col in df3.columns]
+    cols = ['{}_mmbtu'.format(col) for col in df3.columns]
     df3.columns = cols
 
     # Add a total mmbtu column
@@ -447,10 +464,10 @@ def utility_cost_report(site, df, ut):
     bu.add_columns(df2, missing_services)
 
     # Add a Total column that sums the other columns
-    df2['Total'] = df2.sum(axis=1)
+    df2['total'] = df2.sum(axis=1)
 
     # Add a percent change column
-    df2['pct_change'] = df2.Total.pct_change()
+    df2['pct_change'] = df2.total.pct_change()
 
     # Add in degree days
     months_present = bu.months_present(df1)
@@ -467,9 +484,6 @@ def utility_cost_report(site, df, ut):
     # Reverse the DataFrame
     df2.sort_index(ascending=False, inplace=True)
 
-    # Standardize column names
-    df2.columns = [bu.change_name(col) for col in df2.columns]
-
     # Reset the index so the fiscal year column can be passed to the graphing utility
     reset_df2 = df2.reset_index()
 
@@ -481,7 +495,7 @@ def utility_cost_report(site, df, ut):
     g1_fn, g1_url = gu.graph_filename_url(site, 'util_cost_ovw_g1')
 
     # make the area cost distribution graph
-    utility_list = ['electricity', 'natural_gas', 'fuel_oil', 'sewer', 'water', 'refuse', 'district_heat']
+    utility_list = bu.all_services
     gu.area_cost_distribution(reset_df2, 'fiscal_year', utility_list, g1_fn);
 
     # make the stacked bar graph

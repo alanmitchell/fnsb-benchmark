@@ -53,25 +53,6 @@ mo_list = [
 
 mo_dict = dict(zip(range(1,13), mo_list))
 
-# A dictionary used to map column names to more standardized variable names.
-name_changes = {
-    'Electricity': 'electricity',
-    'Natural Gas': 'natural_gas',
-    'Oil #1': 'fuel_oil',
-    'Refuse': 'refuse',
-    'Sewer': 'sewer',
-    'Steam': 'district_heat',
-    'Water': 'water',
-    'Total': 'total'
-}
-
-# If a function is needed to change one name, here is one:
-def change_name(old_name):
-    """This returns a new name if the old name is in the "name_changes"
-    ditionary.  Otherwise, it just returns the old name.
-    """
-    return name_changes.get(old_name, old_name)
-
 PeriodSplit = namedtuple('PeriodSplit', 'cal_year cal_mo bill_frac days_served')
 def split_period(start_date, end_date):
     """Splits a range of service dates from a utility bill into pieces that
@@ -146,30 +127,34 @@ def add_month_count_column_by_site(df_target, df_detail, yr_col='fiscal_year', m
 
     return df_target.merge(df_mo_count, how='left', left_index=True, right_index=True)
 
-
 # List of all possible services
-# I'm leaving out Oil #2 here.
 all_services = [
-        'Oil #1',
-        'Natural Gas',
-        'Electricity',
-        'Steam',
-        'Water',
-        'Sewer',
-        'Refuse'
+    'fuel_oil',
+    'natural_gas',
+    'electricity',
+    'propane',
+    'wood',
+    'district_heat',
+    'water',
+    'sewer',
+    'refuse'
 ]
 
 all_energy_services = [
-    'Oil #1',
-    'Natural Gas',
-    'Electricity',
-    'Steam'
+    'fuel_oil',
+    'natural_gas',
+    'electricity',
+    'propane',
+    'wood',
+    'district_heat',
 ]
 
 all_heat_services = [
-    'Oil #1',
-    'Natural Gas',
-    'Steam'
+    'fuel_oil',
+    'natural_gas',
+    'propane',
+    'wood',
+    'district_heat',
 ]
 
 def missing_services(services_present):
@@ -367,12 +352,20 @@ class Util:
             f_yr, f_mo = calendar_to_fiscal(row.month.year, row.month.month)
             self._dd[(f_yr, f_mo, ix)] = row.hdd65
   
-        # Get Fuel Btu Information and put it in a dictionary as an object
-        # attribute.  Keys are fuel type, fuel unit, both in lower case.
-        df_fuel = pd.read_excel(os.path.join(other_data_pth, 'Fuels.xlsx'), skiprows=3)
+        # Get Service Type information and create a Fuel Btu dictionary as an
+        # object attribute.  Keys are fuel type, fuel unit, both in lower case.
+        # Also create a dictionary mapping service types to standard service 
+        # type category names.  
+        df_services = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'), skiprows=3)
         self._fuel_btus = {}
-        for ix, row in df_fuel.iterrows():
-            self._fuel_btus[(row.fuel.lower(), row.unit.lower())] = row.btu_per_unit
+        for ix, row in df_services.iterrows():
+            # Only put energy services into fuel btu dictionary
+            if row.btu_per_unit > 0.0:
+                self._fuel_btus[(row.service.lower(), row.unit.lower())] = row.btu_per_unit
+
+        # Make a dictionary mapping Service Type to Service Type Category
+        # For duplicate service type entries, this will take the last category.
+        self._service_to_category = dict(zip(df_services.service, df_services.category))
 
     def building_info(self, site_id):
         """Returns building information, a dictionary, for the facility
@@ -466,4 +459,9 @@ class Util:
         source spreadsheet, 0.0 is returned.
         """
         return self._fuel_btus.get( (fuel_type.lower(), fuel_units.lower()), 0.0)
-    
+
+    def service_to_category(self):
+        """Returns a dictionary that maps service type to a standard service
+        cateogory.
+        """
+        return self._service_to_category.copy()   # return copy to protect original
