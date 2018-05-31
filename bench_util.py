@@ -130,6 +130,23 @@ def add_month_count_column(df_target, df_detail, yr_col='fiscal_year', mo_col='f
     mo_count = month_count(mo_present)
     df_target['month_count'] = mo_count
 
+def add_month_count_column_by_site(df_target, df_detail, yr_col='fiscal_year', mo_col='fiscal_mo', site_col='site_id'):
+    """Returns a DataFrame the same as df_target but with a 'month_count' column; that
+    column indicates how many months of data are present in df_detail for the 
+    (site ID, year) of the row. 'df_target' must have an index of (site ID, year).  
+    'yr_col' is the name of the column in df_detail that contains the year of 
+    the data. 'mo_col' gives the name of the column in 'df_detail' that holds the 
+    month of the data. 'site_col' is the name of the column in df_detail that 
+    indicates the site.
+    """
+    site_yr_mo = set(zip(df_detail[site_col], df_detail[yr_col], df_detail[mo_col]))
+    site_yr_mo = list(site_yr_mo)
+    df_mo_count = pd.DataFrame(data=site_yr_mo, columns=[site_col, yr_col, mo_col]).groupby([site_col, yr_col]).count()
+    df_mo_count.rename(columns={'fiscal_mo': 'month_count'}, inplace=True)
+
+    return df_target.merge(df_mo_count, how='left', left_index=True, right_index=True)
+
+
 # List of all possible services
 # I'm leaving out Oil #2 here.
 all_services = [
@@ -395,7 +412,10 @@ class Util:
         """
         dd_col = []
         for ix, row in df.iterrows():
-            deg_days = self._dd.get((row.fiscal_year, row.fiscal_mo, self._bldg_info[row.site_id]['dd_site']), np.NaN)
+            try:
+                deg_days = self._dd[(row.fiscal_year, row.fiscal_mo, self._bldg_info[row.site_id]['dd_site'])]
+            except:
+                deg_days = np.nan
             dd_col.append(deg_days)
         
         df['degree_days'] = dd_col
@@ -409,10 +429,15 @@ class Util:
         """
         recs = []
         for yr, mo in months_to_include:
+            try:
+                deg_days = self._dd[(yr, mo, self._bldg_info[site_id]['dd_site'])]
+            except:
+                deg_days = np.NaN
+
             recs.append(
                 {'fiscal_year': yr, 
                  'fiscal_mo': mo, 
-                 'dd': self._dd.get((yr, mo, self._bldg_info[site_id]['dd_site']), np.NaN)
+                 'dd': deg_days
                 }
             )
         dfdd = pd.DataFrame(data=recs)
@@ -436,7 +461,7 @@ class Util:
     def fuel_btus_per_unit(self, fuel_type, fuel_units):
         """Returns the Btus per unit of fuel.
             fuel_type: string, type of fuel in lower case, e.g. Electricity, Natural Gas, etc.
-            fuel_units: string, units of the fuel, e.g. CCF, Gallongs
+            fuel_units: string, units of the fuel, e.g. CCF, Gallons
         Parameters are case insenstive.  If the fuel type and units are not in
         source spreadsheet, 0.0 is returned.
         """
