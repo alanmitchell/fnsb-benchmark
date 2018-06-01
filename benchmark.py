@@ -872,43 +872,46 @@ def electrical_usage_and_cost_reports(site, df):
     return template_data
 
 # --------------------Heating Usage and Cost Reports ------------------------
-
 def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
-    """This produces both the Heating Usage and the Heating Cost
+    '''This produces both the Heating Usage and the Heating Cost
     reports.
     'df_utility_cost': The utility cost DataFrame produced in the
-        utility_cost_report function above.
+    utility_cost_report function above.
     'df_usage': A summary energy usage DataFrame produced in the prior
-        energy_use_cost_reports function.
-    """
+    energy_use_cost_reports function.
+    '''
 
-    # Take only needed columns from the df_usage DataFrame
-    # that was passed in.
-    heating_usage = df_usage[['natural_gas_mmbtu', 'fuel_oil_mmbtu', 'district_heat_mmbtu', 'hdd', 'total_heat_mmbtu']].copy()
+    heat_service_mmbtu_list = []
+    for heat_service in bu.all_heat_services:
+        heat_service_mmbtu_list.append(heat_service + '_mmbtu')
+
+    keep_cols_list = heat_service_mmbtu_list + ['hdd', 'total_heat_mmbtu']
+
+    heating_usage = df_usage[keep_cols_list].copy()
 
     # Add in percent change columns
     # First sort so the percent change column is correct and then re-sort the other direction
     heating_usage.sort_index(ascending=True, inplace=True)
-    heating_usage['fuel_oil_pct_change'] = heating_usage.fuel_oil_mmbtu.pct_change()
-    heating_usage['natural_gas_pct_change'] = heating_usage.natural_gas_mmbtu.pct_change()
-    heating_usage['district_heat_pct_change'] = heating_usage.district_heat_mmbtu.pct_change()
+    for heating_service in heat_service_mmbtu_list:
+        new_col_name = heating_service.split('_mmbtu')[0] + '_pct_change'
+        heating_usage[new_col_name] = heating_usage[heating_service].pct_change()
     heating_usage['total_heat_pct_change'] = heating_usage.total_heat_mmbtu.pct_change()
-
     # Now reset the sorting
     heating_usage.sort_index(ascending=False, inplace=True)
 
-    # Get the number of gallons, ccf, and 1,000 pounds of district heat by converting MMBTUs using the supplied conversions
+    # Get the number of gallons, ccf, and cords of wood by converting MMBTUs using the supplied conversions
+    # This is hard-coded because I couldn't figure out how to do it more generically
     heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.fuel_btus_per_unit('Oil #1', 'gallons')
     heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.fuel_btus_per_unit('Natural Gas', 'ccf')
+    heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.fuel_btus_per_unit('Propane', 'gallons')
+    heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.fuel_btus_per_unit('Wood', 'cords')
 
     # ----- Create Heating Usage Analysis Graphs
 
     p8g1_filename, p8g1_url = gu.graph_filename_url(site, "heating_usage_g1")
-    gu.stacked_bar_with_line(heating_usage.reset_index(), 'fiscal_year', ['natural_gas_mmbtu', 'fuel_oil_mmbtu',
-                                                                                    'district_heat_mmbtu'], 'hdd',
+    gu.stacked_bar_with_line(heating_usage.reset_index(), 'fiscal_year', heat_service_mmbtu_list, 'hdd',
                             'Heating Fuel Usage [MMBTU/yr]', 'Heating Degree Days [Base 65F]',
                              "Annual Heating Energy Use and Degree Day Comparison", p8g1_filename)
-
 
     # --- Create Monthly Heating Usage dataframe for graph
 
@@ -926,8 +929,8 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     missing_services = bu.missing_energy_services(monthly_heating.columns)
     bu.add_columns(monthly_heating, missing_services)
 
-    # Drop the non-heating services
-    monthly_heating = monthly_heating[monthly_heating.columns.difference(['Sewer', 'Water', 'Refuse', 'Electricity'])]
+    # Use only heat services
+    monthly_heating = monthly_heating[bu.all_heat_services]
 
     # Create a total heating column
     monthly_heating['total_heating_energy'] = monthly_heating.sum(axis=1)
@@ -954,21 +957,22 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     df_utility_cost.sort_values('fiscal_year', ascending=True, inplace=True)
 
     # Make a total heat cost column and it's percent change
-    df_utility_cost['total_heat_cost'] = df_utility_cost[['natural_gas', 'fuel_oil', 'district_heat']].sum(axis=1)
+    df_utility_cost['total_heat_cost'] = df_utility_cost[bu.all_heat_services].sum(axis=1)
     df_utility_cost['total_heat_cost_pct_change'] = df_utility_cost.total_heat_cost.pct_change()
 
     # Now back in descending order
     df_utility_cost.sort_values('fiscal_year', ascending=False, inplace=True)
 
+    cols_to_keep = bu.all_heat_services + ['fiscal_year', 'total_heat_cost','total_heat_cost_pct_change']
+
     # Use only necessary columns
-    heating_cost = df_utility_cost[['fiscal_year', 'natural_gas',
-                                    'fuel_oil', 'district_heat', 'total_heat_cost',
-                                    'total_heat_cost_pct_change']]
+    heating_cost = df_utility_cost[cols_to_keep]
+
+    cost_cols = [col + "_cost" for col in bu.all_heat_services]
+    cost_col_dict = dict(zip(bu.all_heat_services, cost_cols))
 
     # Change column names so they aren't the same as the heating usage dataframe
-    heating_cost = heating_cost.rename(columns={'natural_gas':'natural_gas_cost',
-                                               'fuel_oil': 'fuel_oil_cost',
-                                               'district_heat': 'district_heat_cost'})
+    heating_cost = heating_cost.rename(columns=cost_col_dict)
 
     # Combine the heating cost and heating use dataframes
     heating_cost_and_use = pd.merge(heating_cost, heating_usage, left_on='fiscal_year', right_index=True, how='right')
@@ -976,34 +980,32 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     # Put DataFrame in ascending order to calculate percent change
     heating_cost_and_use.sort_values('fiscal_year', ascending=True, inplace=True)
 
+    # This will be used to shorten final dataframe
+    final_cost_col_list = list(cost_cols)
+
     # Create percent change columns
-    heating_cost_and_use['fuel_oil_pct_change'] = heating_cost_and_use.fuel_oil_cost.pct_change()
-    heating_cost_and_use['natural_gas_pct_change'] = heating_cost_and_use.natural_gas_cost.pct_change()
-    heating_cost_and_use['district_heat_pct_change'] = heating_cost_and_use.district_heat_cost.pct_change()
+    for col in cost_cols:
+        new_col = col.split('_cost')[0] + '_pct_change'
+        heating_cost_and_use[new_col] = heating_cost_and_use[col].pct_change()
+        final_cost_col_list.append(new_col)
 
     # Back to descending order
     heating_cost_and_use.sort_values('fiscal_year', ascending=False, inplace=True)
 
     # Create unit cost columns
-    heating_cost_and_use['fuel_oil_unit_cost'] = heating_cost_and_use.fuel_oil_cost / heating_cost_and_use.fuel_oil_mmbtu
-    heating_cost_and_use['natural_gas_unit_cost'] = heating_cost_and_use.natural_gas_cost / heating_cost_and_use.natural_gas_mmbtu
-    heating_cost_and_use['district_heat_unit_cost'] = heating_cost_and_use.district_heat_cost / heating_cost_and_use.district_heat_mmbtu
+    for col in cost_cols:
+        n_col = col.split('_cost')[0] + '_unit_cost'
+        mmbtu_col = col.split('_cost')[0] + '_mmbtu'
+        heating_cost_and_use[n_col] = heating_cost_and_use[col] / heating_cost_and_use[mmbtu_col]
+        final_cost_col_list.append(n_col)
+
     heating_cost_and_use['building_heat_unit_cost'] = heating_cost_and_use.total_heat_cost / heating_cost_and_use.total_heat_mmbtu
 
     # Remove all columns not needed for the Heating Cost Analysis Table
-    heating_cost_and_use = heating_cost_and_use[['fiscal_year',
-                                                  'fuel_oil_cost',
-                                                  'fuel_oil_pct_change',
-                                                  'natural_gas_cost',
-                                                  'natural_gas_pct_change',
-                                                  'district_heat_cost',
-                                                  'district_heat_pct_change',
-                                                  'fuel_oil_unit_cost',
-                                                  'natural_gas_unit_cost',
-                                                  'district_heat_unit_cost',
-                                                  'building_heat_unit_cost',
-                                                  'total_heat_cost',
-                                                  'total_heat_cost_pct_change']]
+    final_cost_col_list = final_cost_col_list + ['fiscal_year','building_heat_unit_cost',
+                                                 'total_heat_cost','total_heat_cost_pct_change']
+
+    heating_cost_and_use = heating_cost_and_use[final_cost_col_list]
 
     # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
 
@@ -1061,22 +1063,21 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     missing_services = bu.missing_energy_services(monthly_heating_cost.columns)
     bu.add_columns(monthly_heating_cost, missing_services)
 
-    # Drop the non-heating services
-    monthly_heating_cost = monthly_heating_cost[monthly_heating_cost.columns.difference(['Electricity', 'Sewer', 'Water', 'Refuse'])]
+    monthly_heating_cost = monthly_heating_cost[bu.all_heat_services]
 
     # Create a total heating column
     monthly_heating_cost['total_heating_cost'] = monthly_heating_cost.sum(axis=1)
 
-    monthly_heating_cost = monthly_heating_cost.rename(columns={'Natural Gas':'Natural Gas Cost',
-                                                               'Oil #1':'Oil #1 Cost',
-                                                               'Steam': 'Steam Cost'})
+    monthly_heating_cost = monthly_heating_cost.rename(columns=cost_col_dict)
 
     monthly_heat_energy_and_use = pd.merge(monthly_heating_cost, monthly_heating, left_index=True, right_index=True, how='outer')
 
     # Create unit cost columns in $ / MMBTU for each fuel type
-    monthly_heat_energy_and_use['fuel_oil_unit_cost'] = monthly_heat_energy_and_use['Oil #1 Cost'] / monthly_heat_energy_and_use['Oil #1']
-    monthly_heat_energy_and_use['natural_gas_unit_cost'] = monthly_heat_energy_and_use['Natural Gas Cost'] / monthly_heat_energy_and_use['Natural Gas']
-    monthly_heat_energy_and_use['district_heat_unit_cost'] = monthly_heat_energy_and_use['Steam Cost'] / monthly_heat_energy_and_use['Steam']
+    for col in cost_cols:
+        n_col_name = col.split('_cost')[0] + "_unit_cost"
+        use_col_name = col.split('_cost')[0]
+        monthly_heat_energy_and_use[n_col_name] = monthly_heat_energy_and_use[col] / monthly_heat_energy_and_use[use_col_name]
+
     monthly_heat_energy_and_use['building_unit_cost'] = monthly_heat_energy_and_use.total_heating_cost / monthly_heat_energy_and_use.total_heating_energy
 
     # Reset the index for easier processing
@@ -1084,8 +1085,13 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
 
     # Add in unit costs for fuels that are currently blank
 
-    unit_cost_cols = ['fuel_oil_unit_cost', 'natural_gas_unit_cost', 'district_heat_unit_cost']
-    service_types = ['Oil #1_avg_unit_cost', 'Natural Gas_avg_unit_cost', 'Steam_avg_unit_cost']
+    # Get only columns that exist in the dataframe
+    available_service_list = list(grouped_nonzero_heatfuel_use.columns.values)
+
+    heat_services_in_grouped_df = list(set(bu.all_heat_services) & set(available_service_list))
+
+    unit_cost_cols = [col + "_unit_cost" for col in heat_services_in_grouped_df]
+    service_types = [col + "_avg_unit_cost" for col in heat_services_in_grouped_df]
 
     unit_cost_dict = dict(zip(unit_cost_cols,service_types))
 
@@ -1122,27 +1128,23 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     p9g1_filename, p9g1_url = gu.graph_filename_url(site, "heating_cost_g1")
     gu.fuel_price_comparison_graph(monthly_heat_energy_and_use, 'date', unit_cost_cols, 'building_unit_cost', p9g1_filename)
 
-
     # --- Realized Savings from Fuel Switching: Page 9, Graph 2
-
-    old_usage_cols = ['Natural Gas', 'Oil #1', 'Steam']
-
 
     # Create an indicator for whether a given heating fuel is available for the facility.  This is done by checking the use for all
     # months- if it is zero, then that building doesn't have the option to use that type of fuel.
-    for col in old_usage_cols:
+    for col in bu.all_heat_services:
         new_col_name = col + "_available"
         monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
 
     # Calculate what it would have cost if the building used only one fuel type
-    available_cols = ['Oil #1_available','Natural Gas_available','Steam_available']
+    available_cols = [col + "_available" for col in bu.all_heat_services]
     available_dict = dict(zip(unit_cost_cols, available_cols))
     hypothetical_cost_cols = []
 
     for unit_cost, avail_col in available_dict.items():
         new_col_name = unit_cost + "_hypothetical"
         hypothetical_cost_cols.append(new_col_name)
-        monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] *     monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
+        monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] * monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
 
     # Calculate the monthly savings to the building by not using the most expensive available fuel entirely
     monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1)                                                         - monthly_heat_energy_and_use.total_heating_cost
@@ -1167,7 +1169,6 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     )
 
     return template_data
-
 
 # ---------------------- Water Analysis Table ---------------------------
 
