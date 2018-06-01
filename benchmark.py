@@ -495,7 +495,7 @@ def utility_cost_report(site, df, ut):
     g1_fn, g1_url = gu.graph_filename_url(site, 'util_cost_ovw_g1')
 
     # make the area cost distribution graph
-    utility_list = bu.all_services
+    utility_list = bu.all_services.copy()
     gu.area_cost_distribution(reset_df2, 'fiscal_year', utility_list, g1_fn);
 
     # make the stacked bar graph
@@ -538,7 +538,8 @@ def energy_use_cost_reports(site, df, ut, df_utility_cost):
     )
 
     # drop non-energy columns
-    usage_df2 = usage_df2[usage_df2.columns.difference(['Sewer', 'Water', 'Refuse'])]
+    non_energy_servics = list(set(bu.all_services) - set(bu.all_energy_services))
+    usage_df2 = usage_df2[usage_df2.columns.difference(non_energy_servics)]
 
     # Add in columns for the missing services
     missing_services = bu.missing_energy_services(usage_df2.columns)
@@ -546,7 +547,7 @@ def energy_use_cost_reports(site, df, ut, df_utility_cost):
 
     # Add a Total column that sums the other columns
     usage_df2['total_energy'] = usage_df2.sum(axis=1)
-    cols = ['{}_mmbtu'.format(bu.change_name(col)) for col in usage_df2.columns]
+    cols = ['{}_mmbtu'.format(col) for col in usage_df2.columns]
     usage_df2.columns = cols
 
     # Create a list of columns to loop through and calculate percent total energy
@@ -602,7 +603,7 @@ def energy_use_cost_reports(site, df, ut, df_utility_cost):
     )
 
     # Make a utility list to include only energy-related columns
-    utility_list = ['electricity', 'natural_gas', 'fuel_oil', 'district_heat']
+    utility_list = bu.all_energy_services.copy()
 
     pie_urls = gu.usage_pie_charts(usage_df2.fillna(0.0), usage_cols, 1, 'energy_usage_pie', site)
 
@@ -627,9 +628,9 @@ def electrical_usage_and_cost_reports(site, df):
 
     site_df = df.query("site_id == @site")
 
-    if 'Electricity' in site_df.service_type.unique() and site_df.query("service_type == 'Electricity'")['usage'].sum(axis=0) > 0:
+    if 'electricity' in site_df.service_type.unique() and site_df.query("service_type == 'electricity'")['usage'].sum(axis=0) > 0:
         # only look at elecricity records
-        electric_df = site_df.query("service_type == 'Electricity'")
+        electric_df = site_df.query("service_type == 'electricity'")
         electric_df = electric_df.query("units == 'kWh' or units == 'kW'")
         electric_pivot_monthly = pd.pivot_table(electric_df,
                                     index=['fiscal_year', 'fiscal_mo'],
@@ -642,6 +643,8 @@ def electrical_usage_and_cost_reports(site, df):
 
     # Add in missing electricity columns and fill them with zeros
     electric_pivot_monthly = bu.add_missing_columns(electric_pivot_monthly, ['kWh', 'kW'])
+    electric_pivot_monthly.kW.fillna(0.0)
+    electric_pivot_monthly.kWh.fillna(0.0)
 
     # Do a month count for the elecricity bills
     elec_months_present = bu.months_present(electric_pivot_monthly.reset_index())
@@ -722,13 +725,13 @@ def electrical_usage_and_cost_reports(site, df):
     )
 
     # only look at elecricity records
-    electric_cost_df = site_df.query("service_type == 'Electricity'").copy()
+    electric_cost_df = site_df.query("service_type == 'electricity'").copy()
 
     # Costs don't always have units, so split the data into demand charges and usage charges (which includes other charges)
     electric_cost_df['cost_categories'] = np.where(electric_cost_df.item_desc.isin(['KW Charge', 'On peak demand', 'Demand Charge']),
                                                    'demand_cost', 'usage_cost')
 
-    if 'Electricity' in site_df.service_type.unique():
+    if 'electricity' in site_df.service_type.unique():
         # Sum costs by demand and usage
         electric_annual_cost = pd.pivot_table(electric_cost_df,
                                                index=['fiscal_year'],
@@ -1090,7 +1093,7 @@ def water_report(site, df):
     water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
 
     # Create month count field for all months that have water and sewer bills
-    water_use_only = water_use.query("service_type == 'Water'")
+    water_use_only = water_use.query("service_type == 'water'")
     water_months_present = bu.months_present(water_use_only)
     water_mo_count = bu.month_count(water_months_present)
 
@@ -1107,10 +1110,10 @@ def water_report(site, df):
     bu.add_columns(water_gal_df, gal_missing_services)
 
     # Use only required columns
-    water_gal_df = water_gal_df[['Water']]
+    water_gal_df = water_gal_df[['water']]
 
     # Calculate percent change column
-    water_gal_df['water_use_pct_change'] = water_gal_df.Water.pct_change()
+    water_gal_df['water_use_pct_change'] = water_gal_df.water.pct_change()
 
     # Create annual water and sewer cost dataframe
     water_cost_df = pd.pivot_table(water_use,
@@ -1126,10 +1129,11 @@ def water_report(site, df):
     bu.add_columns(water_cost_df, water_missing_services)
 
     # Calculate totals, percent change
-    water_cost_df = water_cost_df[water_cost_df.columns.difference(['Electricity', 'Natural Gas', 'Oil #1', 'Steam', 'Refuse'])]
+    cols_to_remove = bu.all_energy_services + ['refuse']
+    water_cost_df = water_cost_df[water_cost_df.columns.difference(cols_to_remove)]
 
-    rename_dict = {'Sewer': 'Sewer Cost',
-                   'Water': 'Water Cost'}
+    rename_dict = {'sewer': 'Sewer Cost',
+                   'water': 'Water Cost'}
 
     water_cost_df = water_cost_df.rename(columns=rename_dict)
 
@@ -1144,7 +1148,7 @@ def water_report(site, df):
     # Merge use and cost dataframes
     water_use_and_cost = pd.merge(water_cost_df, water_gal_df, left_index=True, right_index=True, how='left')
 
-    water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.Water
+    water_use_and_cost['water_unit_cost'] = water_use_and_cost.total_water_sewer_cost / water_use_and_cost.water
     water_use_and_cost['water_unit_cost_pct_change'] = water_use_and_cost.water_unit_cost.pct_change()
 
     # Use only complete years
@@ -1156,7 +1160,7 @@ def water_report(site, df):
                                                            'Water Cost':'water_cost',
                                                            'total_water_sewer_cost':'total_cost',
                                                            'total_water_sewer_cost_pct_change':'total_cost_pct_change',
-                                                           'Water':'total_usage',
+                                                           'water':'total_usage',
                                                            'water_use_pct_change':'total_usage_pct_change',
                                                            'water_unit_cost':'total_unit_cost',
                                                            'water_unit_cost_pct_change':'total_unit_cost_pct_change'
@@ -1180,8 +1184,8 @@ def water_report(site, df):
 
     p10g2_filename, p10g2_url = gu.graph_filename_url(site, "water_analysis_g2")
 
-    if 'Water' in list(water_gal_df_monthly.columns.values):
-        gu.create_monthly_profile(water_gal_df_monthly, 'Water', 'Monthly Water Usage Profile [gallons]', 'green',
+    if 'water' in list(water_gal_df_monthly.columns.values):
+        gu.create_monthly_profile(water_gal_df_monthly, 'water', 'Monthly Water Usage Profile [gallons]', 'green',
                                   "Monthly Water Usage Profile by Fiscal Year", p10g2_filename)
     else:
         shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(p10g2_filename))
