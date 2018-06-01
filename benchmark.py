@@ -1400,8 +1400,8 @@ if __name__=="__main__":
             #df_usage.to_pickle('df_usage.pkl')
             #import sys; sys.exit()
 
-            #report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
-            #template_data.update(report_data)
+            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
+            template_data.update(report_data)
 
         report_data = water_report(site_id, df)
         template_data.update(report_data)
@@ -1410,8 +1410,6 @@ if __name__=="__main__":
         if settings.WRITE_DEBUG_DATA:
             with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
                 pprint.pprint(template_data, fout)
-
-        import sys; sys.exit()
 
         # create report file
         result = site_template.render(template_data)

@@ -234,4 +234,15 @@
     </div>
   </div>
 </section>
+
+<section>
+  <div class="row">
+    {% for graph in energy_index_comparison.graphs or [] %}
+      <div class="col-md-6 col-12">
+        <img class="graph" src="{{ root_path }}/{{ graph }}" />
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
 {% endblock %}

@@ -684,7 +684,7 @@ def building_type_comparison_graph(df, graph_column, site, filename):
     pretty_names_dict = {'eui': 'Energy Use Intensity',
                 'eci': 'Energy Cost Index',
                 'specific_eui': 'Thermal EUI per HDD'}
-    plot_title = pretty_names_dict[graph_column] + " Comparison for " + usage_type + " Buildings"
+    plot_title = pretty_names_dict[graph_column] + " Comparison for\n" + usage_type + " Buildings"
     units_dict = {'eui': 'kBTUs / sqft / year',
                  'eci': '$ / sqft / year',
                  'specific_eui': 'BTUs / sqft / HDD / year'}
@@ -693,7 +693,7 @@ def building_type_comparison_graph(df, graph_column, site, filename):
 
     plt.ylabel(yaxis_label)
     plt.xlabel('Fiscal Year')
-    plt.title(plot_title, fontsize=24)
+    plt.title(plot_title)
 
     plt.legend(fontsize=16)
 
@@ -764,7 +764,7 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     pretty_names_dict = {'eui': 'Energy Use Intensity',
                         'eci': 'Energy Cost Index',
                         'specific_eui': 'Thermal EUI per HDD'}
-    plot_title = pretty_names_dict[graph_column] + " Comparison for " + "Buildings Owned by " + building_owner
+    plot_title = pretty_names_dict[graph_column] + " Comparison for\n" + "Buildings Owned by " + building_owner
     units_dict = {'eui': 'kBTUs / sqft / year',
                  'eci': '$ / sqft / year',
                  'specific_eui': 'BTUs / sqft / HDD / year'}
@@ -773,7 +773,7 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
 
     plt.ylabel(yaxis_label)
     plt.xlabel('Fiscal Year')
-    plt.title(plot_title, fontsize=20)
+    plt.title(plot_title)
 
     plt.legend(fontsize=16)
 
