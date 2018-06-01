@@ -621,7 +621,164 @@ def graph_filename_url(site_id, base_graph_name):
     url = 'images/{}_{}.png'.format(site_id, base_graph_name)
     return fn, url
 
+def building_type_comparison_graph(df, graph_column, site, filename):
+    ''' This function creates a graph that compares the eui, eci, or specific_eui to 
+    buildings of a chosen usage type in the dataset. The inputs are the df in a format similar to 
+    the df5.pkl, the column name to graph, the building site name, 
+    and the filename for saving the output.'''
+    
+    # Create df with chosen building site to create line plot
+    site_df = df.query("site_id == @site")
+    
+    # Get the usage type of the site.  Note that the usage type should be the same
+    # for all records for a given site, but if not this code will only take the first.
+    usage_type = site_df.primary_func.iloc[0]
+    
+    # Limit dataframe to only buildings of the chosen usage type
+    usage_type_df = df.query("primary_func == @usage_type")
 
+    # Replace infinity values with NaN's so that they are ignored during percentile calculations
+    usage_type_df = usage_type_df.replace([np.inf, -np.inf], np.nan)
+
+    # Get the 10th percentile for this given usage type
+    usage_type_10 = usage_type_df.groupby(['fiscal_year']).quantile(0.1)
+    # Reset the index for easier merging
+    usage_type_10 = usage_type_10.reset_index()
+
+    # Get the 90th percentile for this given usage type
+    usage_type_90 = usage_type_df.groupby(['fiscal_year']).quantile(0.9)
+    # Reset the index for easier merging
+    usage_type_90 = usage_type_90.reset_index()
+
+    # Merge dataframes
+    usage_df_10_90 = pd.merge(usage_type_90, usage_type_10, how='outer',
+                             left_on='fiscal_year', right_on='fiscal_year',
+                             suffixes=['_90', '_10'])
+
+    # Create the figure
+    fig, ax = plt.subplots()
+
+    plt.xticks(rotation=45)
+
+    # Create the labels for the legend
+    plot_label = graph_column.upper() + " for building site " + site
+    area_label = usage_type + " 10th-90th percentile " + graph_column.upper()
+
+    # Define the column names for the 10th and 90th percentiles
+    graph_column_10 = graph_column + '_10'
+    graph_column_90 = graph_column + '_90'
+
+    # Plot the line for the chosen building site
+    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0',
+           label=plot_label)
+
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    # Create an area graph showing the 10th to 90th percentile
+    ax.fill_between(usage_df_10_90.fiscal_year, usage_df_10_90[graph_column_10], 
+                    usage_df_10_90[graph_column_90], 
+                    alpha=0.5, color='#92c5de', label=area_label)
+
+    # Define the axis labels and titles
+    pretty_names_dict = {'eui': 'Energy Use Intensity',
+                'eci': 'Energy Cost Index',
+                'specific_eui': 'Thermal EUI per HDD'}
+    plot_title = pretty_names_dict[graph_column] + " Comparison for " + usage_type + " Buildings"
+    units_dict = {'eui': 'kBTUs / sqft / year',
+                 'eci': '$ / sqft / year',
+                 'specific_eui': 'BTUs / sqft / HDD / year'}
+    yaxis_label = graph_column.upper() + " (" + units_dict[graph_column] + ")"
+
+
+    plt.ylabel(yaxis_label)
+    plt.xlabel('Fiscal Year')
+    plt.title(plot_title)
+
+    plt.legend()
+
+    plt.savefig(filename)
+    plt.close('all')
+    
+    
+def building_owner_comparison_graph(df, graph_column, site, filename):
+    ''' This function creates a graph that compares the eui, eci, or specific_eui to 
+    buildings of a chosen usage type in the dataset. The inputs are the df in a format similar to 
+    the df5.pkl, the column name to graph, the building site name, 
+    and the filename for saving the output.'''
+    
+    # Create df with chosen building site to create line plot
+    site_df = df.query("site_id == @site")
+    
+    # Get the usage type of the site.  Note that the usage type should be the same
+    # for all records for a given site, but if not this code will only take the first.
+    building_owner = site_df.site_category.iloc[0]
+    
+    # Limit dataframe to only buildings of the chosen usage type
+    owner_df = df.query("site_category == @building_owner")
+
+    # Replace infinity values with NaN's so that they are ignored during percentile calculations
+    owner_df = owner_df.replace([np.inf, -np.inf], np.nan)
+
+    # Get the 10th percentile for this given usage type
+    owner_10 = owner_df.groupby(['fiscal_year']).quantile(0.1)
+    # Reset the index for easier merging
+    owner_10 = owner_10.reset_index()
+
+    # Get the 90th percentile for this given usage type
+    owner_90 = owner_df.groupby(['fiscal_year']).quantile(0.9)
+    # Reset the index for easier merging
+    owner_90 = owner_90.reset_index()
+
+    # Merge dataframes
+    owner_df_10_90 = pd.merge(owner_90, owner_10, how='outer',
+                             left_on='fiscal_year', right_on='fiscal_year',
+                             suffixes=['_90', '_10'])
+
+    # Create the figure
+    fig, ax = plt.subplots()
+
+    plt.xticks(rotation=45)
+
+    # Create the labels for the legend
+    plot_label = graph_column.upper() + " for building site " + site
+    area_label = building_owner + " 10th-90th percentile " + graph_column.upper()
+
+    # Define the column names for the 10th and 90th percentiles
+    graph_column_10 = graph_column + '_10'
+    graph_column_90 = graph_column + '_90'
+
+    # Plot the line for the chosen building site
+    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0',
+           label=plot_label)
+
+    # Format the y-axis so a comma is displayed for thousands
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    # Create an area graph showing the 10th to 90th percentile
+    ax.fill_between(owner_df_10_90.fiscal_year, owner_df_10_90[graph_column_10], 
+                    owner_df_10_90[graph_column_90], 
+                    alpha=0.5, color='#92c5de', label=area_label)
+
+    # Define the axis labels and titles
+    pretty_names_dict = {'eui': 'Energy Use Intensity',
+                        'eci': 'Energy Cost Index',
+                        'specific_eui': 'Thermal EUI per HDD'}
+    plot_title = pretty_names_dict[graph_column] + " Comparison for " + "Buildings Owned by " + building_owner
+    units_dict = {'eui': 'kBTUs / sqft / year',
+                 'eci': '$ / sqft / year',
+                 'specific_eui': 'BTUs / sqft / HDD / year'}
+    yaxis_label = graph_column.upper() + " (" + units_dict[graph_column] + ")"
+
+
+    plt.ylabel(yaxis_label)
+    plt.xlabel('Fiscal Year')
+    plt.title(plot_title)
+
+    plt.legend()
+
+    plt.savefig(filename)
+    plt.close('all')
             
         
             
