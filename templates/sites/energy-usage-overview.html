@@ -18,12 +18,18 @@
             <th colspan="2">Oil #1</th>
             <th colspan="2">Natural Gas</th>
             <th colspan="2">Direct Heat</th>
+            <th colspan="2">Propane</th>
+            <th colspan="2">Wood</th>
 
             <th rowspan="2">Total Heat Energy [MMBTU]</th>
             <th rowspan="2">Total Specific Heat Usage [kBtu/HDD]</th>
             <th rowspan="2">Total Energy [MMBTU]</th>
           </tr>
           <tr>
+            <th>[MMBTU]</th>
+            <th>% Total Energy</th>
+            <th>[MMBTU]</th>
+            <th>% Total Energy</th>
             <th>[MMBTU]</th>
             <th>% Total Energy</th>
             <th>[MMBTU]</th>
@@ -47,6 +53,10 @@
             <td>{{ row.natural_gas_pct | percent }}</td>
             <td>{{ row.district_heat_mmbtu | number }}</td>
             <td>{{ row.district_heat_pct | percent }}</td>
+            <td>{{ row.propane_mmbtu | number }}</td>
+            <td>{{ row.propane_pct | percent }}</td>
+            <td>{{ row.wood_mmbtu | number}}</td>
+            <td>{{ row.wood_pct | percent }}</td>
             <td>{{ row.total_heat_mmbtu | number }}</td>
             <td>{{ row.total_specific_heat | number }}</td>
             <td>{{ row.total_energy_mmbtu | number }}</td>
