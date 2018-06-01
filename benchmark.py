@@ -1312,6 +1312,10 @@ if __name__=="__main__":
             report_data = electrical_usage_and_cost_reports(site_id, df)
             template_data.update(report_data)
 
+            #df_utility_cost.to_pickle('df_utility_cost.pkl')
+            #df_usage.to_pickle('df_usage.pkl')
+            #import sys; sys.exit()
+
             report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
             template_data.update(report_data)
 
