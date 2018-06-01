@@ -160,6 +160,36 @@
             <td>{{ data.rank.district_heat_cost | number }}</td>
           </tr>
           <tr>
+            <th rowspan="2" class="wide">Propane</th>
+            <td>MMBTU</td>
+            <td>{{ data.bldg.propane_mmbtu | number }}</td>
+            <td>{{ data.all.propane_mmbtu | number }}</td>
+            <td>{{ data.pct.propane_mmbtu | percent }}</td>
+            <td>{{ data.rank.propane_mmbtu | number }}</td>
+          </tr>
+          <tr>
+            <td>$</td>
+            <td>{{ data.bldg.propane_cost | money }}</td>
+            <td>{{ data.all.propane_cost | money }}</td>
+            <td>{{ data.pct.propane_cost | percent }}</td>
+            <td>{{ data.rank.propane_cost | number }}</td>
+          </tr>
+          <tr>
+            <th rowspan="2" class="wide">Wood</th>
+            <td>MMBTU</td>
+            <td>{{ data.bldg.wood_mmbtu | number }}</td>
+            <td>{{ data.all.wood_mmbtu | number }}</td>
+            <td>{{ data.pct.wood_mmbtu | percent }}</td>
+            <td>{{ data.rank.wood_mmbtu | number }}</td>
+          </tr>
+          <tr>
+            <td>$</td>
+            <td>{{ data.bldg.wood_cost | money }}</td>
+            <td>{{ data.all.wood_cost | money }}</td>
+            <td>{{ data.pct.wood_cost | percent }}</td>
+            <td>{{ data.rank.wood_cost | number }}</td>
+          </tr>
+          <tr>
             <th class="wide">Total Heat Energy</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.total_heat_mmbtu | number }}</td>
