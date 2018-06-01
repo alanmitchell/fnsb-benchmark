@@ -305,6 +305,9 @@ def energy_index_report(site, df, ut):
     # Summarize Cost by Service Type
     df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='cost', aggfunc=np.sum)
 
+    # Add in any missing columns
+    bu.add_missing_columns(df3, energy_svcs)
+
     # Change column names
     cols = ['{}_cost'.format(col) for col in df3.columns]
     df3.columns = cols
@@ -320,6 +323,9 @@ def energy_index_report(site, df, ut):
 
     # Summarize MMBtu by Service Type
     df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='mmbtu', aggfunc=np.sum)
+
+    # Add in any missing columns
+    bu.add_missing_columns(df3, energy_svcs)
 
     # Change column names
     cols = ['{}_mmbtu'.format(col) for col in df3.columns]
@@ -1316,8 +1322,8 @@ if __name__=="__main__":
             #df_usage.to_pickle('df_usage.pkl')
             #import sys; sys.exit()
 
-            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
-            template_data.update(report_data)
+            #report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
+            #template_data.update(report_data)
 
         report_data = water_report(site_id, df)
         template_data.update(report_data)
@@ -1326,6 +1332,8 @@ if __name__=="__main__":
         if settings.WRITE_DEBUG_DATA:
             with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
                 pprint.pprint(template_data, fout)
+
+        import sys; sys.exit()
 
         # create report file
         result = site_template.render(template_data)
