@@ -76,6 +76,10 @@ def color_formatter(col_name_list):
             color_dict[col_name] = '#a6cee3'
         elif 'refuse' in col_name.lower():
             color_dict[col_name] = '#ff7f00'
+        elif 'propane' in col_name.lower():
+            color_dict[col_name] = '#cab2d6'
+        elif 'wood' in col_name.lower():
+            color_dict[col_name] = '#6a3d9a'
         else:
             color_dict[col_name] = '#000000'
             
