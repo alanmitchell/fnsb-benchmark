@@ -693,9 +693,9 @@ def building_type_comparison_graph(df, graph_column, site, filename):
 
     plt.ylabel(yaxis_label)
     plt.xlabel('Fiscal Year')
-    plt.title(plot_title)
+    plt.title(plot_title, fontsize=24)
 
-    plt.legend()
+    plt.legend(fontsize=16)
 
     plt.savefig(filename)
     plt.close('all')
@@ -773,9 +773,9 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
 
     plt.ylabel(yaxis_label)
     plt.xlabel('Fiscal Year')
-    plt.title(plot_title)
+    plt.title(plot_title, fontsize=20)
 
-    plt.legend()
+    plt.legend(fontsize=16)
 
     plt.savefig(filename)
     plt.close('all')

@@ -443,6 +443,83 @@ def energy_index_report(site, df, ut):
     }
     template_data['energy_index_comparison']['details_table'] = tbl2_data
 
+    # -------------- Energy Comparison Graphs ---------------
+
+    # Filter down to only services that are energy services.
+    energy_services = bu.missing_energy_services([])
+    df4 = df.query('service_type==@energy_services').copy()
+
+    # Sum Energy Costs and Usage
+    df5 = pd.pivot_table(df4, index=['site_id', 'fiscal_year'], values=['cost', 'mmbtu'], aggfunc=np.sum)
+
+    # Add a column showing number of months present in each fiscal year.
+    df5 = bu.add_month_count_column_by_site(df5, df4)
+
+    # Create an Electric MMBtu column so it can be subtracted from total to determine
+    # Heat MMBtu.
+    dfe = df4.query("service_type=='Electricity'").groupby(['site_id', 'fiscal_year']).sum()[['mmbtu']]
+    dfe.rename(columns={'mmbtu': 'elec_mmbtu'}, inplace = True)
+    df5 = df5.merge(dfe, how='left', left_index=True, right_index=True)
+    df5['elec_mmbtu'] = df5['elec_mmbtu'].fillna(0.0)
+    df5['heat_mmbtu'] = df5.mmbtu - df5.elec_mmbtu
+
+    # Add in degree-days:
+    # Create a DataFrame with site, year, month and degree-days, but only one row
+    # for each site/year/month combo.
+    dfd = df4[['site_id', 'fiscal_year', 'fiscal_mo']].copy()
+    dfd.drop_duplicates(inplace=True)
+    ut.add_degree_days_col(dfd)
+
+    # Use the agg function below so that a NaN will be returned for the year
+    # if any monthly values are NaN
+    dfd = dfd.groupby(['site_id', 'fiscal_year']).agg({'degree_days': lambda x: np.sum(x.values)})[['degree_days']]
+    df5 = df5.merge(dfd, how='left', left_index=True, right_index=True)
+
+    # Add in some needed building info like square footage, primary function 
+    # and building category.
+    df_bldg = ut.building_info_df()
+
+    # Shrink to just the needed fields and remove index.
+    # Also, fill blank values with 'Unknown'.
+    df_info = df_bldg[['sq_ft', 'site_category', 'primary_func']].copy().reset_index()
+    df_info['site_category'] = df_info.site_category.fillna('Unknown')
+    df_info['primary_func'] = df_info.primary_func.fillna('Unknown Type')
+
+    # Also Remove the index from df5 and merge in building info
+    df5.reset_index(inplace=True)
+    df5 = df5.merge(df_info, how='left')
+
+    # Now calculate per square foot energy measures
+    df5['eui'] = df5.mmbtu * 1e3 / df5.sq_ft
+    df5['eci'] = df5.cost / df5.sq_ft
+    df5['specific_eui'] = df5.heat_mmbtu * 1e6 / df5.degree_days / df5.sq_ft
+
+    # Restrict to full years
+    df5 = df5.query("month_count == 12").copy()
+
+    # Make all of the comparison graphs
+    g1_fn, g1_url = gu.graph_filename_url(site, 'eci_func')
+    gu.building_type_comparison_graph(df5, 'eci', site, g1_fn)
+
+    g2_fn, g2_url = gu.graph_filename_url(site, 'eci_owner')
+    gu.building_owner_comparison_graph(df5, 'eci', site, g2_fn)
+    
+    g3_fn, g3_url = gu.graph_filename_url(site, 'eui_func')
+    gu.building_type_comparison_graph(df5, 'eui', site, g3_fn)
+
+    g4_fn, g4_url = gu.graph_filename_url(site, 'eui_owner')
+    gu.building_owner_comparison_graph(df5, 'eui', site, g4_fn)
+
+    g5_fn, g5_url = gu.graph_filename_url(site, 'speui_func')
+    gu.building_type_comparison_graph(df5, 'specific_eui', site, g5_fn)
+
+    g6_fn, g6_url = gu.graph_filename_url(site, 'speui_owner')
+    gu.building_owner_comparison_graph(df5, 'specific_eui', site, g6_fn)
+
+    template_data['energy_index_comparison']['graphs'] = [
+        g1_url, g2_url, g3_url, g4_url, g5_url, g6_url
+    ]
+
     return template_data
 
 # ------------------ Utility Cost Overview Report ----------------------
