@@ -901,10 +901,10 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
 
     # Get the number of gallons, ccf, and cords of wood by converting MMBTUs using the supplied conversions
     # This is hard-coded because I couldn't figure out how to do it more generically
-    heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.fuel_btus_per_unit('Oil #1', 'gallons')
-    heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.fuel_btus_per_unit('Natural Gas', 'ccf')
-    heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.fuel_btus_per_unit('Propane', 'gallons')
-    heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.fuel_btus_per_unit('Wood', 'cords')
+    heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.service_category_info('fuel_oil')[1]
+    heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.service_category_info('natural_gas')[1]
+    heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.service_category_info('propane')[1]
+    heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.service_category_info('wood')[1]
 
     # ----- Create Heating Usage Analysis Graphs
 
