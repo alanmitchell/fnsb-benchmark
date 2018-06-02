@@ -374,7 +374,8 @@ class Util:
         # (unit, Btus/unit).
         df_svc_cat_info = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'),
             sheet_name='Service Categories', skiprows=3)
-        self._service_cat_info = dict(df_svc_cat_info.category, zip(df_svc_cat_info.unit, df_svc_cat_info.btu_per_unit))
+        ky_val = zip(df_svc_cat_info.category, zip(df_svc_cat_info.unit, df_svc_cat_info.btu_per_unit))
+        self._service_cat_info = dict(ky_val)
 
     def building_info(self, site_id):
         """Returns building information, a dictionary, for the facility
@@ -475,10 +476,9 @@ class Util:
         """
         return self._service_to_category.copy()   # return copy to protect original
 
-    def service_category_info(self):
-        """Returns a dictionary that maps service type category for the categories
-        that are fuels (e.g. natural_gas, fuel_oil, etc.) to a two-tuple containing
-        the standard unit for that category (e.g. CCF, Gallons) and the Btus/unit
-        for that unit.
+    def service_category_info(self, service_category):
+        """For a 'service_category' that is a fuel (e.g. 'natural_gal') this method
+        returns a a two-tuple containing the standard unit for that category 
+        (e.g. CCF, Gallons) and the Btus/unit for that unit.
         """
-        return self._service_cat_info.copy()
+        return self._service_cat_info[service_category]
