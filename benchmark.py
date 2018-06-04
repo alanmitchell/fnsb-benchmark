@@ -1046,7 +1046,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
 
     # Exclude other charges from the natural gas costs.  This is because the unit costs for natural gas go to infinity
     # when there is zero usage but a customer charge
-    cost_df1 = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
+    cost_df1 = df.drop(df[(df['service_type'] == 'natural_gas') & (df['units'] != 'CCF')].index)
 
     # Create cost dataframe for given site from processed data
     cost_df1 = cost_df1.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'cost']]
