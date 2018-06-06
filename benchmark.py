@@ -715,10 +715,9 @@ def electrical_usage_and_cost_reports(site, df):
 
     site_df = df.query("site_id == @site")
 
+    electric_df = site_df.query("units == 'kWh' or units == 'kW'")
     if 'electricity' in site_df.service_type.unique() and site_df.query("service_type == 'electricity'")['usage'].sum(axis=0) > 0:
         # only look at elecricity records
-        electric_df = site_df.query("service_type == 'electricity'")
-        electric_df = electric_df.query("units == 'kWh' or units == 'kW'")
         electric_pivot_monthly = pd.pivot_table(electric_df,
                                     index=['fiscal_year', 'fiscal_mo'],
                                     columns=['units'],
@@ -1371,7 +1370,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        # if site_id < 'DIPMP1': continue
+        if site_id < '14083': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
