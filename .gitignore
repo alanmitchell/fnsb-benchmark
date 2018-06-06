@@ -10,6 +10,9 @@ output/
 *.csv
 *.zip
 
+data/Buildings.xlsx
+data/Services.xlsx
+
 ddc/*.xls*
 ddc/data/
 !ddc/data/siemens_sample.csv
