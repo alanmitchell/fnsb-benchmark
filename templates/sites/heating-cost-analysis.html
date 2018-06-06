@@ -18,7 +18,8 @@
             <th colspan="2">District Heat</th>
             <th colspan="2">Propane</th>
             <th colspan="2">Wood</th>
-            <th colspan="5">Unit Cost [$/MMBTU]</th>
+            <th colspan="2">Coal</th>
+            <th colspan="6">Unit Cost [$/MMBTU]</th>
 
             <th rowspan="2">Building Unit Heat Cost</th>
             <th rowspan="2">Total Heat Cost</th>
@@ -35,11 +36,14 @@
             <th>Cost % Change</th>
             <th>Cost [$]</th>
             <th>Cost % Change</th>
+            <th>Cost [$]</th>
+            <th>Cost % Change</th>
             <th>Oil #1</th>
             <th>Natural Gas</th>
             <th>District Heat</th>
             <th>Propane</th>
             <th>Wood</th>
+            <th>Coal</th>
           </tr>
         </thead>
         <tbody>
@@ -56,11 +60,14 @@
             <td>{{ row.propane_pct_change | percent }}</td>
             <td>{{ row.wood_cost | money }}</td> 
             <td>{{ row.wood_pct_change | percent }}</td>
+            <td>{{ row.coal_cost | money }}</td>
+            <td>{{ row.coal_pct_change | percent }}</td>
             <td>{{ row.fuel_oil_unit_cost | money(2) }}</td>
             <td>{{ row.natural_gas_unit_cost | money(2) }}</td>
             <td>{{ row.district_heat_unit_cost | money(2) }}</td>
             <td>{{ row.propane_unit_cost | money(2) }}</td>
             <td>{{ row.wood_unit_cost | money(2) }}</td>
+            <td>{{ row.coal_unit_cost | money(2) }}</td>
             <td>{{ row.building_heat_unit_cost | money(2) }}</td>
             <td>{{ row.total_heat_cost | money }}</td>
             <td>{{ row.total_heat_cost_pct_change | percent }}</td>
