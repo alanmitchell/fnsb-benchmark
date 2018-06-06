@@ -228,7 +228,6 @@ class Util:
         # Read in the Building Information from the Other Data file
         df_bldg = pd.read_excel(
                 os.path.join(other_data_pth, 'Buildings.xlsx'), 
-                sheet_name='Building', 
                 skiprows=3, 
                 index_col='site_id'
                 )
