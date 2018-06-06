@@ -50,44 +50,77 @@
   <div class="row">
     <div class="col-6">
       <dt>Electricity Source:</dt>
-      <dd>{{ building_info.bldg.source_elec | only_string}}</dd>
+      <dd>{{ building_info.bldg.source_electricity | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_elec | only_string}}</dd>
+      <dd>{{ building_info.bldg.acct_electricity | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Fuel Oil Source:</dt>
-      <dd>{{ building_info.bldg.source_oil | only_string}}</dd>
+      <dd>{{ building_info.bldg.source_fuel_oil | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_oil | only_string}}</dd>
+      <dd>{{ building_info.bldg.acct_fuel_oil | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>Natural Gas Source:</dt>
-      <dd>{{ building_info.bldg.source_nat_gas | only_string}}</dd>
+      <dd>{{ building_info.bldg.source_natural_gas | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_nat_gas | only_string}}</dd>
+      <dd>{{ building_info.bldg.acct_natural_gas | only_string}}</dd>
     </div>
   </div>
 
   <div class="row">
     <div class="col-6">
       <dt>District Heat Source:</dt>
-      <dd></dd>
+      <dd>{{ building_info.bldg.source_district_heat | only_string}}</dd>
     </div>
     <div class="col-6">
       <dt>Account Numbers:</dt>
-      <dd></dd>
+      <dd>{{ building_info.bldg.acct_district_heat | only_string}}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Propane Source:</dt>
+      <dd>{{ building_info.bldg.source_propane | only_string}}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ building_info.bldg.acct_propane | only_string}}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Wood Source:</dt>
+      <dd>{{ building_info.bldg.source_wood | only_string}}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ building_info.bldg.acct_wood | only_string}}</dd>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <dt>Coal Source:</dt>
+      <dd>{{ building_info.bldg.source_coal | only_string}}</dd>
+    </div>
+    <div class="col-6">
+      <dt>Account Numbers:</dt>
+      <dd>{{ building_info.bldg.acct_coal | only_string}}</dd>
     </div>
   </div>
 
@@ -99,17 +132,6 @@
     <div class="col-6">
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_water | only_string}}</dd>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-6">
-      <dt>Steam Source:</dt>
-      <dd>{{ building_info.bldg.source_steam | only_string}}</dd>
-    </div>
-    <div class="col-6">
-      <dt>Account Numbers:</dt>
-      <dd>{{ building_info.bldg.acct_steam | only_string}}</dd>
     </div>
   </div>
 
