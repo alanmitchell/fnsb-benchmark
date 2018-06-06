@@ -201,6 +201,6 @@ df_final['Vendor Name'] = ''
 
 # Save the final results as a CSV file and a pickle
 df_final.to_pickle('data/aris_records.pkl')
-df_final.to_csv('data/aris_records.csv')
+df_final.to_csv('data/aris_records.csv', index=False)
 
 print('Script completed: {}'.format(time.ctime()))

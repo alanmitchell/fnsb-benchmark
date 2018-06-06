@@ -629,6 +629,11 @@ def building_type_comparison_graph(df, graph_column, site, filename):
     
     # Create df with chosen building site to create line plot
     site_df = df.query("site_id == @site")
+
+    # There may be no energy data for this building.  Show "No Data" graph and exit.
+    if len(site_df)==0:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))            
+        return
     
     # Get the usage type of the site.  Note that the usage type should be the same
     # for all records for a given site, but if not this code will only take the first.
@@ -699,8 +704,7 @@ def building_type_comparison_graph(df, graph_column, site, filename):
 
     plt.savefig(filename)
     plt.close('all')
-    
-    
+   
 def building_owner_comparison_graph(df, graph_column, site, filename):
     ''' This function creates a graph that compares the eui, eci, or specific_eui to 
     buildings of a chosen usage type in the dataset. The inputs are the df in a format similar to 
@@ -709,6 +713,11 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     
     # Create df with chosen building site to create line plot
     site_df = df.query("site_id == @site")
+
+    # There may be no energy data for this building.  Show "No Data" graph and exit.
+    if len(site_df)==0:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))            
+        return
     
     # Get the usage type of the site.  Note that the usage type should be the same
     # for all records for a given site, but if not this code will only take the first.

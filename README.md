@@ -1,5 +1,6 @@
 # fnsb-benchmark
 Creates Utility Energy Benchmarking Reports for the Fairbanks North Star Borough
+and Buildings found in the Alaska Housing Finance Corporation ARIS database.
 
 ## Prerequisites
 If you are running the Anaconda distribution of Python, you should have all of the
@@ -16,7 +17,8 @@ Before running the benchmarking script, some setup is required.  A settings file
 controls a few different aspects of how the script runs.  There is a sample settings
 file in the root directory called `settings_example.py`.  Copy that file to a new
 file called `settings.py` in the same directory.  This `settings.py` file is the actual file used to control
-the script.  This file is *not* stored in the GitHub repository as it has been set to be ignored, so it will not affect other users.
+the script.  This file is *not* stored in the GitHub repository as it has been set to be ignored, 
+so it will not affect other users.
 
 Open the `settings.py` file in an editor and read the comments for each settings
 to determine the proper value.  Important settings are the path to the Utility Bill
@@ -24,9 +26,8 @@ CSV file and the path to the Other Data spreadsheet file (discussed below).
 
 ### Data Files
 
-There are two critical data files for the script:
+There are a number of critical data files for the script:
 
-* The CSV file that contains the Utility Bill information.
 * A Excel spreadsheet that contains other information about each site, such as square
   footage, address, and year built.  This spreadsheet also contains degree day
   information and information about the BTU content of fuels.  A sample of this
@@ -39,6 +40,28 @@ actual location of each file.
 Note that it is important to keep the format of the Other Building Data file unaltered.
 The row number of the start of the data on each sheet is critical to operation of the script,
 so rows should not be added or deleted above that point on the Excel sheet.
+
+**Utility Bill Records:** This is the CSV file that contains the utility
+bill information for all of the buildings.  Here are the first few records of a
+utility bill record file:
+
+```
+Site ID,Cost,Usage,Service Name,Units,Thru,From,Item Description,Account Number,Vendor Name
+1,10472.0,129800.0,Electric,kWh,2009-01-15,2008-12-16,Energy,,
+1,9768.0,117600.0,Electric,kWh,2009-02-15,2009-01-15,Energy,,
+1,11883.0,116000.0,Electric,kWh,2009-03-15,2009-02-15,Energy,,
+1,15421.0,158800.0,Electric,kWh,2009-04-15,2009-03-15,Energy,,
+1,13802.0,137400.0,Electric,kWh,2009-05-15,2009-04-15,Energy,,
+```
+
+Further documentation of the required structure for this file is
+available from the software authors.
+
+**Degree-Day Information:** This script also depends upon degree-day information provided by a file on the
+Alaska Housing Finance Corporation BMON server.  That file is updated monthly
+by the [update-degree-days script](https://github.com/alanmitchell/update-degree-days).
+The URL to the degree-day file is:  `http://ahfc.webfactional.com/data/degree_days.pkl` and
+it is a pickled Pandas DataFrame using `bz2` compression.
 
 ## Running the Script
 
