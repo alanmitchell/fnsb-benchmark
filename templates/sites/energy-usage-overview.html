@@ -20,12 +20,15 @@
             <th colspan="2">District Heat</th>
             <th colspan="2">Propane</th>
             <th colspan="2">Wood</th>
+            <th colspan="2">Coal</th>
 
             <th rowspan="2">Total Heat Energy [MMBTU]</th>
             <th rowspan="2">Total Specific Heat Usage [kBtu/HDD]</th>
             <th rowspan="2">Total Energy [MMBTU]</th>
           </tr>
           <tr>
+            <th>[MMBTU]</th>
+            <th>% Total Energy</th>
             <th>[MMBTU]</th>
             <th>% Total Energy</th>
             <th>[MMBTU]</th>
@@ -57,6 +60,8 @@
             <td>{{ row.propane_pct | percent }}</td>
             <td>{{ row.wood_mmbtu | number}}</td>
             <td>{{ row.wood_pct | percent }}</td>
+            <td>{{ row.coal_mmbtu | number }}</td>
+            <td>{{ row.coal_pct | percent }}</td>
             <td>{{ row.total_heat_mmbtu | number }}</td>
             <td>{{ row.total_specific_heat | number }}</td>
             <td>{{ row.total_energy_mmbtu | number }}</td>
