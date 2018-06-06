@@ -134,7 +134,8 @@ def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
         plt.xlabel('Fiscal Year')
         
         # Add legend
-        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg = plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg.get_frame().set_alpha(0.5)
         
         # Save and show
         plt.savefig(filename)
@@ -191,7 +192,8 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
         plt.xlabel('Fiscal Year')
         
         # Add legend 
-        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg = plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg.get_frame().set_alpha(0.5)
         
         # Save and show
         plt.savefig(filename)
@@ -244,7 +246,8 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 
         plt.title(title)
-        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg = plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg.get_frame().set_alpha(0.5)
 
         # Save and show
         plt.savefig(filename)
@@ -301,7 +304,8 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
         # Format the y-axis so a comma is displayed for thousands
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
         
-        plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg = plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        leg.get_frame().set_alpha(0.5)
         
         # Save and show
         plt.savefig(filename)
