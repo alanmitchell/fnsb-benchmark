@@ -76,7 +76,10 @@ def preprocess_data():
     #     real Pandas dates
     fn = settings.UTILITY_BILL_FILE_PATH
     msg('Starting to read Utility Bill Data File.')
-    dfu = pd.read_csv(fn, parse_dates=['From', 'Thru'])
+    dfu = pd.read_csv(fn, 
+                      parse_dates=['From', 'Thru'],
+                      dtype={'Site ID': 'object', 'Account Number': 'object'}
+                    )
 
     msg('Removing Unneeded columns and Combining Charges.')
     
@@ -562,7 +565,8 @@ def utility_cost_report(site, df, ut):
     bu.add_month_count_column(df2, df1)
 
     # trim out the partial years
-    df2 = df2.query("month_count == 12").copy()
+    if len(df2):
+        df2 = df2.query("month_count == 12").copy()
 
     # Reverse the DataFrame
     df2.sort_index(ascending=False, inplace=True)
@@ -1237,7 +1241,8 @@ def water_report(site, df):
 
     # Use only complete years
     water_use_and_cost['month_count'] = water_mo_count
-    water_use_and_cost = water_use_and_cost.query("month_count == 12")
+    if len(water_use_and_cost):
+        water_use_and_cost = water_use_and_cost.query("month_count == 12")
     water_use_and_cost = water_use_and_cost.drop('month_count', axis=1)
     water_use_and_cost = water_use_and_cost.sort_index(ascending=False)
     water_use_and_cost = water_use_and_cost.rename(columns={'Sewer Cost':'sewer_cost',

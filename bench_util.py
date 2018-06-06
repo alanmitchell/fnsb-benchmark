@@ -135,6 +135,7 @@ all_services = [
     'propane',
     'wood',
     'district_heat',
+    'coal',
     'water',
     'sewer',
     'refuse'
@@ -147,6 +148,7 @@ all_energy_services = [
     'propane',
     'wood',
     'district_heat',
+    'coal'
 ]
 
 all_heat_services = [
@@ -155,6 +157,7 @@ all_heat_services = [
     'propane',
     'wood',
     'district_heat',
+    'coal'
 ]
 
 def missing_services(services_present):
@@ -225,12 +228,14 @@ class Util:
             building info, degree days, etc.
         """
         
-        # Read in the Building Information from the Other Data file
+        # Read in the Building Information from the Other Data file.
+        # Ensure site_id is a string.
         df_bldg = pd.read_excel(
                 os.path.join(other_data_pth, 'Buildings.xlsx'), 
                 skiprows=3, 
-                index_col='site_id'
+                converters={'site_id': str},
                 )
+        df_bldg.set_index('site_id', inplace=True)
 
         # Add a full address column, combo of address and city.
         df_bldg['full_address'] = df_bldg.address.str.strip() + ', ' + \
@@ -455,10 +460,13 @@ class Util:
         """
         dfdd = self.degree_days_monthly(months_to_include, site_id)
         
-        # I had to use the lambda function below in order to have a NaN returned
-        # if one or more of the months in the sum was an NaN.
-        return dfdd.groupby('fiscal_year').agg({'dd': lambda x: np.sum(x.values)})['dd']
-        
+        if len(dfdd):
+            # I had to use the lambda function below in order to have a NaN returned
+            # if one or more of the months in the sum was an NaN.
+            return dfdd.groupby('fiscal_year').agg({'dd': lambda x: np.sum(x.values)})['dd']
+        else:
+            # return empty Series if no data.
+            return pd.Series()
        
     def fuel_btus_per_unit(self, fuel_type, fuel_units):
         """Returns the Btus per unit of fuel.
