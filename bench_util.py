@@ -228,8 +228,32 @@ class Util:
             building info, degree days, etc.
         """
         
-        # Read in the Building Information from the Other Data file.
-        # Ensure site_id is a string.
+        # Get Service Type information and create a Fuel Btu dictionary as an
+        # object attribute.  Keys are fuel type, fuel unit, both in lower case.
+        # Also create a dictionary mapping service types to standard service 
+        # type category names.  
+        df_services = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'), sheet_name='Service Types', skiprows=3)
+        self._fuel_btus = {}
+        for ix, row in df_services.iterrows():
+            # Only put energy services into fuel btu dictionary
+            if row.btu_per_unit > 0.0:
+                self._fuel_btus[(row.service.lower(), row.unit.lower())] = row.btu_per_unit
+
+        # Make a dictionary mapping Service Type to Service Type Category
+        # For duplicate service type entries, this will take the last category.
+        self._service_to_category = dict(zip(df_services.service, df_services.category))
+
+        # Make a dictionary that maps the standard Service Category for fuels
+        # to the standard display units and the Btus per unit for that fuel unit.
+        # The keys are the standardized service type names, but only include energy
+        # producing fuels (not water, refuse, etc.).  The values are a two-tuple:
+        # (unit, Btus/unit).
+        df_svc_cat_info = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'),
+            sheet_name='Service Categories', skiprows=3)
+        ky_val = zip(df_svc_cat_info.category, zip(df_svc_cat_info.unit, df_svc_cat_info.btu_per_unit))
+        self._service_cat_info = dict(ky_val)
+
+        # Read in the Building Information. Ensure site_id is a string.
         df_bldg = pd.read_excel(
                 os.path.join(other_data_pth, 'Buildings.xlsx'), 
                 skiprows=3, 
@@ -242,33 +266,20 @@ class Util:
             df_bldg.city.str.strip()
         # now remove any leading or trailing commas.
         df_bldg.full_address = df_bldg.full_address.str.strip(',') 
-        
+
         # Create a dictionary to hold info for each building
         # The keys of the dictionary are the columns from the spreadsheet that
-        # was just read, but also a number of other fields related to 
-        # service providers and account numbers.
-        dict_keys = list(df_bldg.columns) + [
-            'source_elec',
-            'source_oil',
-            'source_nat_gas',
-            'source_steam',
-            'source_water',
-            'source_sewer',
-            'source_refuse',
-            'acct_elec',
-            'acct_oil',
-            'acct_nat_gas',
-            'acct_steam',
-            'acct_water',
-            'acct_sewer',
-            'acct_refuse',
-        ]
+        # was just read, but also fields that hold service provider names and
+        # account numbers.
+        src_list = ['source_{}'.format(s) for s in all_services]
+        acct_list = ['acct_{}'.format(s) for s in all_services]
+        dict_keys = list(df_bldg.columns) + src_list + acct_list
             
         # make a dictionary with default values for all fields (use empty
         # string for defaults)
         default_info = dict(zip(dict_keys, [''] * len(dict_keys)))
 
-        def find_src_acct(dfs, service_type):
+        def find_src_acct(dfs, service_cat):
             """Function used below to return service provider and account
             numbers for a particular service type.  'dfs' is a DataFrame that
             has only the records for one site.  'service_type' is the name of
@@ -276,7 +287,10 @@ class Util:
             returned.
             """
             try:
-                df_svc = dfs[dfs['Service Name']==service_type]
+                # add in the service type category
+                dfs2 = dfs.copy()
+                dfs2['svc_cat'] = dfs2['Service Name'].map(self._service_to_category)
+                df_svc = dfs2[dfs2.svc_cat==service_cat]
                 last_bill_date = df_svc.Thru.max()
                 df_last_bill = df_svc[df_svc.Thru == last_bill_date]
                 
@@ -306,20 +320,11 @@ class Util:
             rec.update(row.to_dict())
 
             # now find providers and account numbers from raw utility file.
-            svcs = [
-                ('Electricity', 'elec'),
-                ('Oil #1', 'oil'),
-                ('Natural Gas', 'nat_gas'),
-                ('Steam', 'steam'),
-                ('Water', 'water'),
-                ('Sewer', 'sewer'),
-                ('Refuse', 'refuse')
-            ]
             df_site = util_df[util_df['Site ID']==ix]
-            for svc, abbrev in svcs:
-                source, accounts = find_src_acct(df_site, svc)
-                rec['source_{}'.format(abbrev)] = source
-                rec['acct_{}'.format(abbrev)] = accounts
+            for svc_cat in all_services:
+                source, accounts = find_src_acct(df_site, svc_cat)
+                rec['source_{}'.format(svc_cat)] = source
+                rec['acct_{}'.format(svc_cat)] = accounts
                 
             self._bldg_info[row.name] = rec
             
@@ -356,31 +361,6 @@ class Util:
             f_yr, f_mo = calendar_to_fiscal(row.month.year, row.month.month)
             self._dd[(f_yr, f_mo, ix)] = row.hdd65
   
-        # Get Service Type information and create a Fuel Btu dictionary as an
-        # object attribute.  Keys are fuel type, fuel unit, both in lower case.
-        # Also create a dictionary mapping service types to standard service 
-        # type category names.  
-        df_services = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'), sheet_name='Service Types', skiprows=3)
-        self._fuel_btus = {}
-        for ix, row in df_services.iterrows():
-            # Only put energy services into fuel btu dictionary
-            if row.btu_per_unit > 0.0:
-                self._fuel_btus[(row.service.lower(), row.unit.lower())] = row.btu_per_unit
-
-        # Make a dictionary mapping Service Type to Service Type Category
-        # For duplicate service type entries, this will take the last category.
-        self._service_to_category = dict(zip(df_services.service, df_services.category))
-
-        # Make a dictionary that maps the standard Service Category for fuels
-        # to the standard display units and the Btus per unit for that fuel unit.
-        # The keys are the standardized service type names, but only include energy
-        # producing fuels (not water, refuse, etc.).  The values are a two-tuple:
-        # (unit, Btus/unit).
-        df_svc_cat_info = pd.read_excel(os.path.join(other_data_pth, 'Services.xlsx'),
-            sheet_name='Service Categories', skiprows=3)
-        ky_val = zip(df_svc_cat_info.category, zip(df_svc_cat_info.unit, df_svc_cat_info.btu_per_unit))
-        self._service_cat_info = dict(ky_val)
-
     def building_info(self, site_id):
         """Returns building information, a dictionary, for the facility
         identified by 'site_id'.  Throws a KeyError if the site is not present.
