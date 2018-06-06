@@ -909,6 +909,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.service_category_info('natural_gas')[1]
     heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.service_category_info('propane')[1]
     heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.service_category_info('wood')[1]
+    heating_usage['coal_usage'] = heating_usage.coal_mmbtu * 1000000 / ut.service_category_info('coal')[1]
 
     # ----- Create Heating Usage Analysis Graphs
 

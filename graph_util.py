@@ -10,13 +10,14 @@ import os
 from matplotlib import font_manager as fm
 
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
-mpl.rcParams['axes.labelsize'] = 20
+mpl.rcParams['axes.labelsize'] = 16
 mpl.rcParams['axes.titlesize'] = 24
-mpl.rcParams['legend.fontsize'] = 20
-mpl.rcParams['font.size'] = 20.0
+mpl.rcParams['legend.fontsize'] = 16
+mpl.rcParams['font.size'] = 16.0
 mpl.rcParams['figure.figsize'] = [15,10]
-mpl.rcParams['xtick.labelsize'] = 20
-mpl.rcParams['ytick.labelsize'] = 20
+mpl.rcParams['xtick.labelsize'] = 16
+mpl.rcParams['ytick.labelsize'] = 16
+mpl.rcParams['legend.framealpha'] = 0.5
 
 # Set the style for the graphs
 plt.style.use('bmh')
@@ -674,7 +675,7 @@ def building_type_comparison_graph(df, graph_column, site, filename):
     graph_column_90 = graph_column + '_90'
 
     # Plot the line for the chosen building site
-    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0',
+    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
            label=plot_label)
 
     # Format the y-axis so a comma is displayed for thousands
@@ -758,7 +759,7 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     graph_column_90 = graph_column + '_90'
 
     # Plot the line for the chosen building site
-    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0',
+    ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
            label=plot_label)
 
     # Format the y-axis so a comma is displayed for thousands
