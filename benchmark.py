@@ -1014,7 +1014,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
 
     # Filter out natural gas customer charges as the unit cost goes to infinity if there is a charge but no use
-    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
+    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'natural_gas') & (df['units'] != 'CCF')].index)
 
     # Filter out records with zero usage, which correspond to things like customer charges, etc.
     nonzero_usage = df_no_gas_cust_charges.query("usage > 0")
