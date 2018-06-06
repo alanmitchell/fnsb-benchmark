@@ -676,7 +676,7 @@ def building_type_comparison_graph(df, graph_column, site, filename):
 
     # Plot the line for the chosen building site
     ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
-           label=plot_label)
+           markersize=8, label=plot_label)
 
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -760,7 +760,7 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
 
     # Plot the line for the chosen building site
     ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
-           label=plot_label)
+           markersize=8, label=plot_label)
 
     # Format the y-axis so a comma is displayed for thousands
     ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
