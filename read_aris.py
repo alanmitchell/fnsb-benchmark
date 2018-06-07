@@ -27,7 +27,18 @@ my_password = settings.ARIS_PASSWORD
 my_params = {'username': my_username,
              'password':my_password}
 building_list_url = base_url + '/GetBuildingList'
-results = requests.post(building_list_url, params=my_params).json()
+
+# Errors occur here.  Try three times.
+for i in range(3):
+    try:
+        results = requests.post(building_list_url, params=my_params).json()
+        break
+    except:
+        if i==2:
+            raise
+        else:
+            # wait 5 seconds before trying again
+            time.sleep(5)
 df_bldgs = pd.DataFrame(results)
 
 # Add a Degree-Day Site column by looking up via zip code
@@ -72,7 +83,19 @@ dfd = None
 next_prn = time.time()
 for bldg_id in df_bldgs2.site_id.unique():
     my_data['buildingId'] =  bldg_id
-    detail = requests.post(building_detail_url, data=my_data).json()
+
+    # Errors occur here.  Try three times.
+    for i in range(3):
+        try:
+            detail = requests.post(building_detail_url, data=my_data).json()
+            break
+        except:
+            if i==2:
+                raise
+            else:
+                # wait 5 seconds before trying again
+                time.sleep(5)
+
     if len(detail['BuildingEnergyDetailList']):
         df_detail = pd.DataFrame(detail['BuildingEnergyDetailList'])
         # Get rid of unneeded columns
