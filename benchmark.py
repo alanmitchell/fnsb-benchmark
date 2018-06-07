@@ -1031,7 +1031,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
 
     # Filter out natural gas customer charges as the unit cost goes to infinity if there is a charge but no use
-    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'Natural Gas') & (df['units'] != 'CCF')].index)
+    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'natural_gas') & (df['units'] != 'CCF')].index)
 
     # Filter out records with zero usage, which correspond to things like customer charges, etc.
     nonzero_usage = df_no_gas_cust_charges.query("usage > 0")
@@ -1157,10 +1157,14 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
         new_col_name = col + "_available"
         monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
 
-    # Calculate what it would have cost if the building used only one fuel type
-    available_cols = [col + "_available" for col in bu.all_heat_services]
-    available_dict = dict(zip(unit_cost_cols, available_cols))
-    hypothetical_cost_cols = []
+# Calculate what it would have cost if the building used only one fuel type
+available_cols = []
+unit_cost_cols_2 = []
+for col in bu.all_heat_services:
+    available_cols.append(col + "_available")
+    unit_cost_cols_2.append(col + "_unit_cost")
+available_dict = dict(zip(unit_cost_cols_2, available_cols))
+hypothetical_cost_cols = []
 
     for unit_cost, avail_col in available_dict.items():
         new_col_name = unit_cost + "_hypothetical"
@@ -1168,7 +1172,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
         monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] * monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
 
     # Calculate the monthly savings to the building by not using the most expensive available fuel entirely
-    monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1)                                                         - monthly_heat_energy_and_use.total_heating_cost
+    monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1) - monthly_heat_energy_and_use.total_heating_cost
 
     # Sort dataframe to calculate cumulative value
     monthly_heat_energy_and_use = monthly_heat_energy_and_use.sort_values(by='date', ascending=True)
