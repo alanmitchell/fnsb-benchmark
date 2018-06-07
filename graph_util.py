@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from matplotlib.ticker import FormatStrFormatter
-import matplotlib as mpl
 import matplotlib.dates as mdates
 import bench_util as bu
 import shutil
