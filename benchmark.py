@@ -283,12 +283,18 @@ def energy_index_report(site, df, ut):
 
     # ---------- Table 2, Details Table
 
-    # Determine month count by year for Electricity to determine the latest
-    # complete year.
-    electric_only = df.query("service_type == 'electricity'")
-    electric_months_present = bu.months_present(electric_only)
-    electric_mo_count = bu.month_count(electric_months_present)
-    last_complete_year = max(electric_mo_count[electric_mo_count==12].index)
+    # Use the last complete year for this site as the year for the Details
+    # table.  If there was no complete year for the site, then use the
+    # last complete year for the entire dataset.
+    if len(df2):
+        last_complete_year = df2.index.max()
+    else:
+        # Determine month count by year for Electricity in entire dataset
+        # to determine the latest complete year.
+        electric_only = df.query("service_type == 'electricity'")
+        electric_months_present = bu.months_present(electric_only)
+        electric_mo_count = bu.month_count(electric_months_present)
+        last_complete_year = max(electric_mo_count[electric_mo_count==12].index)
 
     # Filter down to just the records of the targeted fiscal year
     df1 = df.query('fiscal_year == @last_complete_year')
@@ -379,6 +385,17 @@ def energy_index_report(site, df, ut):
 
     # Put in final DataFrame
     df_final = pd.concat([df_final, dd_series], axis=1)
+
+    # Add in a column that gives the number of months present for each site
+    # in this year.  Then filter down to just the sites that have 12 months
+    # of data.
+    df_final.reset_index(inplace=True)
+    df_final['fiscal_year'] = last_complete_year
+    df_final.set_index(['site_id', 'fiscal_year'], inplace=True)
+    df_final = bu.add_month_count_column_by_site(df_final, df2)
+    df_final = df_final.query('month_count==12').copy()
+    df_final.reset_index(inplace=True)
+    df_final.set_index('site_id', inplace=True)
 
     # Calculate per square foot values for each building.
     df_final['eui'] = df_final.total_mmbtu * 1e3 / df_final.sq_ft
@@ -1371,7 +1388,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        if site_id < '14083': continue
+        if site_id < '15711': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
