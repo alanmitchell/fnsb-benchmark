@@ -286,7 +286,7 @@ def energy_index_report(site, df, ut):
     # Use the last complete year for this site as the year for the Details
     # table.  If there was no complete year for the site, then use the
     # last complete year for the entire dataset.
-    if len(df2):
+    if 'df2' in locals() and len(df2):
         last_complete_year = df2.index.max()
     else:
         # Determine month count by year for Electricity in entire dataset
@@ -1157,14 +1157,14 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
         new_col_name = col + "_available"
         monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
 
-# Calculate what it would have cost if the building used only one fuel type
-available_cols = []
-unit_cost_cols_2 = []
-for col in bu.all_heat_services:
-    available_cols.append(col + "_available")
-    unit_cost_cols_2.append(col + "_unit_cost")
-available_dict = dict(zip(unit_cost_cols_2, available_cols))
-hypothetical_cost_cols = []
+    # Calculate what it would have cost if the building used only one fuel type
+    available_cols = []
+    unit_cost_cols_2 = []
+    for col in bu.all_heat_services:
+        available_cols.append(col + "_available")
+        unit_cost_cols_2.append(col + "_unit_cost")
+    available_dict = dict(zip(unit_cost_cols_2, available_cols))
+    hypothetical_cost_cols = []
 
     for unit_cost, avail_col in available_dict.items():
         new_col_name = unit_cost + "_hypothetical"
