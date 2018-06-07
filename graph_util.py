@@ -690,6 +690,13 @@ def building_type_comparison_graph(df, graph_column, site, filename):
         # Format the y-axis so a comma is displayed for thousands
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 
+    # Add in markers on the border of the area graph showing the 10th to 90th percentile
+    ax.scatter(usage_df_10_90.fiscal_year, usage_df_10_90[graph_column_10], marker='s',
+              alpha=0.5, color='#92c5de', label=None)
+    ax.scatter(usage_df_10_90.fiscal_year, usage_df_10_90[graph_column_90], marker='s',
+              alpha=0.5, color='#92c5de', label=None)
+
+
     # Create an area graph showing the 10th to 90th percentile
     ax.fill_between(usage_df_10_90.fiscal_year, usage_df_10_90[graph_column_10], 
                     usage_df_10_90[graph_column_90], 
@@ -776,6 +783,12 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     else:
         # Format the y-axis so a comma is displayed for thousands
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    # Add in markers on the border of the area graph showing the 10th to 90th percentile
+    ax.scatter(owner_df_10_90.fiscal_year, owner_df_10_90[graph_column_10], marker='s',
+                alpha=0.5, color='#92c5de', label=None)
+    ax.scatter(owner_df_10_90.fiscal_year, owner_df_10_90[graph_column_90], marker='s',
+                alpha=0.5, color='#92c5de', label=None)
 
     # Create an area graph showing the 10th to 90th percentile
     ax.fill_between(owner_df_10_90.fiscal_year, owner_df_10_90[graph_column_10], 
