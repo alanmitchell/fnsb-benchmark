@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FormatStrFormatter
 import matplotlib as mpl
 import matplotlib.dates as mdates
 import bench_util as bu
@@ -682,8 +683,11 @@ def building_type_comparison_graph(df, graph_column, site, filename):
     ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
            markersize=8, label=plot_label)
 
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    if graph_column == 'specific_eui' or graph_column == 'eci':
+        ax.get_yaxis().set_major_formatter(FormatStrFormatter('%.1f'))
+    else:
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 
     # Create an area graph showing the 10th to 90th percentile
     ax.fill_between(usage_df_10_90.fiscal_year, usage_df_10_90[graph_column_10], 
@@ -766,8 +770,11 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     ax.plot(site_df.fiscal_year, site_df[graph_column], linewidth='3.0', marker='o',
            markersize=8, label=plot_label)
 
-    # Format the y-axis so a comma is displayed for thousands
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+    if graph_column == 'specific_eui' or graph_column == 'eci':
+        ax.get_yaxis().set_major_formatter(FormatStrFormatter('%.1f'))
+    else:
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 
     # Create an area graph showing the 10th to 90th percentile
     ax.fill_between(owner_df_10_90.fiscal_year, owner_df_10_90[graph_column_10], 
