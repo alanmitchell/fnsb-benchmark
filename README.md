@@ -1,6 +1,7 @@
 # fnsb-benchmark
 Creates Utility Energy Benchmarking Reports for the Fairbanks North Star Borough
-and Buildings found in the Alaska Housing Finance Corporation ARIS database.
+and Buildings found in the Alaska Housing Finance Corporation ARIS database.  A
+sample web site created with this script is available [here](http://benchmark.ahfc.webfactional.com/).
 
 ## Prerequisites
 If you are running the Anaconda distribution of Python, you should have all of the
@@ -22,26 +23,30 @@ so it will not affect other users.
 
 Open the `settings.py` file in an editor and read the comments for each settings
 to determine the proper value.  Important settings are the path to the Utility Bill
-CSV file and the path to the Other Data spreadsheet file (discussed below).
+CSV file and the path to the directory where two other key spreadsheets are located. 
+These spreadsheets are described below in the Data File section.
 
 ### Data Files
 
 There are a number of critical data files for the script:
 
-* A Excel spreadsheet that contains other information about each site, such as square
-  footage, address, and year built.  This spreadsheet also contains degree day
-  information and information about the BTU content of fuels.  A sample of this
-  spreadsheet is found in the `data` directory and is named `Other_Building_Data.xlsx`.
-  
-In general, the `data` directory is a good location for both of these files, although that
-location is not required.  The values in the `settings.py` file just need to point to the
-actual location of each file.
-
-Note that it is important to keep the format of the Other Building Data file unaltered.
-The row number of the start of the data on each sheet is critical to operation of the script,
+* An Excel workbook named `Buildings.xlsx` that contains information about each site,
+such as square footage, address, and year built.  Two samples of this
+spreadsheet are found in the `data` directory: `Buildings_FNSB.xlsx` and `Building_AHFC.xlsx`.
+In general, the `data` directory is a good location for this file, although that location
+is not required.  The `OTHER_DATA_DIR_PATH` value in the `settings.py` file just needs to point
+to the directory containing the file. Note that it is important to keep the format of the `Buildings.xlsx` 
+file unaltered. The row number of the start of the data on each sheet is critical to operation of the script,
 so rows should not be added or deleted above that point on the Excel sheet.
 
-**Utility Bill Records:** This is the CSV file that contains the utility
+* An Excel workbook named `Services.xlsx` that contains information about the utility
+service types that are present in the Utility Bill records file, including their Btu content
+if the services are energy-providing services.  It also contains a list of
+the standard categories that these service types are mapped into.  There are two sheets in
+this Excel workbook, and two samples of the workbook are provided in the `data` directory: 
+`Services_sample_fnsb.xlsx` and `Services_sample_aris.xlsx`.
+
+* A Utility Bill Records file. This is a CSV file that contains the utility
 bill information for all of the buildings.  Here are the first few records of a
 utility bill record file:
 
@@ -57,7 +62,7 @@ Site ID,Cost,Usage,Service Name,Units,Thru,From,Item Description,Account Number,
 Further documentation of the required structure for this file is
 available from the software authors.
 
-**Degree-Day Information:** This script also depends upon degree-day information provided by a file on the
+* Degree-Day Information: This script also depends upon degree-day information provided by a file on the
 Alaska Housing Finance Corporation BMON server.  That file is updated monthly
 by the [update-degree-days script](https://github.com/alanmitchell/update-degree-days).
 The URL to the degree-day file is:  `http://ahfc.webfactional.com/data/degree_days.pkl` and
@@ -74,13 +79,18 @@ the project on a command line.  One of the following commands should start the s
 
 If you have multiple anaconda environments installed, you will need to first activate the one running Python 3.5 by using the following command:
 
-	conda list envs					# Shows the names of your possible environments
-	activate [your python 3.5 env]	# Activates the correct environment
-	python benchmark.py				# Runs the script in the chosen environment
+    conda list envs					# Shows the names of your possible environments
+    activate [your python 3.5 env]	# Activates the correct environment
+    python benchmark.py				# Runs the script in the chosen environment
 
 
 The script will print messages to the console about its progress; cumulative execution time
-will also be shown at each step.  This script will take a number of minutes to run.
+will also be shown at each step.  This script will take approximately 11 seconds per building to run.
+
+If you are using utility bill data from the Alaska Housing Finanance Corporation ARIS
+database, you need to first run a preparation script prior to running the main benchmark 
+script.  This script creates a Utility Record CSV file called `aris_records.csv` in the `data` directory.  It also creates the `Buildings.xlsx` spreadsheet in the `data`
+directory.
 
 ## Script Results
 
@@ -108,9 +118,8 @@ Here are some debugging and testing tips, useful when adding or modifying code i
   processed by the script (in alphabetical order by Site ID) and no more.  You can also just 
   prematurely stop the script by Ctrl-C or Ctrl-Break; no post-processing steps will be missed by
   early termination.
-* If you want to run selected sites through the script, make a new "Other Building Data" 
-  spreadsheet with only the desired sites listed on the "Building" sheet.  Make sure the 
-  `OTHER_DATA_FILE_PATH` setting points to your trimmed down spreadsheet.
+* If you want to run selected sites through the script, make a new `Buildings.xlsx` 
+  spreadsheet with only the desired sites listed.
 * For each site processed, a large Python dictionary is created containing the data needed by
   the reporting template.  If the setting `WRITE_DEBUG_DATA` is set to `True`, a file showing
   this data will be created for each site processed.  Those files are located in the `debug`
