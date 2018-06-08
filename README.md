@@ -37,7 +37,10 @@ In general, the `data` directory is a good location for this file, although that
 is not required.  The `OTHER_DATA_DIR_PATH` value in the `settings.py` file just needs to point
 to the directory containing the file. Note that it is important to keep the format of the `Buildings.xlsx` 
 file unaltered. The row number of the start of the data on each sheet is critical to operation of the script,
-so rows should not be added or deleted above that point on the Excel sheet.
+so rows should not be added or deleted above that point on the Excel sheet.  If you are
+reading Alaska Housing Finance Corporation ARIS data to create the benchmarking report,
+you do **not** need to create a `Buildings.xlsx` file, as the `read_aris.py` script
+described below will automatically create that file for you.
 
 * An Excel workbook named `Services.xlsx` that contains information about the utility
 service types that are present in the Utility Bill records file, including their Btu content
