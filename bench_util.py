@@ -464,7 +464,7 @@ class Util:
         return self._service_to_category.copy()   # return copy to protect original
 
     def service_category_info(self, service_category):
-        """For a 'service_category' that is a fuel (e.g. 'natural_gal') this method
+        """For a 'service_category' that is a fuel (e.g. 'natural_gas') this method
         returns a a two-tuple containing the standard unit for that category 
         (e.g. CCF, Gallons) and the Btus/unit for that unit.
         """
