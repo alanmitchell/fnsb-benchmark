@@ -328,7 +328,7 @@ def energy_index_report(site, df, ut):
     df3['total_heat_cost'] = df3.total_energy_cost.fillna(0.0) - df3.electricity_cost.fillna(0.0)
 
     # Add this to the final DataFrame
-    df_final = pd.concat([df_final, df3], axis=1)
+    df_final = pd.concat([df_final, df3], axis=1, sort=True)
 
     # Summarize MMBtu by Service Type
     df3 = pd.pivot_table(df2, index='site_id', columns='service_type', values='mmbtu', aggfunc=np.sum)
@@ -347,14 +347,14 @@ def energy_index_report(site, df, ut):
     df3['total_heat_mmbtu'] = df3.total_mmbtu.fillna(0.0) - df3.electricity_mmbtu.fillna(0.0)
 
     # Add this to the final DataFrame
-    df_final = pd.concat([df_final, df3], axis=1)
+    df_final = pd.concat([df_final, df3], axis=1, sort=True)
 
     # Electricity kWh summed by building
     df3 = pd.pivot_table(df2.query('units == "kWh"'), index='site_id', values='usage', aggfunc=np.sum)
     df3.columns = ['electricity_kwh']
 
     # Include in Final DF
-    df_final = pd.concat([df_final, df3], axis=1)
+    df_final = pd.concat([df_final, df3], axis=1, sort=True)
 
     # Electricity kW, both Average and Max by building
     # First, sum up kW pieces for each month.
@@ -363,7 +363,7 @@ def energy_index_report(site, df, ut):
     df3.columns = ['electricity_kw_average', 'electricity_kw_max']
 
     # Add into Final Frame
-    df_final = pd.concat([df_final, df3], axis=1)
+    df_final = pd.concat([df_final, df3], axis=1, sort=True)
 
     # Add in Square footage info
     df_bldg = ut.building_info_df()[['sq_ft']]
