@@ -405,8 +405,8 @@ def energy_index_report(site, df, ut):
     # Save this to a spreadsheet, if it has not already been saved
     fn = 'output/extra_data/site_summary_FY{}.xlsx'.format(last_complete_year)
     if not os.path.exists(fn):
-        excel_writer = pd.ExcelWriter(fn)
-        df_final.to_excel(excel_writer, sheet_name='Sites')
+        with pd.ExcelWriter(fn) as excel_writer:
+            df_final.to_excel(excel_writer, sheet_name='Sites')
 
     # Get the totals across all buildings
     totals_all_bldgs = df_final.sum()

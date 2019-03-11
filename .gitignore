@@ -1,4 +1,5 @@
 .vscode/
+.settings.py.swp
 
 # ignore everything in `output` except for persistent `css` and `js` folders
 output/
