@@ -338,7 +338,7 @@ class Util:
         self._bldg_info_df = pd.DataFrame(rec_list)
         self._bldg_info_df.set_index('site_id', inplace=True)
         
-        # make a list of site categories and their associated builddings
+        # make a list of site categories and their associated buildings
         df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
         cats = df_sites.groupby('site_category')
         self._site_categories = []
@@ -469,3 +469,11 @@ class Util:
         (e.g. CCF, Gallons) and the Btus/unit for that unit.
         """
         return self._service_cat_info[service_category]
+
+    def site_to_col_value_dict(self, col_name):
+        """Returns a dictionary that maps site IDs (the dictionary key)
+        to a value in a different column of the Building Information
+        DataFrame.
+        """
+        df = self._bldg_info_df
+        return dict(zip(df.index, df[col_name]))
