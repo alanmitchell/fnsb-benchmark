@@ -39,6 +39,11 @@ WRITE_DEBUG_DATA = False
 # alphabetical order based on their Site ID. (integer)
 MAX_NUMBER_SITES_TO_RUN = 0
 
+# If you want to produce benchmarking reports for *groups* of facilities
+# enter the column names from the Buildings.xlsx spreadsheet that provide
+# the grouping information.
+ADDITIONAL_GROUPING_COLS = ['group', 'division', 'campus', 'primary_func']
+
 # ------------------------------------------------------------------------------
 # The settings below here only apply to use of this script with AHFC ARIS data.
 
