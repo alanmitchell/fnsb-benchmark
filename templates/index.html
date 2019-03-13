@@ -15,6 +15,7 @@
         <tr>
           <th class="id-col">ID</th>
           <th class="name-col">Name</th>
+          <th class="score-col">Scorecard</th>
         </tr>
       </thead>
       <tbody>
@@ -22,6 +23,7 @@
         <tr onclick="document.location = 'sites/{{ site.id }}.html';">
           <th class="id-col"><a href="sites/{{ site.id }}.html">{{ site.id }}</a></th>
           <th class="name-col"><a href="sites/{{ site.id }}.html">{{ site.name }}</a></th>
+          <th class="score-col"><a href="sites/{{ site.id }}_score.html">Scorecard</a></th>
         </tr>
       {% endfor %}
       </tbody>

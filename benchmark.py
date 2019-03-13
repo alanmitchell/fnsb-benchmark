@@ -196,7 +196,6 @@ def preprocess_data():
         dfu_gp2.reset_index(inplace=True)
         df_all_groups = pd.concat([df_all_groups, dfu_gp2], sort=True, ignore_index=True)
 
-    print(df_all_groups.group.value_counts())
     # add these records to the prior list of facility records
     dfu4 = pd.concat([dfu4, df_all_groups], sort=True)
 
@@ -413,7 +412,7 @@ def energy_index_report(site, df, ut):
     dd_series = df_dd.groupby('site_id').sum()['degree_days']
 
     # Put in final DataFrame
-    df_final = pd.concat([df_final, dd_series], axis=1)
+    df_final = pd.concat([df_final, dd_series], axis=1, sort=True)
 
     # Add in a column that gives the number of months present for each site
     # in this year.  Then filter down to just the sites that have 12 months

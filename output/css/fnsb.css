@@ -172,5 +172,9 @@ section h3 {
 }
 
 .name-col {
-  width: 85%;
+  width: 70%;
+}
+
+.score-col {
+  width: 15%;
 }
