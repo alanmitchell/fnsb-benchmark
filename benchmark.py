@@ -431,10 +431,10 @@ def energy_index_report(site, df, ut):
     df_final['specific_eui'] = df_final.total_heat_mmbtu * 1e6 / df_final.sq_ft / df_final.degree_days
 
     # Save this to a spreadsheet, if it has not already been saved
-    fn = 'output/extra_data/site_summary_FY{}.xlsx'.format(last_complete_year)
-    if not os.path.exists(fn):
-        with pd.ExcelWriter(fn) as excel_writer:
-            df_final.to_excel(excel_writer, sheet_name='Sites')
+#    fn = 'output/extra_data/site_summary_FY{}.xlsx'.format(last_complete_year)
+#    if not os.path.exists(fn):
+#        with pd.ExcelWriter(fn) as excel_writer:
+#            df_final.to_excel(excel_writer, sheet_name='Sites')
 
     # Get the totals across all buildings
     totals_all_bldgs = df_final.sum()
@@ -1339,6 +1339,279 @@ def water_report(site, df):
         )
     )
 
+# ---------------------- FY Analysis Table ---------------------------
+
+def FY_spreadsheets(dfp, ut):
+    """ Iterates through pre-processed billing dataframe and creates spreadsheet for each fiscal year. Saves .xlsx 
+        spreadsheet for each fiscal year with a row of data for each sites and grouping.  Returns nothing.
+    """
+    
+    # --- Read the CSV file and convert the billing period dates into 
+    #     real Pandas dates
+
+    ## Filter by FY, Pivot Table by Site
+    fy = dfp['fiscal_year'].unique()
+
+    for year in fy:
+
+        df_fy = dfp.query('fiscal_year==@year')
+
+        # Summarize FY Cost and usage by Service Type
+
+        # Create pivot table of cost data
+        df_FYcost = pd.pivot_table(df_fy, index=['site_id'], columns='service_type', values='cost', aggfunc=np.sum)
+        df_FYcost = bu.add_missing_columns(df_FYcost, bu.missing_services([]))
+        try: 
+            df_FYcost['electricity_energy'] = pd.pivot_table(df_fy, index=['site_id'], columns='units', values='cost', aggfunc=np.sum)['kWh']
+        except:
+            df_FYcost['electricity_energy'] = 0.0
+        try:
+            df_FYcost['electricity_demand'] = pd.pivot_table(df_fy, index=['site_id'], columns='units', values='cost', aggfunc=np.sum)['kW']
+        except:
+            df_FYcost['electricity_demand'] = 0.0
+        df_FYcost = df_FYcost.add_suffix('_cost')
+
+        # Calculate additional cost totals
+        df_FYcost['total_utility_cost'] = df_FYcost.sum(axis=1)
+        df_FYcost['total_water_cost'] = df_FYcost[['water_cost', 'sewer_cost']].sum(axis=1)
+        df_FYcost['total_energy_cost'] = df_FYcost.total_utility_cost - df_FYcost.total_water_cost
+        df_FYcost['total_heat_cost'] = df_FYcost.total_energy_cost - df_FYcost.electricity_cost
+
+        # Create pivot table of usage data in native units
+        df_FYusage = pd.pivot_table(df_fy, index=['site_id'], columns='service_type', values='usage', aggfunc=np.sum)
+        try:
+            df_FYusage['electricity_energy'] = pd.pivot_table(df_fy, index=['site_id'], columns='units', values='usage', aggfunc=np.sum)['kWh']
+        except:
+            df_FYusage['electricity_energy'] = 0.0
+        try:
+            df_FYusage['electricity_demand'] = pd.pivot_table(df_fy, index=['site_id'], columns='units', values='usage', aggfunc=np.sum)['kW']
+        except:
+            df_FYusage['electricity_demand'] = 0.0
+        df_FYusage = bu.add_missing_columns(df_FYusage, bu.missing_services([]))
+        df_FYusage = df_FYusage.add_suffix('_usage')
+
+        # Create pivot table of usage data in mmbtu units
+        df_FYBTU = pd.pivot_table(df_fy, index=['site_id'], columns='service_type', values='mmbtu', aggfunc=np.sum)
+        df_FYBTU = bu.add_missing_columns(df_FYBTU, bu.missing_services([]))
+        df_FYBTU = df_FYBTU.add_suffix('_mmbtu')
+        df_FYBTU['total_energy_mmbtu'] = df_FYBTU.sum(axis=1)
+        df_FYBTU['total_heat_mmbtu'] = df_FYBTU.total_energy_mmbtu - df_FYBTU.electricity_mmbtu
+
+        #Merge Dataframes
+        df_FYtotal = pd.concat([df_FYcost, df_FYusage, df_FYBTU], axis=1)
+
+        # Add in HDD an sqft to df_FYtotal
+        # iterate through sites
+
+        sq_ft=[]
+        dd=[]
+
+        for site_id, row in df_FYtotal.iterrows():
+            df_site = df_fy.query('site_id == @site_id')
+            mo_present = bu.months_present(df_site, yr_col='fiscal_year', mo_col='fiscal_mo')
+            dd_series = ut.degree_days_yearly(mo_present, site_id)
+            dd.append(dd_series.iloc[0])
+            try:
+                bi = ut.building_info(site_id)
+                sq = bi['sq_ft']
+            except:
+                print(site_id)    
+                sq = np.nan
+            sq_ft.append(sq)
+
+
+        df_FYtotal['dd'] = dd
+        df_FYtotal['sq_ft'] = sq_ft
+        df_FYtotal.head()
+
+        # Caclulate EUI, ECI
+
+        #Use HDD and SQFT to calculate EUIs and ECI.
+        df_FYtotal['eci'] = df_FYtotal.total_energy_cost / df_FYtotal.sq_ft
+        df_FYtotal['uci'] = df_FYtotal.total_utility_cost / df_FYtotal.sq_ft
+        df_FYtotal['eui'] = df_FYtotal.total_energy_mmbtu * 1e3 / df_FYtotal.sq_ft
+        df_FYtotal['specific_eui'] = df_FYtotal.total_heat_mmbtu * 1e6 / df_FYtotal.dd / df_FYtotal.sq_ft
+
+        #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
+
+        df_export=df_FYtotal[['dd',
+                            'sq_ft',
+                            'electricity_energy_cost',
+                            'electricity_demand_cost',
+                            'electricity_cost', 
+                            'fuel_oil_cost',
+                            'natural_gas_cost',
+                            'district_heat_cost',
+                            'total_energy_cost',
+                            'water_cost',
+                            'sewer_cost',
+                            'total_water_cost',
+                            'total_utility_cost',
+                            'eci',
+                            'uci',
+                            'electricity_energy_usage',
+                            'electricity_demand_usage',
+                            'electricity_mmbtu',
+                            'fuel_oil_usage',
+                            'fuel_oil_mmbtu',
+                            'natural_gas_usage',
+                            'natural_gas_mmbtu',
+                            'district_heat_usage',
+                            'total_heat_mmbtu',
+                            'eui',
+                            'specific_eui',
+                            'total_energy_mmbtu',
+                            'water_usage',
+                            'sewer_usage']]
+
+        df_export.to_excel(f"output/extra_data/FY{year}_Site_Summary_Data.xlsx")
+
+
+ 
+# ---------------------- Site Analysis Table ---------------------------
+
+def Site_spreadsheets(site, df, ut):
+    """ Uses pre-processed billing dataframe and creates spreadsheet for each site. Saves .xlsx 
+        spreadsheet for given site with a row of data for each month.  Returns nothing.
+        """
+    # Filter down to just this site's bills and only services that
+    # are energy services.
+    energy_services = bu.missing_energy_services([])
+    df1 = df.query('site_id==@site') 
+    
+    # Test for valid data
+    if len(df1) == 0:
+        return
+    
+    # Add in degree days to DataFrame
+    months_present = bu.months_present(df1)
+    deg_days = ut.degree_days_monthly(months_present, site)
+    deg_days.set_index(['fiscal_year', 'fiscal_mo'], inplace=True)
+
+
+    # Get building square footage and calculate EUIs and ECI.
+    sq_ft = ut.building_info(site)['sq_ft']
+
+
+    # Summarize Monthly Cost and usage by Service Type
+    df_monthlycost = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='service_type', values='cost', aggfunc=np.sum)
+    df_monthlycost = bu.add_missing_columns(df_monthlycost, bu.missing_services([]))
+
+    # Seperate kWh and kW electricity costs
+    df_units = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='units', values='cost', aggfunc=np.sum)
+    bu.add_missing_columns(df_units, ['kWh', 'kW'])
+    df_monthlycost['electricity_energy'] = df_units['kWh']
+    df_monthlycost['electricity_demand'] = df_units['kW']
+
+    # Add cost suffix
+    df_monthlycost = df_monthlycost.add_suffix('_cost')
+
+    df_monthlycost['total_utility_cost'] = df_monthlycost.sum(axis=1)
+    df_monthlycost['total_water_cost'] = df_monthlycost[['water_cost', 'sewer_cost']].sum(axis=1)
+    df_monthlycost['total_energy_cost'] = df_monthlycost.total_utility_cost - df_monthlycost.total_water_cost
+    df_monthlycost['total_heat_cost'] = df_monthlycost.total_energy_cost - df_monthlycost.electricity_cost
+    df_monthlycost['eci'] = df_monthlycost.total_energy_cost / sq_ft
+    df_monthlycost['uci'] = df_monthlycost.total_utility_cost / sq_ft
+
+    df_monthlycost_rolling = df_monthlycost.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+
+
+    df_monthlyusage = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='service_type', values='usage', aggfunc=np.sum)
+
+    # Seperate kWh and kW electricity costs
+    df_units = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='units', values='usage', aggfunc=np.sum)
+    bu.add_missing_columns(df_units, ['kWh', 'kW'])
+    df_monthlyusage['electricity_energy'] = df_units['kWh']
+    df_monthlyusage['electricity_demand'] = df_units['kW']
+
+    df_monthlyusage = bu.add_missing_columns(df_monthlyusage, bu.missing_services([]))
+
+    # Add usage suffix
+    df_monthlyusage = df_monthlyusage.add_suffix('_usage')
+
+    df_monthlyusage_rolling = df_monthlyusage.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+    df_monthlyusage_rolling['electricity_demand_usage_12mo'] = df_monthlyusage_rolling['electricity_demand_usage_12mo'] / 12
+
+
+    df_monthlyBTU = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='service_type', values='mmbtu', aggfunc=np.sum)
+    df_monthlyBTU = bu.add_missing_columns(df_monthlyBTU, bu.missing_services([]))
+    df_monthlyBTU = df_monthlyBTU.add_suffix('_mmbtu')
+    df_monthlyBTU['total_energy_mmbtu'] = df_monthlyBTU.sum(axis=1)
+    df_monthlyBTU['total_heat_mmbtu'] = df_monthlyBTU.total_energy_mmbtu - df_monthlyBTU.electricity_mmbtu
+    df_monthlyBTU['eui'] = df_monthlyBTU.total_energy_mmbtu * 1e3 / sq_ft
+
+    df_monthlyBTU = pd.merge(df_monthlyBTU, deg_days, how='left', left_index=True, right_index=True)  #right_on=['fiscal_year', 'fiscal_mo'])
+
+    df_monthlyBTU['specific eui'] = df_monthlyBTU.total_heat_mmbtu * 1e6 / df_monthlyBTU.dd / sq_ft
+
+    df_monthlyBTU_rolling = df_monthlyBTU.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+
+    #Merge Dataframes
+
+    df_total = pd.concat([df_monthlycost, df_monthlyusage, df_monthlyBTU, df_monthlycost_rolling, df_monthlyusage_rolling, df_monthlyBTU_rolling], axis=1)
+
+    #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
+
+    df_export=df_total[['dd', 
+                        'electricity_energy_cost',
+                        'electricity_demand_cost',
+                        'electricity_cost', 
+                        'fuel_oil_cost',
+                        'natural_gas_cost',
+                        'district_heat_cost',
+                        'total_energy_cost',
+                        'water_cost',
+                        'sewer_cost',
+                        'total_water_cost',
+                        'total_utility_cost',
+                        'eci',
+                        'uci',
+                        'electricity_energy_usage',
+                        'electricity_demand_usage',
+                        'electricity_mmbtu',
+                        'fuel_oil_usage',
+                        'fuel_oil_mmbtu',
+                        'natural_gas_usage',
+                        'natural_gas_mmbtu',
+                        'district_heat_usage',
+                        'total_heat_mmbtu',
+                        'eui',
+                        'specific eui',
+                        'total_energy_mmbtu',
+                        'water_usage',
+                        'sewer_usage',
+                        'dd_12mo',
+                        'electricity_energy_cost_12mo',
+                        'electricity_demand_cost_12mo',
+                        'electricity_cost_12mo',
+                        'fuel_oil_cost_12mo',
+                        'natural_gas_cost_12mo',
+                        'district_heat_cost_12mo',
+                        'total_heat_cost_12mo',
+                        'total_energy_cost_12mo',
+                        'water_cost_12mo',
+                        'sewer_cost_12mo',
+                        'total_water_cost_12mo',
+                        'total_utility_cost_12mo',
+                        'eci_12mo',
+                        'uci_12mo',
+                        'electricity_energy_usage_12mo',
+                        'electricity_demand_usage_12mo',
+                        'electricity_mmbtu_12mo',
+                        'fuel_oil_usage_12mo',
+                        'fuel_oil_mmbtu_12mo',
+                        'natural_gas_usage_12mo',
+                        'natural_gas_mmbtu_12mo',
+                        'district_heat_usage_12mo',
+                        'total_heat_mmbtu_12mo',
+                        'eui_12mo',
+                        'specific eui_12mo',
+                        'total_energy_mmbtu_12mo',
+                        'water_usage_12mo',
+                        'sewer_usage_12mo']]
+
+    df_export.to_excel(f"output/extra_data/Site_{site}_Monthly_Summary_Data.xlsx")
+
 #******************************************************************************
 #******************************************************************************
 # ----------------------------- Misc Functions --------------------------------
@@ -1411,6 +1684,10 @@ if __name__=="__main__":
     result = ix_template.render(template_data)
     open('output/index.html', 'w').write(result)
 
+    # Run FY_spreadsheets to create FY summary excel files
+    print('Starting FY spreadsheet creation...')
+    FY_spreadsheets(df, util_obj)
+
     # ------ Loop through the sites, creating a report for each
     
     # Get the template used to create the site benchmarking report.
@@ -1423,6 +1700,10 @@ if __name__=="__main__":
         # if site_id < '15711': continue
 
         msg("Site '{}' is being processed...".format(site_id))
+        
+        # Generate site specific spreadsheet
+        Site_spreadsheets(site_id, df, util_obj)
+
 
         # Gather template data from each of the report sections.  The functions
         # return a dictionary with variables needed by the template.  Sometimes other
