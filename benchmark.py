@@ -71,18 +71,23 @@ def preprocess_data():
     This the "preprocess_data.ipynb" was used to develop this code and shows
     intermdediate results from each of the steps.
     """
-    
+
     # --- Read the CSV file and convert the billing period dates into 
     #     real Pandas dates
     fn = settings.UTILITY_BILL_FILE_PATH
     msg('Starting to read Utility Bill Data File.')
     dfu = pd.read_csv(fn, 
-                      parse_dates=['From', 'Thru'],
-                      dtype={'Site ID': 'object', 'Account Number': 'object'}
+                    parse_dates=['From', 'Thru'],
+                    dtype={'Site ID': 'object', 'Account Number': 'object'}
                     )
 
+    #--- Make a utility function object
+    msg('Make an Object containing Useful Utility Functions.')
+    dn = settings.OTHER_DATA_DIR_PATH
+    ut = bu.Util(dfu, dn, settings.ADDITIONAL_GROUPING_COLS)
+
     msg('Removing Unneeded columns and Combining Charges.')
-    
+
     # Filter down to the needed columns and rename them
     cols = [
         ('Site ID', 'site_id'),
@@ -94,26 +99,26 @@ def preprocess_data():
         ('Cost', 'cost'),
         ('Units', 'units'),
     ]
-    
+
     old_cols, new_cols = zip(*cols)         # unpack into old and new column names
     dfu1 = dfu[list(old_cols)].copy()       # select just those columns from the origina dataframe
     dfu1.columns = new_cols                 # rename the columns
-    
+
     # --- Collapse Non-Usage Changes into "Other Charge"
-    
+
     # This cuts the processing time in half due to not having to split a whole 
     # bunch of non-consumption charges.
     dfu1.loc[np.isnan(dfu1.usage), 'item_desc'] = 'Other Charge'
     # Pandas can't do a GroupBy on NaNs, so replace with something
     dfu1.units.fillna('-', inplace=True)   
     dfu1 = dfu1.groupby(['site_id', 
-                         'from_dt', 
-                         'thru_dt', 
-                         'service_type', 
-                         'item_desc', 
-                         'units']).sum()
+                        'from_dt', 
+                        'thru_dt', 
+                        'service_type', 
+                        'item_desc', 
+                        'units']).sum()
     dfu1.reset_index(inplace=True)
-    
+
     # --- Split Each Bill into Multiple Pieces, each within one Calendar Month
 
     msg('Split Bills into Calendar Month Pieces.')
@@ -122,14 +127,14 @@ def preprocess_data():
     for ix, row in dfu1.iterrows():
         # it is *much* faster to modify a dictionary than a Pandas series
         row_tmpl = row.to_dict()   
-    
+
         # Pull out start and end of billing period; can drop the from & thru dates now
         # doing split-up of billing period across months.
         st = row_tmpl['from_dt']
         en = row_tmpl['thru_dt']
         del row_tmpl['from_dt']
         del row_tmpl['thru_dt']
-        
+
         for piece in bu.split_period(st, en):
             new_row = row_tmpl.copy()
             new_row['cal_year'] = piece.cal_year
@@ -138,20 +143,15 @@ def preprocess_data():
             new_row['usage'] *= piece.bill_frac
             new_row['cost'] *= piece.bill_frac
             recs.append(new_row)
-    
+
     dfu2 = pd.DataFrame(recs, index=range(len(recs)))
-    
+
     # --- Sum Up the Pieces by Month
     dfu3 = dfu2.groupby(
         ['site_id', 'service_type', 'cal_year', 'cal_mo', 'item_desc', 'units']
     ).sum()
     dfu3 = dfu3.reset_index()
 
-    #--- Make a utility function object
-    msg('Make an Object containing Useful Utility Functions.')
-    dn = settings.OTHER_DATA_DIR_PATH
-    ut = bu.Util(dfu, dn)
-    
     # --- Add MMBtus Fiscal Year Info and MMBtus
     msg('Add MMBtu Information.')
     mmbtu = []
@@ -172,6 +172,34 @@ def preprocess_data():
     ).sum()
     dfu4 = dfu4.reset_index()
 
+    # Add columns that indicate what type of grouping is being done
+    dfu4['group'] = 'facility'
+
+    df_all_groups = pd.DataFrame()
+    # now create rows for the other grouping columns.
+    for gp_col in settings.ADDITIONAL_GROUPING_COLS:
+        dfu_gp = dfu4.copy()
+        dfu_gp['group'] = gp_col
+        
+        # get a dictionary mapping the site_id into the group id
+        map_to_group = ut.site_to_col_value_dict(gp_col)
+        
+        # fill out the 'site_id' column with group values
+        dfu_gp['site_id'] = dfu_gp['site_id'].map(map_to_group)
+        
+        # Only keep rows that have a site_id
+        dfu_gp = dfu_gp.loc[dfu_gp.site_id.notna()]
+        
+        dfu_gp2 = dfu_gp.groupby(
+            ['group', 'site_id', 'service_type', 'cal_year', 'cal_mo', 'item_desc', 'units']
+        ).sum()
+        dfu_gp2.reset_index(inplace=True)
+        df_all_groups = pd.concat([df_all_groups, dfu_gp2], sort=True, ignore_index=True)
+
+    print(df_all_groups.group.value_counts())
+    # add these records to the prior list of facility records
+    dfu4 = pd.concat([dfu4, df_all_groups], sort=True)
+
     # Add the fiscal year information
     msg('Add Fiscal Year Information.')
     fyr = []
@@ -184,7 +212,7 @@ def preprocess_data():
     dfu4['fiscal_mo'] = fmo
 
     msg('Preprocessing complete!')
-    
+
     return dfu, dfu4, ut
     
 #******************************************************************************
@@ -1683,8 +1711,8 @@ if __name__=="__main__":
 
         template_data = building_info_report(site_id, util_obj, report_date_time)
 
-        report_data = energy_index_report(site_id, df, util_obj)
-        template_data.update(report_data)
+        #report_data = energy_index_report(site_id, df, util_obj)
+        #template_data.update(report_data)
 
         report_data, df_utility_cost = utility_cost_report(site_id, df, util_obj)
         template_data.update(report_data)

@@ -221,13 +221,14 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
 
 class Util:
     
-    def __init__(self, util_df, other_data_pth):
+    def __init__(self, util_df, other_data_pth, addl_grouping_cols):
         """
         util_df: DataFrame containing the raw utility bill data
         other_data_pth: path to the directory containing other application data spreadsheets,
             building info, degree days, etc.
+        addl_grouping_cols: Additional columns in the Buildings.xlsx spread sheet that
+            are used for producing grouped reports (e.g. campus, division).
         """
-        
         # Get Service Type information and create a Fuel Btu dictionary as an
         # object attribute.  Keys are fuel type, fuel unit, both in lower case.
         # Also create a dictionary mapping service types to standard service 
@@ -273,8 +274,8 @@ class Util:
         # account numbers.
         src_list = ['source_{}'.format(s) for s in all_services]
         acct_list = ['acct_{}'.format(s) for s in all_services]
-        dict_keys = list(df_bldg.columns) + src_list + acct_list
-            
+        dict_keys = list(df_bldg.columns) + src_list + acct_list + ['facility_list', 'grouping']
+
         # make a dictionary with default values for all fields (use empty
         # string for defaults)
         default_info = dict(zip(dict_keys, [''] * len(dict_keys)))
@@ -293,53 +294,98 @@ class Util:
                 df_svc = dfs2[dfs2.svc_cat==service_cat]
                 last_bill_date = df_svc.Thru.max()
                 df_last_bill = df_svc[df_svc.Thru == last_bill_date]
-                
+
                 # could be multiple account numbers. Get them all and
                 # separate with commas
                 accts = df_last_bill['Account Number'].unique()
                 acct_str = ', '.join(accts)
                 # Assume only one provider.
                 provider = df_last_bill['Vendor Name'].iloc[0]
-                
+
                 return provider, acct_str
-            
+
             except:
                 return '', ''
 
         # create a dictionary to map site_id to info about the building
         self._bldg_info = {}
-        
+
         # separately, create a list that will be used to make a DataFrame
         # that also contains this info.
         rec_list = []
-        
+
         for ix, row in df_bldg.iterrows():
             # Start the record of building information (as a dictionary)
             # and fill out the info from the spreadsheet first.
             rec = default_info.copy()
             rec.update(row.to_dict())
+            # these records are part of the facility grouping
+            rec['grouping'] = 'facility'
 
             # now find providers and account numbers from raw utility file.
             df_site = util_df[util_df['Site ID']==ix]
             for svc_cat in all_services:
                 source, accounts = find_src_acct(df_site, svc_cat)
+                #print('source_{}'.format(svc_cat), 'acct_{}'.format(svc_cat))
                 rec['source_{}'.format(svc_cat)] = source
                 rec['acct_{}'.format(svc_cat)] = accounts
-                
             self._bldg_info[row.name] = rec
-            
+
             # add in the site_id to the record so the DataFrame has this
             # column.
             rec['site_id'] = row.name
             rec_list.append(rec)
+
+        # --- Add in information for the other grouping columns, which combine together
+        # sites. Use the value in the grouping column 
+        # as the 'site_id' for the new record.
+        # This presumes that group items are unique across all the additional
+        # groups.  e.g. 'FNSB' is a site_category, but it can't appear as a 
+        # campus or division.
+        df_just_facilities = pd.DataFrame(rec_list)  # make a DataFrame of the records so far
+        for gp_col in addl_grouping_cols:
             
+            # Loop through the possible values in this group
+            for id in df_bldg[gp_col].unique():
+                
+                # Don't process NaN entries
+                if type(id) != str:
+                    continue
+            
+                rec = default_info.copy()
+                rec['site_id'] = id
+                rec['site_name'] = f'{gp_col} - {id}'    # combine grouping type and ID for name.
+                rec['site_category'] = gp_col
+                rec['grouping'] =  gp_col
+
+                # get a DataFrame of all the site records that are part of this group.
+                df_sites_for_gp = df_just_facilities[df_just_facilities[gp_col]==id]
+                
+                # fill out fields of info that involve all of the sites.
+                rec['facility_list'] = ', '.join(df_sites_for_gp.site_name.values)
+                
+                # Do the utilities and the account numbers
+                for col in src_list + acct_list:
+                    rec[col] = ', '.join(df_sites_for_gp[col].unique())
+
+                # Square feet totals
+                rec['sq_ft'] = df_sites_for_gp.sq_ft.sum()
+                
+                # Use the degree-day site that is most prevalent, it appears 
+                # first in the value_counts.
+                rec['dd_site'] = df_sites_for_gp.dd_site.value_counts().index[0]
+                
+                self._bldg_info[id] = rec
+                rec_list.append(rec)
+
         # Make a DataFrame, indexed on site_id to hold this building info
         # as well.
         self._bldg_info_df = pd.DataFrame(rec_list)
         self._bldg_info_df.set_index('site_id', inplace=True)
-        
+
         # make a list of site categories and their associated buildings
-        df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
+        df_sites = pd.DataFrame(list(self._bldg_info.values()))
+        df_sites = df_sites[['site_id', 'site_name', 'site_category']]  
         cats = df_sites.groupby('site_category')
         self._site_categories = []
         for nm, gp in cats:
@@ -360,7 +406,7 @@ class Util:
         for ix, row in df_dd.iterrows():
             f_yr, f_mo = calendar_to_fiscal(row.month.year, row.month.month)
             self._dd[(f_yr, f_mo, ix)] = row.hdd65
-  
+
     def building_info(self, site_id):
         """Returns building information, a dictionary, for the facility
         identified by 'site_id'.  Throws a KeyError if the site is not present.
