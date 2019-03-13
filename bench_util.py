@@ -221,7 +221,7 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
 
 class Util:
     
-    def __init__(self, util_df, other_data_pth, addl_grouping_cols=[]):
+    def __init__(self, util_df, other_data_pth, addl_grouping_cols):
         """
         util_df: DataFrame containing the raw utility bill data
         other_data_pth: path to the directory containing other application data spreadsheets,

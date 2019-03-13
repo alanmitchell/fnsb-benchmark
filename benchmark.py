@@ -84,7 +84,7 @@ def preprocess_data():
     #--- Make a utility function object
     msg('Make an Object containing Useful Utility Functions.')
     dn = settings.OTHER_DATA_DIR_PATH
-    ut = bu.Util(dfu, dn)
+    ut = bu.Util(dfu, dn, settings.ADDITIONAL_GROUPING_COLS)
 
     msg('Removing Unneeded columns and Combining Charges.')
 
@@ -1711,8 +1711,8 @@ if __name__=="__main__":
 
         template_data = building_info_report(site_id, util_obj, report_date_time)
 
-        report_data = energy_index_report(site_id, df, util_obj)
-        template_data.update(report_data)
+        #report_data = energy_index_report(site_id, df, util_obj)
+        #template_data.update(report_data)
 
         report_data, df_utility_cost = utility_cost_report(site_id, df, util_obj)
         template_data.update(report_data)
