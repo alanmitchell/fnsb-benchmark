@@ -221,11 +221,13 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
 
 class Util:
     
-    def __init__(self, util_df, other_data_pth):
+    def __init__(self, util_df, other_data_pth, addl_grouping_cols=[]):
         """
         util_df: DataFrame containing the raw utility bill data
         other_data_pth: path to the directory containing other application data spreadsheets,
             building info, degree days, etc.
+        addl_grouping_cols: Additional columns in the Buildings.xlsx spread sheet that
+            are used for producing grouped reports (e.g. campus, division).
         """
         
         # Get Service Type information and create a Fuel Btu dictionary as an
@@ -332,7 +334,12 @@ class Util:
             # column.
             rec['site_id'] = row.name
             rec_list.append(rec)
-            
+
+        # --- Add additional records for the other grouping columns.  Use the 
+        # value in the grouping column as the 'site_id' for the new record.
+
+
+
         # Make a DataFrame, indexed on site_id to hold this building info
         # as well.
         self._bldg_info_df = pd.DataFrame(rec_list)
