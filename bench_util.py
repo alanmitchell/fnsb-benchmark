@@ -354,7 +354,8 @@ class Util:
             
                 rec = default_info.copy()
                 rec['site_id'] = id
-                rec['site_name'] = id    # reuse the group id as the site name as well.
+                rec['site_name'] = f'{gp_col} - {id}'    # combine grouping type and ID for name.
+                rec['site_category'] = gp_col
                 rec['grouping'] =  gp_col
 
                 # get a DataFrame of all the site records that are part of this group.
@@ -383,7 +384,8 @@ class Util:
         self._bldg_info_df.set_index('site_id', inplace=True)
 
         # make a list of site categories and their associated buildings
-        df_sites = df_bldg.reset_index()[['site_id', 'site_name', 'site_category']]
+        df_sites = pd.DataFrame(list(self._bldg_info.values()))
+        df_sites = df_sites[['site_id', 'site_name', 'site_category']]  
         cats = df_sites.groupby('site_category')
         self._site_categories = []
         for nm, gp in cats:
