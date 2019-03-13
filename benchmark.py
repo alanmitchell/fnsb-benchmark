@@ -324,8 +324,9 @@ def energy_index_report(site, df, ut):
         electric_mo_count = bu.month_count(electric_months_present)
         last_complete_year = max(electric_mo_count[electric_mo_count==12].index)
 
-    # Filter down to just the records of the targeted fiscal year
-    df1 = df.query('fiscal_year == @last_complete_year')
+    # Filter down to just the records of the targeted fiscal year and group
+    site_grp = ut.building_info(site)['grouping']
+    df1 = df.query('fiscal_year == @last_complete_year and group == @site_grp')
 
     # Get Total Utility cost by building. This includes non-energy utilities as well.
     df2 = df1.pivot_table(index='site_id', values=['cost'], aggfunc=np.sum)
@@ -1711,8 +1712,8 @@ if __name__=="__main__":
 
         template_data = building_info_report(site_id, util_obj, report_date_time)
 
-        #report_data = energy_index_report(site_id, df, util_obj)
-        #template_data.update(report_data)
+        report_data = energy_index_report(site_id, df, util_obj)
+        template_data.update(report_data)
 
         report_data, df_utility_cost = utility_cost_report(site_id, df, util_obj)
         template_data.update(report_data)
