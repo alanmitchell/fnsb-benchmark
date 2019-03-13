@@ -1,3 +1,5 @@
+testing/*.xlsx
+
 .vscode/
 .settings.py.swp
 
