@@ -1612,6 +1612,15 @@ def Site_spreadsheets(site, df, ut):
 
     df_export.to_excel(f"output/extra_data/Site_{site}_Monthly_Summary_Data.xlsx")
 
+def scorecard(site, df_site, df_fy, ut):
+    # Make graphs and save into images directory; use graph_util to get
+    # graph file name and graph URL.
+    # Return a dictionary 'template_data' that will feed your template.
+    # Make a scorecard.html template in the templates/sites directory; 
+    # pattern after the index.html file there.
+    template_data = {}
+    return template_data
+
 #******************************************************************************
 #******************************************************************************
 # ----------------------------- Misc Functions --------------------------------
@@ -1692,7 +1701,10 @@ if __name__=="__main__":
     
     # Get the template used to create the site benchmarking report.
     site_template = template_util.get_template('sites/index.html')
-    
+
+    # Get the template used to create the scorecard.
+    # score_template = template_util.get_template('sites/scorecard.html')
+
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
@@ -1750,7 +1762,13 @@ if __name__=="__main__":
         result = site_template.render(template_data)
         with open('output/sites/{}.html'.format(site_id), 'w') as fout:
             fout.write(result)
-        
+
+        # Make Scorecard and write out scorecard HTML file.
+        # score_data = scorecard(site, df_xyz, df_abc, ut)
+        # result = score_template.render(score_data)
+        # with open(f'output/sites/{site_id}_score.html', 'w') as fout:
+        #     fout.write(result)
+
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
             break
