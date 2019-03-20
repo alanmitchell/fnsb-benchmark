@@ -1,0 +1,74 @@
+{% extends "layout_no_nav.html" %}
+
+{% set root_path = ".." %}
+
+{% block page_title %}{{ facility_name }}{% endblock %}
+
+{% block body %}
+<h1>Energy Scorecard: {{ facility_name }}</h1>
+
+<div class="row">
+    
+  <div class="col-md-2">
+
+    <table class="table table-bordered table-hover table-striped centered valign-middle">
+      <thead>
+        <tr>
+          <th>Energy Type</th>
+          <th>12-mo MMBTU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Electricity</td>
+          <td>123</td>
+        </tr>
+        <tr>
+            <td>Natural Gas</td>
+            <td>45</td>
+        </tr>
+        <tr>
+          <td>Fuel Oil</td>
+          <td>238</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="col-md-4">
+      <img class="graph" src="../images/03_energy_usage_pie_2018.png" />
+  </div>
+
+  <div class="col-md-2">
+      <table class="table table-bordered table-hover table-striped centered valign-middle">
+          <thead>
+            <tr>
+              <th>Utility Type</th>
+              <th>% Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Electricity</td>
+              <td>50%</td>
+            </tr>
+            <tr>
+                <td>Natural Gas</td>
+                <td>15%</td>
+            </tr>
+            <tr>
+              <td>Fuel Oil</td>
+              <td>35%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+  <div class="col-md-4">
+      <img class="graph" src="../images/03_energy_cost_pie_2018.png" />
+  </div>
+
+</div>
+
+{% endblock %}
