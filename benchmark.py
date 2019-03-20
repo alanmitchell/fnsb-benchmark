@@ -1387,7 +1387,9 @@ def FY_spreadsheets(dfp, ut):
             df_FYusage['electricity_demand'] = pd.pivot_table(df_fy, index=['site_id'], columns='units', values='usage', aggfunc=np.sum)['kW']
         except:
             df_FYusage['electricity_demand'] = 0.0
+        df_FYusage['electricity_avg_demand'] = df_FYusage['electricity_energy'] / 365
         df_FYusage = bu.add_missing_columns(df_FYusage, bu.missing_services([]))
+        
         df_FYusage = df_FYusage.add_suffix('_usage')
 
         # Create pivot table of usage data in mmbtu units
@@ -1396,7 +1398,7 @@ def FY_spreadsheets(dfp, ut):
         df_FYBTU = df_FYBTU.add_suffix('_mmbtu')
         df_FYBTU['total_energy_mmbtu'] = df_FYBTU.sum(axis=1)
         df_FYBTU['total_heat_mmbtu'] = df_FYBTU.total_energy_mmbtu - df_FYBTU.electricity_mmbtu
-
+        
         #Merge Dataframes
         df_FYtotal = pd.concat([df_FYcost, df_FYusage, df_FYBTU], axis=1)
 
@@ -1422,7 +1424,8 @@ def FY_spreadsheets(dfp, ut):
 
         df_FYtotal['dd'] = dd
         df_FYtotal['sq_ft'] = sq_ft
-        df_FYtotal.head()
+        
+        
 
         # Caclulate EUI, ECI
 
@@ -1431,7 +1434,8 @@ def FY_spreadsheets(dfp, ut):
         df_FYtotal['uci'] = df_FYtotal.total_utility_cost / df_FYtotal.sq_ft
         df_FYtotal['eui'] = df_FYtotal.total_energy_mmbtu * 1e3 / df_FYtotal.sq_ft
         df_FYtotal['specific_eui'] = df_FYtotal.total_heat_mmbtu * 1e6 / df_FYtotal.dd / df_FYtotal.sq_ft
-
+        df_FYtotal['heat_mmbtu_per_hdd'] = df_FYtotal['total_heat_mmbtu'] / df_FYtotal['dd']
+        df_FYtotal['electricity_peak2avg_ratio'] = df_FYtotal['electricity_avg_demand_usage'] / df_FYtotal['electricity_demand_usage']
         #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
 
         df_export=df_FYtotal[['dd',
@@ -1450,7 +1454,9 @@ def FY_spreadsheets(dfp, ut):
                             'eci',
                             'uci',
                             'electricity_energy_usage',
+                            'electricity_avg_demand_usage',
                             'electricity_demand_usage',
+                            'electricity_peak2avg_ratio',
                             'electricity_mmbtu',
                             'fuel_oil_usage',
                             'fuel_oil_mmbtu',
@@ -1460,6 +1466,7 @@ def FY_spreadsheets(dfp, ut):
                             'total_heat_mmbtu',
                             'eui',
                             'specific_eui',
+                            'heat_mmbtu_per_hdd',
                             'total_energy_mmbtu',
                             'water_usage',
                             'sewer_usage']]
@@ -1474,9 +1481,7 @@ def Site_spreadsheets(site, df, ut):
     """ Uses pre-processed billing dataframe and creates spreadsheet for each site. Saves .xlsx 
         spreadsheet for given site with a row of data for each month.  Returns nothing.
         """
-    # Filter down to just this site's bills and only services that
-    # are energy services.
-    energy_services = bu.missing_energy_services([])
+
     df1 = df.query('site_id==@site') 
     
     # Test for valid data
@@ -1539,9 +1544,9 @@ def Site_spreadsheets(site, df, ut):
     df_monthlyBTU['total_energy_mmbtu'] = df_monthlyBTU.sum(axis=1)
     df_monthlyBTU['total_heat_mmbtu'] = df_monthlyBTU.total_energy_mmbtu - df_monthlyBTU.electricity_mmbtu
     df_monthlyBTU['eui'] = df_monthlyBTU.total_energy_mmbtu * 1e3 / sq_ft
-
+    
     df_monthlyBTU = pd.merge(df_monthlyBTU, deg_days, how='left', left_index=True, right_index=True)  #right_on=['fiscal_year', 'fiscal_mo'])
-
+    df_monthlyBTU['heat_mmbtu_per_hdd'] = df_monthlyBTU['total_heat_mmbtu'] / df_monthlyBTU['dd']
     df_monthlyBTU['specific eui'] = df_monthlyBTU.total_heat_mmbtu * 1e6 / df_monthlyBTU.dd / sq_ft
 
     df_monthlyBTU_rolling = df_monthlyBTU.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
@@ -1549,7 +1554,8 @@ def Site_spreadsheets(site, df, ut):
     #Merge Dataframes
 
     df_total = pd.concat([df_monthlycost, df_monthlyusage, df_monthlyBTU, df_monthlycost_rolling, df_monthlyusage_rolling, df_monthlyBTU_rolling], axis=1)
-
+    
+        
     #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
 
     df_export=df_total[['dd', 
@@ -1577,6 +1583,7 @@ def Site_spreadsheets(site, df, ut):
                         'total_heat_mmbtu',
                         'eui',
                         'specific eui',
+                        'heat_mmbtu_per_hdd',
                         'total_energy_mmbtu',
                         'water_usage',
                         'sewer_usage',
@@ -1606,6 +1613,7 @@ def Site_spreadsheets(site, df, ut):
                         'total_heat_mmbtu_12mo',
                         'eui_12mo',
                         'specific eui_12mo',
+                        'heat_mmbtu_per_hdd_12mo',
                         'total_energy_mmbtu_12mo',
                         'water_usage_12mo',
                         'sewer_usage_12mo']]
@@ -1704,6 +1712,8 @@ if __name__=="__main__":
 
     # Get the template used to create the scorecard.
     # score_template = template_util.get_template('sites/scorecard.html')
+    
+
 
     site_count = 0    # tracks number of site processed
     for site_id in util_obj.all_sites():
