@@ -1473,7 +1473,6 @@ def FY_spreadsheets(dfp, ut):
 
         df_export.to_excel(f"output/extra_data/FY{year}_Site_Summary_Data.xlsx")
 
-
  
 # ---------------------- Site Analysis Table ---------------------------
 
@@ -1620,13 +1619,25 @@ def Site_spreadsheets(site, df, ut):
 
     df_export.to_excel(f"output/extra_data/Site_{site}_Monthly_Summary_Data.xlsx")
 
-def scorecard(site, df_site, df_fy, ut):
-    # Make graphs and save into images directory; use graph_util to get
-    # graph file name and graph URL.
-    # Return a dictionary 'template_data' that will feed your template.
-    # Make a scorecard.html template in the templates/sites directory; 
-    # pattern after the index.html file there.
-    template_data = {}
+def scorecard(site, ut):      # ultimately will be similar to:  def scorecard(site, df_site, df_fy, ut)
+    """Creates the graphs and data for the Energy Scorecard for one site.
+    """
+
+    # get general information about this site
+    bldg_info = ut.building_info(site)
+
+    # start the template data dictionary with the building name
+    template_data = {'facility_name': bldg_info['site_name']}
+
+    # calculate other data for the template here and add the data
+    # to additional keys in the template_data dictionary.
+
+    # For each graph, use gu.graph_filename_url() to get a file name for the
+    # graph and the URL to put in the template dictionary; this will link to the 
+    # in the Scorecard HTML page.
+    # After coding the graph, save it to the filename you got from above
+    # call.
+
     return template_data
 
 #******************************************************************************
@@ -1711,8 +1722,8 @@ if __name__=="__main__":
     site_template = template_util.get_template('sites/index.html')
 
     # Get the template used to create the scorecard.
-    # score_template = template_util.get_template('sites/scorecard.html')
-    
+
+    score_template = template_util.get_template('sites/scorecard.html')
 
 
     site_count = 0    # tracks number of site processed
@@ -1774,10 +1785,10 @@ if __name__=="__main__":
             fout.write(result)
 
         # Make Scorecard and write out scorecard HTML file.
-        # score_data = scorecard(site, df_xyz, df_abc, ut)
-        # result = score_template.render(score_data)
-        # with open(f'output/sites/{site_id}_score.html', 'w') as fout:
-        #     fout.write(result)
+        score_data = scorecard(site_id, util_obj)
+        result = score_template.render(score_data)
+        with open(f'output/sites/{site_id}_score.html', 'w') as fout:
+            fout.write(result)
 
         site_count += 1
         if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
