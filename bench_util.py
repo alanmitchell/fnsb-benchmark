@@ -218,7 +218,7 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
     
     return result
 
-def non_zero_cols(df):
+def non_zero_svcs(df):
     """Used to identify the utility services (from the 'all_services' list) that
     have non-zero columns in the DataFrame 'df'.  Returns a dictionary keyed on
     service name, and the value is either or True or False indicating whether that

@@ -637,7 +637,7 @@ def utility_cost_report(site, df, ut):
     # Put results into the final dictionary that will be passed to the Template.
     # A function is used to convert the DataFrame into a list of dictionaries.
     # Also identify the services with non-zero columns in the DataFrame
-    non_zero = bu.non_zero_cols(df2)
+    non_zero = bu.non_zero_svcs(df2)
     template_data = dict(
         utility_cost_overview = dict(
             graphs=[g1_url, g2_url],
