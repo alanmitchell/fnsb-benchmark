@@ -218,6 +218,35 @@ def df_to_dictionaries(df, change_names={}, include_index=True):
     
     return result
 
+def non_zero_cols(df):
+    """Used to identify the utility services (from the 'all_services' list) that
+    have non-zero columns in the DataFrame 'df'.  Returns a dictionary keyed on
+    service name, and the value is either or True or False indicating whether that
+    service has a non-zero column in df.
+    """
+    # Made a dictionary keyed on services.  The values will be booleans indicating
+    # whether this service has a non-zero column in the DataFrame 'df'. Initialize
+    # all services to False.
+    nz = dict(zip(all_services, [False] * len(all_services)))
+    
+    # Loop through the columns in the DataFrame.  If the column is non-zero,
+    # mark the appropriate service in the dictionary as True.
+    for col in df.columns:
+        # Use the sum() to test whether non-zero.  It will give a number
+        # even if there are NaN's in the column.  Could give a zero sum
+        # if there are offsetting postive and negative values, but that
+        # situation is not normally present in this dataset.
+        if df[col].sum() != 0.0:
+            # a non-zero column.  See if this column matches a service
+            for svc in all_services:
+                if svc in col:      # tests if service name is part of the column name
+                    # mark this service as having a non-zero column
+                    nz[svc] = True
+                    # don't test any more services
+                    break
+                    
+    return nz
+
 
 class Util:
     

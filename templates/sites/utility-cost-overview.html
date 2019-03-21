@@ -8,21 +8,22 @@
   </div>
   <div class="row">
     <div class="col-12">
+      {% set incl = utility_cost_overview.table.non_zero %}
       <table class="table table-bordered table-hover table-striped centered valign-middle">
         <thead>
           <tr>
             <th>Fiscal Year</th>
             <th>HDD</th>
-            <th>Electricity</th>
-            <th>Fuel Oil</th>
-            <th>Natural Gas</th>
-            <th>District Heat</th>
-            <th>Propane</th>
-            <th>Wood</th>
-            <th>Coal</th>
-            <th>Water</th>
-            <th>Sewer</th>
-            <th>Refuse</th>
+            {% if incl.electricity %}<th>Electricity</th>{% endif %}
+            {% if incl.fuel_oil %}<th>Fuel Oil</th>{% endif %}
+            {% if incl.natural_gas %}<th>Natural Gas</th>{% endif %}
+            {% if incl.district_heat %}<th>District Heat</th>{% endif %}
+            {% if incl.propane %}<th>Propane</th>{% endif %}
+            {% if incl.wood %}<th>Wood</th>{% endif %}
+            {% if incl.coal %}<th>Coal</th>{% endif %}
+            {% if incl.water %}<th>Water</th>{% endif %}
+            {% if incl.sewer %}<th>Sewer</th>{% endif %}
+            {% if incl.refuse %}<th>Refuse</th>{% endif %}
             <th>Total</th>
             <th>% Change</th>
           </tr>
@@ -32,16 +33,16 @@
           <tr>
             <td>{{ row.fiscal_year | int }}</td>
             <td>{{ row.hdd | number }}</td>
-            <td>{{ row.electricity | money }}</td>
-            <td>{{ row.fuel_oil | money }}</td>
-            <td>{{ row.natural_gas | money }}</td>
-            <td>{{ row.district_heat | money }}</td>
-            <td>{{ row.propane | money }}</td>
-            <td>{{ row.wood | money }}</td>
-            <td>{{ row.coal | money }}</td>
-            <td>{{ row.water | money }}</td>
-            <td>{{ row.sewer | money }}</td>
-            <td>{{ row.refuse | money }}</td>
+            {% if incl.electricity %}<td>{{ row.electricity | money }}</td>{% endif %}
+            {% if incl.fuel_oil %}<td>{{ row.fuel_oil | money }}</td>{% endif %}
+            {% if incl.natural_gas %}<td>{{ row.natural_gas | money }}</td>{% endif %}
+            {% if incl.district_heat %}<td>{{ row.district_heat | money }}</td>{% endif %}
+            {% if incl.propane %}<td>{{ row.propane | money }}</td>{% endif %}
+            {% if incl.wood %}<td>{{ row.wood | money }}</td>{% endif %}
+            {% if incl.coal %}<td>{{ row.coal | money }}</td>{% endif %}
+            {% if incl.water %}<td>{{ row.water | money }}</td>{% endif %}
+            {% if incl.sewer %}<td>{{ row.sewer | money }}</td>{% endif %}
+            {% if incl.refuse %}<td>{{ row.refuse | money }}</td>{% endif %}
             <td>{{ row.total | money }}</td>
             <td>{{ row.pct_change | percent }}</td>
           </tr>
