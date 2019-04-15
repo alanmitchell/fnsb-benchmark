@@ -44,6 +44,7 @@ import os
 import pprint
 import datetime
 import warnings
+import multiprocessing
 import pandas as pd
 import numpy as np
 import bench_util as bu
@@ -1802,14 +1803,9 @@ if __name__=="__main__":
         # the list
         site_list = site_list[:settings.MAX_NUMBER_SITES_TO_RUN]
         msg('Site List Created')
-    
-    if settings.PROCESS_COUNT > 1:
-        import multiprocessing
-        with multiprocessing.Pool(processes=settings.PROCESS_COUNT) as pool:
-            pool.map(run_site, site_list)
-    else:
-        for site in site_list:
-            run_site(site)
+        
+    with multiprocessing.Pool(processes=settings.PROCESS_COUNT) as pool:
+        pool.map(run_site, site_list)
 
     print()
     msg('Benchmarking Script Complete!')
