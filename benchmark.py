@@ -1721,7 +1721,7 @@ if __name__=="__main__":
     # Run FY_spreadsheets to create FY summary excel files
     print('Starting FY spreadsheet creation...')
     FY_spreadsheets(df, util_obj)
-    print('FY spreadsheets complete...')
+
     # ------ Loop through the sites, creating a report for each
     
     # Get the template used to create the site benchmarking report.
@@ -1759,7 +1759,6 @@ if __name__=="__main__":
         # energy services. Only do energy reports if there are some energy
         # services
         energy_services = bu.missing_energy_services([])
-        
         df1 = df.query('site_id==@site_id and service_type==@energy_services')
         if not df1.empty:
 
@@ -1797,13 +1796,10 @@ if __name__=="__main__":
 
     # all sites to run
     site_list = util_obj.all_sites()
-    print('site list checkpoint')
     if settings.MAX_NUMBER_SITES_TO_RUN:
         # it was requested to run a shorter set of sites, so truncate
         # the list
         site_list = site_list[:settings.MAX_NUMBER_SITES_TO_RUN]
-        msg('Site List Created')
-        
     with multiprocessing.Pool(processes=settings.PROCESS_COUNT) as pool:
         pool.map(run_site, site_list)
 
