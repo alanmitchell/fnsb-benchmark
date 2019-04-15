@@ -44,13 +44,6 @@ MAX_NUMBER_SITES_TO_RUN = 0
 # the grouping information.
 ADDITIONAL_GROUPING_COLS = ['group', 'division', 'campus', 'primary_func']
 
-# This is the Number of Processes to spin up on your computer when doing the
-# site by site analysis.  This will greatly speed up processing if you have
-# multiple processor cores on your machine.  Maximum speed up will be reached
-# when the value below is set to the number of cores on your machine.  Using
-# a smaller value will leave some CPU resource for other tasks.
-PROCESS_COUNT = 4
-
 # ------------------------------------------------------------------------------
 # The settings below here only apply to use of this script with AHFC ARIS data.
 
