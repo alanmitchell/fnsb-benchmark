@@ -44,7 +44,6 @@ import os
 import pprint
 import datetime
 import warnings
-import multiprocessing
 import pandas as pd
 import numpy as np
 import bench_util as bu
@@ -1433,7 +1432,7 @@ def FY_spreadsheets(dfp, ut):
         
         
 
-        # Calculate EUI, ECI
+        # Caclulate EUI, ECI
 
         #Use HDD and SQFT to calculate EUIs and ECI.
         df_FYtotal['eci'] = df_FYtotal.total_energy_cost / df_FYtotal.sq_ft
@@ -1732,15 +1731,17 @@ if __name__=="__main__":
     score_template = template_util.get_template('sites/scorecard.html')
 
 
-    def run_site(site_id):
+    site_count = 0    # tracks number of site processed
+    for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        # if site_id < '15711': return
+        # if site_id < '15711': continue
 
         msg("Site '{}' is being processed...".format(site_id))
         
         # Generate site specific spreadsheet
         Site_spreadsheets(site_id, df, util_obj)
+
 
         # Gather template data from each of the report sections.  The functions
         # return a dictionary with variables needed by the template.  Sometimes other
@@ -1794,14 +1795,9 @@ if __name__=="__main__":
         with open(f'output/sites/{site_id}_score.html', 'w') as fout:
             fout.write(result)
 
-    # all sites to run
-    site_list = util_obj.all_sites()
-    if settings.MAX_NUMBER_SITES_TO_RUN:
-        # it was requested to run a shorter set of sites, so truncate
-        # the list
-        site_list = site_list[:settings.MAX_NUMBER_SITES_TO_RUN]
-    with multiprocessing.Pool(processes=settings.PROCESS_COUNT) as pool:
-        pool.map(run_site, site_list)
-
+        site_count += 1
+        if site_count == settings.MAX_NUMBER_SITES_TO_RUN:
+            break
+    
     print()
     msg('Benchmarking Script Complete!')
