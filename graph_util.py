@@ -250,7 +250,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
                    np.sort(list(df[fiscal_year_col].unique())))
 
         df['total_cost'] = df[column_name_list].sum(axis=1)
-        ax.set_ylim(bottom=0, top=df.total_cost.max() + df.total_cost.max()*0.10)
+        ax.set_ylim(bottom=-0.001, top=df.total_cost.max() + df.total_cost.max()*0.10)
 
         # Format the y-axis so a comma is displayed for thousands
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -536,7 +536,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
         plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
                    np.sort(list(df[fiscal_year_col].unique())))
         
-        ax.set_ylim(bottom=0, top=previous_col_name.max() + previous_col_name.max()*0.10)
+        ax.set_ylim(bottom=-0.001, top=previous_col_name.max() + previous_col_name.max()*0.10)
         
         # Create the line on the same graph but on a separate axis.
         ax2 = ax.twinx()
@@ -544,7 +544,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
         ax2.set_ylabel(ylabel2)
         
         # Ensure that the axis starts at 0.
-        ax2.set_ylim(bottom=0, top=df_line[line_col[0]].max() + df_line[line_col[0]].max()*0.10)
+        ax2.set_ylim(bottom=-0.001, top=df_line[line_col[0]].max() + df_line[line_col[0]].max()*0.10)
         
         # Format the y-axis so a comma is displayed for thousands
         ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
