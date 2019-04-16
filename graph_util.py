@@ -11,6 +11,10 @@ import shutil
 import os
 from matplotlib import font_manager as fm
 
+# Needed to avoid warning about datetime converters.
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 # Set the matplotlib settings (eventually this will go at the top of the graph_util)
 mpl.rcParams['axes.labelsize'] = 16
 mpl.rcParams['axes.titlesize'] = 24
