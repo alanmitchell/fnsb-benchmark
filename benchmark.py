@@ -1032,7 +1032,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     heating_cost_and_use = pd.merge(heating_cost, heating_usage, left_on='fiscal_year', right_index=True, how='right')
 
     # Put DataFrame in ascending order to calculate percent change
-    heating_cost_and_use.sort_values('fiscal_year', ascending=True, inplace=True)
+    heating_cost_and_use.sort_index(ascending=True, inplace=True)
 
     # This will be used to shorten final dataframe
     final_cost_col_list = list(cost_cols)
@@ -1044,7 +1044,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
         final_cost_col_list.append(new_col)
 
     # Back to descending order
-    heating_cost_and_use.sort_values('fiscal_year', ascending=False, inplace=True)
+    heating_cost_and_use.sort_index(ascending=False, inplace=True)
 
     # Create unit cost columns
     for col in cost_cols:
