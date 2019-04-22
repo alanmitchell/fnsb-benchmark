@@ -128,6 +128,7 @@ def add_month_count_column_by_site(df_target, df_detail, yr_col='fiscal_year', m
     return df_target.merge(df_mo_count, how='left', left_index=True, right_index=True)
 
 # List of all possible services
+
 all_services = [
     'fuel_oil',
     'natural_gas',
@@ -139,7 +140,8 @@ all_services = [
     'water',
     'sewer',
     'refuse'
-]
+    ]
+
 
 all_energy_services = [
     'fuel_oil',
@@ -149,7 +151,8 @@ all_energy_services = [
     'wood',
     'district_heat',
     'coal'
-]
+    ]
+
 
 all_heat_services = [
     'fuel_oil',
@@ -158,7 +161,8 @@ all_heat_services = [
     'wood',
     'district_heat',
     'coal'
-]
+    ]
+
 
 def missing_services(services_present):
     """Returns a list of the Service Types that are *not* present in the 

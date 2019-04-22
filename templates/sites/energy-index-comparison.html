@@ -36,6 +36,7 @@
   {% set data = energy_index_comparison.details_table %}
   <div class="row">
     <div class="col-12">
+      {% set incl = energy_index_comparison.non_zero %}
       <table class="table table-bordered table-hover centered valign-middle">
         <thead>
           <tr>
@@ -85,7 +86,7 @@
             <td>{{ data.pct.total_mmbtu | percent }}</td>
             <td>{{ data.rank.total_mmbtu | number }}</td
           </tr>
-          <tr>
+          {% if incl.electricity %}<tr>
             <th rowspan="4" class="wide">Electricity</th>
             <td>kWh</td>
             <td>{{ data.bldg.electricity_kwh | number }}</td>
@@ -113,8 +114,8 @@
             <td>{{ data.all.electricity_cost | money }}</td>
             <td>{{ data.pct.electricity_cost | percent }}</td>
             <td>{{ data.rank.electricity_cost | number }}</td>
-          </tr>
-          <tr>
+          </tr>{% endif %}
+          {% if incl.fuel_oil %}<tr>
             <th rowspan="2" class="wide">Oil #1</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.fuel_oil_mmbtu | number }}</td>
@@ -128,8 +129,8 @@
             <td>{{ data.all.fuel_oil_cost | money }}</td>
             <td>{{ data.pct.fuel_oil_cost | percent }}</td>
             <td>{{ data.rank.fuel_oil_cost | number }}</td>
-          </tr>
-          <tr>
+          </tr>{% endif %}
+          {% if incl.natural_gas %}<tr>
             <th rowspan="2" class="wide">Natural Gas</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.natural_gas_mmbtu | number }}</td>
@@ -143,8 +144,8 @@
             <td>{{ data.all.natural_gas_cost | money }}</td>
             <td>{{ data.pct.natural_gas_cost | percent }}</td>
             <td>{{ data.rank.natural_gas_cost | number }}</td>
-          </tr>
-          <tr>
+          </tr>{% endif %}
+          {% if incl.district_heat %}<tr>
             <th rowspan="2" class="wide">District Heat</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.district_heat_mmbtu | number }}</td>
@@ -158,8 +159,8 @@
             <td>{{ data.all.district_heat_cost | money }}</td>
             <td>{{ data.pct.district_heat_cost | percent }}</td>
             <td>{{ data.rank.district_heat_cost | number }}</td>
-          </tr>
-          <tr>
+          </tr>{% endif %}
+          {% if incl.propane %}<tr>
             <th rowspan="2" class="wide">Propane</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.propane_mmbtu | number }}</td>
@@ -173,8 +174,8 @@
             <td>{{ data.all.propane_cost | money }}</td>
             <td>{{ data.pct.propane_cost | percent }}</td>
             <td>{{ data.rank.propane_cost | number }}</td>
-          </tr>
-          <tr>
+          </tr>{% endif %}
+          {% if incl.wood %}<tr>
             <th rowspan="2" class="wide">Wood</th>
             <td>MMBTU</td>
             <td>{{ data.bldg.wood_mmbtu | number }}</td>
@@ -188,7 +189,7 @@
             <td>{{ data.all.wood_cost | money }}</td>
             <td>{{ data.pct.wood_cost | percent }}</td>
             <td>{{ data.rank.wood_cost | number }}</td>
-          </tr>
+          </tr>{% endif %}
           <tr>
             <th class="wide">Total Heat Energy</th>
             <td>MMBTU</td>

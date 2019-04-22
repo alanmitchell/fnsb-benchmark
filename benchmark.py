@@ -268,7 +268,17 @@ def energy_index_report(site, df, ut):
     # are energy services.
     energy_services = bu.missing_energy_services([])
     df1 = df.query('site_id==@site and service_type==@energy_services')
-
+    
+    # Also identify the services with non-zero columns in the DataFrame
+    df_temp = pd.pivot_table(
+        df1,
+        values='cost',
+        index=['fiscal_year'],
+        columns=['service_type'],
+        aggfunc=np.sum
+    )
+    non_zero = bu.non_zero_svcs(df_temp)
+    
     # Only do this table if there are energy services.
     if not df1.empty:
 
@@ -307,6 +317,7 @@ def energy_index_report(site, df, ut):
         template_data['energy_index_comparison']['yearly_table'] = {
             'rows': bu.df_to_dictionaries(df2)
         }
+
 
     # ---------- Table 2, Details Table
 
@@ -564,6 +575,11 @@ def energy_index_report(site, df, ut):
     g6_fn, g6_url = gu.graph_filename_url(site, 'speui_owner')
     gu.building_owner_comparison_graph(df5, 'specific_eui', site, g6_fn)
 
+    # Also identify the services with non-zero columns in the DataFrame
+    
+
+    template_data['energy_index_comparison']['non_zero'] = non_zero
+
     template_data['energy_index_comparison']['graphs'] = [
         g1_url, g2_url, g3_url, g4_url, g5_url, g6_url
     ]
@@ -581,6 +597,8 @@ def utility_cost_report(site, df, ut):
     # the needed columns for this analysis
     df1 = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo', 'cost']]
 
+
+
     # Summarize cost by fiscal year and service type.
     df2 = pd.pivot_table(
         df1,
@@ -589,6 +607,8 @@ def utility_cost_report(site, df, ut):
         columns=['service_type'],
         aggfunc=np.sum
     )
+    # Also identify the services with non-zero columns in the DataFrame
+    non_zero = bu.non_zero_svcs(df2)
 
     # Add in columns for the missing services
     missing_services = bu.missing_services(df2.columns)
@@ -636,8 +656,7 @@ def utility_cost_report(site, df, ut):
 
     # Put results into the final dictionary that will be passed to the Template.
     # A function is used to convert the DataFrame into a list of dictionaries.
-    # Also identify the services with non-zero columns in the DataFrame
-    non_zero = bu.non_zero_svcs(df2)
+
     template_data = dict(
         utility_cost_overview = dict(
             graphs=[g1_url, g2_url],
@@ -732,10 +751,16 @@ def energy_use_cost_reports(site, df, ut, df_utility_cost):
     energy_use_overview_rows = bu.df_to_dictionaries(usage_df2)
 
     # Put data and graphs into a dictionary
+    # Also identify the services with non-zero columns in the DataFrame
+    non_zero = bu.non_zero_svcs(usage_df2)
+
     template_data = dict(
         energy_usage_overview = dict(
             graphs=[p4g1_url, p4g2_url],
-            table={'rows': energy_use_overview_rows}
+            table={
+                'rows': energy_use_overview_rows,
+                'non_zero': non_zero
+                }
         )
     )
 
@@ -956,9 +981,9 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     # This is hard-coded because I couldn't figure out how to do it more generically
     heating_usage['fuel_oil_usage'] = heating_usage.fuel_oil_mmbtu * 1000000 / ut.service_category_info('fuel_oil')[1]
     heating_usage['natural_gas_usage'] = heating_usage.natural_gas_mmbtu * 1000000 / ut.service_category_info('natural_gas')[1]
-    heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.service_category_info('propane')[1]
-    heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.service_category_info('wood')[1]
-    heating_usage['coal_usage'] = heating_usage.coal_mmbtu * 1000000 / ut.service_category_info('coal')[1]
+    #heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.service_category_info('propane')[1]
+    #heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.service_category_info('wood')[1]
+    #heating_usage['coal_usage'] = heating_usage.coal_mmbtu * 1000000 / ut.service_category_info('coal')[1]
 
     # ----- Create Heating Usage Analysis Graphs
 
@@ -997,10 +1022,14 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     heating_use_rows = bu.df_to_dictionaries(heating_usage)
 
     # Add data and graphs to a dictionary
+    non_zero = bu.non_zero_svcs(monthly_heating)
+
     template_data = dict(
         heating_usage_analysis = dict(
             graphs=[p8g1_url, p8g2_url],
-            table={'rows': heating_use_rows}
+            table={
+                'rows': heating_use_rows,
+                'non_zero': non_zero}
         )
     )
 
@@ -1221,9 +1250,16 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     heating_cost_rows = bu.df_to_dictionaries(heating_cost_and_use)
 
     # Add data and graphs to main dictionary
+    # Also identify the services with non-zero columns in the DataFrame
+    non_zero = bu.non_zero_svcs(monthly_heating_cost)
+
+
     template_data['heating_cost_analysis'] = dict(
         graphs=[p9g1_url, p9g2_url],
-        table={'rows': heating_cost_rows},
+        table={
+            'rows': heating_cost_rows,
+            'non_zero': non_zero
+            },
     )
 
     return template_data
@@ -1721,6 +1757,7 @@ if __name__=="__main__":
     print('Starting FY spreadsheet creation...')
     FY_spreadsheets(df, util_obj)
     print('FY spreadsheets complete...')
+    
     # ------ Loop through the sites, creating a report for each
     
     # Get the template used to create the site benchmarking report.

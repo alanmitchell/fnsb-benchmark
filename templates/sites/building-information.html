@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <div class="row">
+  {% if building_info.bldg.acct_fuel_oil | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Fuel Oil Source:</dt>
       <dd>{{ building_info.bldg.source_fuel_oil | only_string}}</dd>
@@ -67,9 +67,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_fuel_oil | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_natural_gas | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Natural Gas Source:</dt>
       <dd>{{ building_info.bldg.source_natural_gas | only_string}}</dd>
@@ -78,9 +78,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_natural_gas | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_district_heat | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>District Heat Source:</dt>
       <dd>{{ building_info.bldg.source_district_heat | only_string}}</dd>
@@ -89,9 +89,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_district_heat | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_propane | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Propane Source:</dt>
       <dd>{{ building_info.bldg.source_propane | only_string}}</dd>
@@ -100,9 +100,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_propane | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_wood | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Wood Source:</dt>
       <dd>{{ building_info.bldg.source_wood | only_string}}</dd>
@@ -111,9 +111,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_wood | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_coal | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Coal Source:</dt>
       <dd>{{ building_info.bldg.source_coal | only_string}}</dd>
@@ -122,9 +122,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_coal | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_water | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Water Source:</dt>
       <dd>{{ building_info.bldg.source_water | only_string}}</dd>
@@ -133,9 +133,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_water | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_sewer | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Sewer Source:</dt>
       <dd>{{ building_info.bldg.source_sewer | only_string}}</dd>
@@ -144,9 +144,9 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_sewer | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
-  <div class="row">
+  {% if building_info.bldg.acct_refuse | length > 1 %}<div class="row">
     <div class="col-6">
       <dt>Refuse Source:</dt>
       <dd>{{ building_info.bldg.source_refuse | only_string}}</dd>
@@ -155,7 +155,7 @@
       <dt>Account Numbers:</dt>
       <dd>{{ building_info.bldg.acct_refuse | only_string}}</dd>
     </div>
-  </div>
+  </div>{% endif %}
 
   <div class="row">
     <div class="col-12">
