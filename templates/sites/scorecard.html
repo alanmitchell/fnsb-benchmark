@@ -1,74 +1,185 @@
 {% extends "layout_no_nav.html" %}
-
+{% set building_name = building_info.bldg.site_name %}
 {% set root_path = ".." %}
+{% set show_subnav = false %}
+{% set date_updated = building_info.date_updated %}
+{% block page_title %}{{ building_name }}{% endblock %}
 
-{% block page_title %}{{ facility_name }}{% endblock %}
-
+{% set data = scorecard.table %}
 {% block body %}
-<h1>Energy Scorecard: {{ facility_name }}</h1>
+<h1>Energy Scorecard: {{ building_name }}</h1>
+<h5>This Scorecard sumarizes data for a facility or group of facilities from the FNSB utility billing database.  If you have any questions or comments, please direct them to the FNSB Public Works Energy Management Engineer.</h5>
+<section>
 
-<div class="row">
-    
-  <div class="col-md-2">
-
-    <table class="table table-bordered table-hover table-striped centered valign-middle">
-      <thead>
-        <tr>
-          <th>Energy Type</th>
-          <th>12-mo MMBTU</th>
-        </tr>
-      </thead>
+  <h2>Annual Energy Usage:</h2>
+  <h5>Breakdown of energy usage in MMBTU (1,000,000 BTU) by energy source for the most recent 12 months in utility billing database:</h5>    
+  <div class="row">
+    <div class="col-md-4">
+      <table class="table table-bordered table-hover table-striped centered valign-middle">
+        <thead>
+          <tr>
+            <th>Energy Type</th>
+            <th>Annual Usage [MMBTU]</th>
+           </tr>
+        </thead>
       <tbody>
         <tr>
           <td>Electricity</td>
-          <td>123</td>
+          <td>{{ data.Usage[0].electricity_mmbtu | number }}</td>
         </tr>
         <tr>
-            <td>Natural Gas</td>
-            <td>45</td>
+          <td>Natural Gas</td>
+          <td>{{ data.Usage[0].natural_gas_mmbtu | number }}</td>
         </tr>
         <tr>
           <td>Fuel Oil</td>
-          <td>238</td>
+          <td>{{ data.Usage[0].fuel_oil_mmbtu | number  }}</td>
         </tr>
-      </tbody>
-    </table>
+        <tr>
+          <td>District Heat</td>
+          <td>{{ data.Usage[0].district_heat_usage | number  }}</td>
+        </tr>
+        <tr>
+          <td>Total</td>
+          <td>{{ data.Usage[0].total_energy_mmbtu | number }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
+    <div class="col-md-6">
+      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Use_Pie }}" />
+    </div>
   </div>
+</section>
 
+<section>
+<div class="row">
+    <h2>Annual Energy Cost:</h2>
+    <h5>Breakdown of costs by energy source for the most recent 12 months in utility billing database:</h5>    
   <div class="col-md-4">
-      <img class="graph" src="../images/03_energy_usage_pie_2018.png" />
-  </div>
-
-  <div class="col-md-2">
       <table class="table table-bordered table-hover table-striped centered valign-middle">
           <thead>
             <tr>
               <th>Utility Type</th>
-              <th>% Cost</th>
+              <th>Annual Cost</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Electricity</td>
-              <td>50%</td>
+              <td>{{ data.Cost[0].electricity_cost | money  }}</td>
             </tr>
             <tr>
                 <td>Natural Gas</td>
-                <td>15%</td>
+                <td>{{ data.Cost[0].natural_gas_cost | money  }}</td>
             </tr>
             <tr>
               <td>Fuel Oil</td>
-              <td>35%</td>
+              <td>{{ data.Cost[0].fuel_oil_cost | money  }}</td>
             </tr>
+            <tr>
+              <td>District Heat</td>
+              <td>{{ data.Cost[0].district_heat_cost | money  }}</td>
+            </tr>
+            <tr>
+              <td>Water</td>
+              <td>{{ data.Cost[0].total_water_cost | money  }}</td>
+            </tr>
+            <tr>
+              <td>Total</td>
+              <td>{{ data.Cost[0].total_utility_cost | money }}</td>
+            </tr>
+          </tbody>
+      </table>
+  </div>
+    <div class="col-md-6">
+      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Cost_Pie }}" />
+    </div>
+</div>
+</section>
+
+<section>
+    <h2>Electricity Usage Trend:</h2>
+    <h5>12-month rolling average of electricity usage in kWh.  Each point on graph indicates kWh used in previous 12 months.  Linear trendline with % per year change notated.</h5>
+  <div class="row">
+    <div class="col-md-8">
+      <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Elec }}" />
+    </div>
+  </div>
+</section>
+
+<section>
+    <h2>Heat Energy Usage Trend:</h2>
+    <h5>12-month rolling average of heat energy usage, by energy source, in MMBTU.  Each point on graph indicates MMBTU used in previous 12 months.  Heating degree days for previous 12 months plotted on right axis.</h5>
+  <div class="row">
+    <div class="col-md-8">
+      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Heat }}" />
+    </div>
+  </div>
+</section>
+
+<section>
+    <h2>Water Usage Trend:</h2>
+    <h5>12-month rolling average of water usage in gallons.  Each point on graph indicates gallons used in previous 12 months.  Linear trendline with % per year change notated.</h5>
+  <div class="row">
+    <div class="col-md-8">
+      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Water }}"/>
+    </div>
+  </div>
+</section>
+
+
+<section>
+    <div class="row">
+      <div class="col-10">
+        <h2>Fiscal Year Utility Cost Overview</h2>
+        <div>
+          <h5>The table below comipiles the total utility cost by fiscal year and utility type.  Total % change from year prior is shown in final column.</h5>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        {% set incl = utility_cost_overview.table.non_zero %}
+        <table class="table table-bordered table-hover table-striped centered valign-middle">
+          <thead>
+            <tr>
+              <th>Fiscal Year</th>
+              <th>HDD</th>
+              {% if incl.electricity %}<th>Electricity</th>{% endif %}
+              {% if incl.fuel_oil %}<th>Fuel Oil</th>{% endif %}
+              {% if incl.natural_gas %}<th>Natural Gas</th>{% endif %}
+              {% if incl.district_heat %}<th>District Heat</th>{% endif %}
+              {% if incl.propane %}<th>Propane</th>{% endif %}
+              {% if incl.wood %}<th>Wood</th>{% endif %}
+              {% if incl.coal %}<th>Coal</th>{% endif %}
+              {% if incl.water %}<th>Water & Sewer</th>{% endif %}
+              <th>Total</th>
+              <th>% Change</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for row in utility_cost_overview.table.rows or [] %}
+            <tr>
+              <td>{{ row.fiscal_year | int }}</td>
+              <td>{{ row.hdd | number }}</td>
+              {% if incl.electricity %}<td>{{ row.electricity | money }}</td>{% endif %}
+              {% if incl.fuel_oil %}<td>{{ row.fuel_oil | money }}</td>{% endif %}
+              {% if incl.natural_gas %}<td>{{ row.natural_gas | money }}</td>{% endif %}
+              {% if incl.district_heat %}<td>{{ row.district_heat | money }}</td>{% endif %}
+              {% if incl.propane %}<td>{{ row.propane | money }}</td>{% endif %}
+              {% if incl.wood %}<td>{{ row.wood | money }}</td>{% endif %}
+              {% if incl.coal %}<td>{{ row.coal | money }}</td>{% endif %}
+              {% if incl.water %}<td>{{ [row.sewer, row.water] | sum | money }}</td>{% endif %}
+              <td>{{ [row.total , -row.refuse] | sum | money }}</td>
+              <td>{{ row.pct_change | percent }}</td>
+            </tr>
+          {% endfor %}
           </tbody>
         </table>
       </div>
-
-  <div class="col-md-4">
-      <img class="graph" src="../images/03_energy_cost_pie_2018.png" />
-  </div>
-
-</div>
+    </div>
+  </section>
 
 {% endblock %}

@@ -52,6 +52,8 @@ def beautify_legend(df, col_list):
     
     for col in col_list:
         new_col = col.replace("_mmbtu", "")
+        new_col = new_col.replace("_usage", "")
+        new_col = new_col.replace("_12mo", "")
         new_col = new_col.replace("_unit_cost", " unit cost")
         new_col = new_col.replace("_cost", "")
         new_col = new_col.replace("kwh", "electricity usage")
@@ -163,11 +165,19 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if df_not_zero(df):
+    if df_not_zero(df[utility_col_list]):
         # Makes the legend prettier.
         df, utility_col_list = beautify_legend(df, utility_col_list)
+
+        # Remove all-zeros utilities
+        df_2 = df[utility_col_list].loc[(df[utility_col_list].sum(axis=1) != 0), (df[utility_col_list].sum(axis=0) != 0)]
+        utility_col_list = list(df_2.columns)
         
+        #print(utility_col_list)
+        #print(df_2)
+
         fig, ax = plt.subplots()
+
 
         # Take usage for each utility type and convert to percent of total cost by fiscal year
         df['total_use'] = df[utility_col_list].sum(axis=1)
@@ -280,6 +290,10 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
         # Makes the legend prettier.
         df, column_name_list = beautify_legend(df, column_name_list)
         
+        # Remove all-zeros utilities
+        df_2 = df[column_name_list].loc[(df[column_name_list].sum(axis=1) != 0), (df[column_name_list].sum(axis=0) != 0)]
+        column_name_list = list(df_2.columns)
+
         # Create the figure
         fig, ax = plt.subplots()
         
@@ -505,6 +519,11 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     all_cols = []
     all_cols.extend(bar_col_list)
     all_cols.append(line_col)
+
+    # Remove all-zeros utilities
+    df_2 = df[bar_col_list].loc[(df[bar_col_list].sum(axis=1) != 0), (df[bar_col_list].sum(axis=0) != 0)]
+    bar_col_list = list(df_2.columns)
+
     if not df.empty and df[all_cols].any(axis=None):
         # Makes the legend prettier.
         df, bar_col_list = beautify_legend(df, bar_col_list)
@@ -540,7 +559,10 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
         plt.xticks(np.arange(df[fiscal_year_col].min(), df[fiscal_year_col].max()+1, 1.0), 
                    np.sort(list(df[fiscal_year_col].unique())))
         
-        ax.set_ylim(bottom=-0.001, top=previous_col_name.max() + previous_col_name.max()*0.10)
+        try:
+            ax.set_ylim(bottom=-0.001, top=previous_col_name.max() + previous_col_name.max()*0.10)
+        except:
+            ax.set_ylim(bottom=-0.001, top=0)
         
         # Create the line on the same graph but on a separate axis.
         ax2 = ax.twinx()
@@ -593,7 +615,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
         plt.title("Heating Fuel Unit Price Comparison [$/MMBTU]")
 
         plt.legend()
-        
+        ax.set_ylim([0,35])
         # Save and show
         plt.savefig(filename)
         plt.close('all')
@@ -827,6 +849,216 @@ def building_owner_comparison_graph(df, graph_column, site, filename):
     plt.savefig(filename)
     plt.close('all')
             
-        
+def avg_line_graph(df, date_col, graph_col, ylabel, title, filename):
+    # Plots line graph of 12-mo avg data
+    # performs linear regression over most recent 36 months
+    # 
+    # Test to see if the dataframe is empty or if all values equal zero
+    if df_not_zero(df) and not np.isnan(df[graph_col].max()):
             
+        fig, ax = plt.subplots()
+        
+        # Create the plot
+        plt.plot(df[date_col], df[graph_col], color='k')
+        
+        # Trendline #(past three years)
+        x = df[date_col]#.tail(36)
+        y = df[graph_col]#.tail(36)
+        idx = np.isfinite(x) & np.isfinite(y)
+
+        if idx.sum()>1:
+            z = np.polyfit(x[idx], y[idx], 1)
+            p = np.poly1d(z)
+            avg = (p(x[idx])[-1]+p(x[idx])[0])/2
+            t_avg = (x[idx].iloc[-1] + x[idx].iloc[0])/2
+            percent_slope = ((p(x[idx])[-1]-p(x[idx])[0])/(x[idx].iloc[-1] - x[idx].iloc[0]))/avg
+            plt.plot(x,p(x),"r--")
+            # place a annotation in plot with trend rate %
+            textstr = ''.join((r'Average Trend = %.1f' % (percent_slope*100) , '% per year'))
+            ax.annotate(textstr, xy=(t_avg, avg), xytext=(t_avg, avg-.4*avg),
+            arrowprops=dict(facecolor='black', shrink=0.05))
+
+
+        # Set the ylabel
+        plt.ylabel(ylabel)
+        
+        if df[graph_col].max() > 1000:
+            # Format the y-axis so a comma is displayed for thousands
+            ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        
+        ax.set_ylim(bottom=-0.0001, top=df[graph_col].max() + df[graph_col].max()*0.10)
+   
+        plt.title(title)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else: 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))            
+         
+            
+def scorecard_pie_chart(df, title, filename):
     
+    # This function produces a pie chart from dataframe.
+
+    if df_not_zero(df):
+        # Makes the legend prettier.
+        df, use_or_cost_cols = beautify_legend(df, df['Energy Source'])
+        df['Energy Source'] = use_or_cost_cols
+        df = df.set_index('Energy Source')
+        df.columns = ['Usage']
+        df = df.transpose()
+        
+
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(use_or_cost_cols)
+
+        updated_use_or_cost_cols = []
+
+        # Drop columns that only have zero usage
+        for col in use_or_cost_cols:
+            if df[col].iloc[0] == 0:
+                df = df.drop(col, axis=1)
+            else:
+                updated_use_or_cost_cols.append(col)  
+
+        fig, ax = plt.subplots()
+
+        patches, texts, autotexts = ax.pie(list(df.iloc[0].values), labels=list(updated_use_or_cost_cols), autopct='%1.1f%%',
+                                                shadow=True, startangle=90, colors=[ color_dict[i] for i in updated_use_or_cost_cols])
+        
+        plt.tick_params(axis='both', which='both', labelsize=32)
+            
+        plt.title(title, fontsize = 38, pad = 38)
+        
+        # Make the graph take up a larger portion of the figure 
+        plt.axis([0.7, 0.7, 0.7, 0.7])
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        
+        # Increase the font size of the labels
+        props = fm.FontProperties()
+        props.set_size(32)
+        plt.setp(autotexts, fontproperties=props)
+        plt.setp(texts, fontproperties=props)
+            
+        # Save and show
+        plt.savefig(filename)
+        #figs.append(fig)
+
+        plt.close('all')
+    else: 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))            
+      
+
+def scorecard_heat_graph(df, date_col, utility_col_list, HDD_col, y1label, y2label, filename, hasheat):
+    # Creates stacked filled line plot 
+    
+    # Test to see if the dataframe is empty or if all values equal zero
+
+    if hasheat:
+        # Makes the legend prettier.
+        df, utility_col_list = beautify_legend(df, utility_col_list)
+
+        # Remove all-zeros utilities
+        df_2 = df[utility_col_list].loc[(df[utility_col_list].sum(axis=1) != 0), (df[utility_col_list].sum(axis=0) != 0)]
+        utility_col_list = list(df_2.columns)
+        
+        #print(utility_col_list)
+        #print(df_2)
+        # Standardize colors using color_formatter utility
+        color_dict = color_formatter(utility_col_list)
+
+        fig, ax = plt.subplots()
+
+        # Create stacked area plot
+        ax.stackplot(df[date_col], df[utility_col_list].T, labels=utility_col_list, 
+                     colors=[color_dict[i] for i in utility_col_list])
+
+
+        # Format the y axis 
+        
+        # Format the x-axis
+
+        # Add title and axis labels
+        plt.title('Facility Heat Usage Distribution')
+        plt.ylabel(y1label)
+        #plt.xlabel('Year')
+
+        # Create HDD line on the same graph but on a separate axis.
+        ax2 = ax.twinx()
+        ax2.plot(df[date_col], df[HDD_col], label='HDD', color='k',linewidth=5)
+        ax2.set_ylabel(y2label)
+        
+        # Ensure that the second axis starts at 0.
+        ax2.set_ylim(bottom=-0.0001, top=df[HDD_col].max() + df[HDD_col].max()*0.10)
+        
+        # Format the y-axis so a comma is displayed for thousands
+        ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        ax2.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        h1, l1 = ax.get_legend_handles_labels()
+        h2, l2 = ax2.get_legend_handles_labels()
+        ax.legend(h1+h2, l1+l2, loc='lower left')
+
+        
+        # Add legend 
+        #leg = plt.legend(loc='lower right', ncol=2, fancybox=True, shadow=True)
+        #leg.get_frame().set_alpha(0.5)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+
+    else:
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))
+        
+
+def scatter_graph(df, x_col, y_col, xlabel, ylabel, title, filename):
+    # Plots line graph of 12-mo avg data
+    # performs linear regression over most recent 36 months
+    # 
+    # Test to see if the dataframe is empty or if all values equal zero
+    if df_not_zero(df) and not np.isnan(df[y_col].max()):
+            
+        fig, ax = plt.subplots()
+        
+        # Create the plot
+        plt.scatter(df[x_col], df[y_col], color='k')
+        
+        # Trendline 
+        x = df[x_col]
+        y = df[y_col]
+        idx = np.isfinite(x) & np.isfinite(y)
+
+        if idx.sum()>1:
+            z = np.polyfit(x[idx], y[idx], 1)
+            p = np.poly1d(z)
+            slope = z[0]
+            y_avg = (p(x.min())+p(x.max()))/2
+            x_avg = (x[idx].min() + x[idx].max())/2
+            plt.plot(x,p(x),"r--")
+            # place a annotation in plot with slope
+            textstr = ''.join((r'Specific Heat Usage = %.1f' % (slope*1000) , ' kBtu per HDD'))
+            ax.annotate(textstr, xy=(x_avg, y_avg), xytext=(x_avg-.5*x_avg, y_avg+y_avg),
+            arrowprops=dict(facecolor='black', shrink=0.05))
+
+
+        # Set the axes label
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        
+        if df[y_col].max() > 1000:
+            # Format the y-axis so a comma is displayed for thousands
+            ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        
+        ax.set_ylim(bottom=-0.0001, top=df[y_col].max() + df[y_col].max()*0.10)
+   
+        plt.title(title)
+        
+        # Save and show
+        plt.savefig(filename)
+        plt.close('all')
+    else: 
+        shutil.copyfile(os.path.abspath('no_data_available.png'), os.path.abspath(filename))         
