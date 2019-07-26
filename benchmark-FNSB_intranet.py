@@ -22,7 +22,7 @@ versions if you sometimes only want to process some of the sites.  The "data"
 directory is the best place to put Utility Bill and Other Data files.
 
 All reports and other output from this script appear in the "output" directory.
-View the resulting benchmarking report by opening the "output/index.html" file.
+View the resulting benchmarking report by opening the "output/index_FNSB.html" file.
 Other useful data is put in the "output/extra_data" directory, including a 
 spreadsheet that summarizes utility information for all of the buildings.
 
@@ -492,7 +492,7 @@ def energy_index_report(site, df, ut):
         site_pct = site_info.copy()
         site_rank = site_info.copy()
 
-    # Make a final dictioary to hold all the results for this table
+    # Make a final dictionary to hold all the results for this table
     tbl2_data = {
         'fiscal_year': 'FY {}'.format(last_complete_year),
         'bldg': site_info.to_dict(),
@@ -1754,6 +1754,11 @@ def scorecard(site, df, ut):
     score_elec_filename, score_elec_url = gu.graph_filename_url(site, "scorecard_elec")
     gu.avg_line_graph(df, 'time', 'electricity_energy_usage_12mo', 'Average Annual Electricity Usage [kWh]', "Facility Electricity Usage", score_elec_filename)
 
+    # Create 12-mo avg BTU/HDD plot
+    score_BtuHDD_filename, score_BTUHDD_url = gu.graph_filename_url(site, "scorecard_BtuHDD")
+    gu.avg_line_graph(df, 'time', 'heat_mmbtu_per_hdd_12mo', 'Specific Heat Usage [MMBTU/HDD]', "", score_BtuHDD_filename)
+
+
     # Create 12-mo avg stacked area heat energy plot
     heat_col_list = ['fuel_oil_mmbtu_12mo', 'natural_gas_mmbtu_12mo', 'district_heat_usage_12mo']
     score_heat_filename, score_heat_url = gu.graph_filename_url(site, "scorecard_heat")
@@ -1780,6 +1785,7 @@ def scorecard(site, df, ut):
     template_data['scorecard'] = dict(
         graphs={'Elec' : score_elec_url, 
                 'Heat' : score_heat_url,
+                'HDD_BTU' : score_BTUHDD_url,
                 'Water' : score_water_url,
                 'Use_Pie' : score_usepie_url,
                 'Cost_Pie' : score_costpie_url},
@@ -1857,9 +1863,9 @@ if __name__=="__main__":
         date_updated = report_date_time,
         categories = site_cats
     )
-    ix_template = template_util.get_template('index.html')
+    ix_template = template_util.get_template('index_FNSB.html')
     result = ix_template.render(template_data)
-    open('output/index.html', 'w').write(result)
+    open('output/index_FNSB.html', 'w').write(result)
 
     # Run FY_spreadsheets to create FY summary excel files
     print('Starting FY spreadsheet creation...')

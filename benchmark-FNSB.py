@@ -557,20 +557,20 @@ def energy_index_report(site, df, ut):
     df5 = df5.query("month_count == 12").copy()
 
     # Make all of the comparison graphs
-    g1_fn, g1_url = gu.graph_filename_url(site, 'eci_func')
-    gu.building_type_comparison_graph(df5, 'eci', site, g1_fn)
+    #g1_fn, g1_url = gu.graph_filename_url(site, 'eci_func')
+    #gu.building_type_comparison_graph(df5, 'eci', site, g1_fn)
 
     g2_fn, g2_url = gu.graph_filename_url(site, 'eci_owner')
     gu.building_owner_comparison_graph(df5, 'eci', site, g2_fn)
     
-    g3_fn, g3_url = gu.graph_filename_url(site, 'eui_func')
-    gu.building_type_comparison_graph(df5, 'eui', site, g3_fn)
+    #g3_fn, g3_url = gu.graph_filename_url(site, 'eui_func')
+    #gu.building_type_comparison_graph(df5, 'eui', site, g3_fn)
 
     g4_fn, g4_url = gu.graph_filename_url(site, 'eui_owner')
     gu.building_owner_comparison_graph(df5, 'eui', site, g4_fn)
 
-    g5_fn, g5_url = gu.graph_filename_url(site, 'speui_func')
-    gu.building_type_comparison_graph(df5, 'specific_eui', site, g5_fn)
+    #g5_fn, g5_url = gu.graph_filename_url(site, 'speui_func')
+    #gu.building_type_comparison_graph(df5, 'specific_eui', site, g5_fn)
 
     g6_fn, g6_url = gu.graph_filename_url(site, 'speui_owner')
     gu.building_owner_comparison_graph(df5, 'specific_eui', site, g6_fn)
@@ -580,8 +580,12 @@ def energy_index_report(site, df, ut):
 
     template_data['energy_index_comparison']['non_zero'] = non_zero
 
+    # template_data['energy_index_comparison']['graphs'] = [
+    #     g1_url, g2_url, g3_url, g4_url, g5_url, g6_url
+    # ]
+
     template_data['energy_index_comparison']['graphs'] = [
-        g1_url, g2_url, g3_url, g4_url, g5_url, g6_url
+        g2_url, g4_url, g6_url
     ]
 
     return template_data
@@ -966,7 +970,7 @@ def electrical_usage_and_cost_reports(site, df):
     return template_data
 
 # --------------------Heating Usage and Cost Reports ------------------------
-def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
+def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage, df_site):
     '''This produces both the Heating Usage and the Heating Cost
     reports.
     'df_utility_cost': The utility cost DataFrame produced in the
@@ -982,6 +986,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     keep_cols_list = heat_service_mmbtu_list + ['hdd', 'total_heat_mmbtu']
 
     heating_usage = df_usage[keep_cols_list].copy()
+    
 
     # Add in percent change columns
     # First sort so the percent change column is correct and then re-sort the other direction
@@ -1000,6 +1005,7 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     heating_usage['propane_usage'] = heating_usage.propane_mmbtu * 1000000 / ut.service_category_info('propane')[1]
     heating_usage['wood_usage'] = heating_usage.wood_mmbtu * 1000000 / ut.service_category_info('wood')[1]
     heating_usage['coal_usage'] = heating_usage.coal_mmbtu * 1000000 / ut.service_category_info('coal')[1]
+    
 
     # ----- Create Heating Usage Analysis Graphs
 
@@ -1106,40 +1112,42 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
 
     heating_cost_and_use = heating_cost_and_use[final_cost_col_list]
 
-    # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
+    # For Intranet Page, Omit fuel price and fuel switching info for clarity.  Plot only site cost per MMBTU
 
-    # Filter out natural gas customer charges as the unit cost goes to infinity if there is a charge but no use
-    df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'natural_gas') & (df['units'] != 'CCF')].index)
+    # # ---- Create DataFrame with the Monthly Average Price Per MMBTU for All Sites
 
-    # Filter out records with zero usage, which correspond to things like customer charges, etc.
-    nonzero_usage = df_no_gas_cust_charges.query("usage > 0")
+    # # Filter out natural gas customer charges as the unit cost goes to infinity if there is a charge but no use
+    # df_no_gas_cust_charges = df.drop(df[(df['service_type'] == 'natural_gas') & (df['units'] != 'CCF')].index)
 
-    nonzero_usage = nonzero_usage.query("mmbtu > 0")
+    # # Filter out records with zero usage, which correspond to things like customer charges, etc.
+    # nonzero_usage = df_no_gas_cust_charges.query("usage > 0")
 
-    # Filter out zero cost or less records (these are related to waste oil)
-    nonzero_usage = nonzero_usage.query("cost > 0")
+    # nonzero_usage = nonzero_usage.query("mmbtu > 0")
 
-    # Get the total fuel cost and usage for all buildings by year and month
-    grouped_nonzero_usage = nonzero_usage.groupby(['service_type', 'fiscal_year', 'fiscal_mo']).sum()
+    # # Filter out zero cost or less records (these are related to waste oil)
+    # nonzero_usage = nonzero_usage.query("cost > 0")
 
-    # Divide the total cost for all building by the total usage for all buildings so that the average is weighted correctly
-    grouped_nonzero_usage['avg_price_per_mmbtu'] = grouped_nonzero_usage.cost / grouped_nonzero_usage.mmbtu
+    # # Get the total fuel cost and usage for all buildings by year and month
+    # grouped_nonzero_usage = nonzero_usage.groupby(['service_type', 'fiscal_year', 'fiscal_mo']).sum()
 
-    # Get only the desired outcome, price per million BTU for each fuel type, and the number of calendar months it is based on
-    # i.e. the number of months of bills for each fuel for all buildings for that particular month.
-    grouped_nonzero_usage = grouped_nonzero_usage[['avg_price_per_mmbtu', 'cal_mo']]
+    # # Divide the total cost for all building by the total usage for all buildings so that the average is weighted correctly
+    # grouped_nonzero_usage['avg_price_per_mmbtu'] = grouped_nonzero_usage.cost / grouped_nonzero_usage.mmbtu
 
-    # Drop electricity from the dataframe.
-    grouped_nonzero_usage = grouped_nonzero_usage.reset_index()
-    grouped_nonzero_heatfuel_use = grouped_nonzero_usage.query("service_type != 'Electricity'")
+    # # Get only the desired outcome, price per million BTU for each fuel type, and the number of calendar months it is based on
+    # # i.e. the number of months of bills for each fuel for all buildings for that particular month.
+    # grouped_nonzero_usage = grouped_nonzero_usage[['avg_price_per_mmbtu', 'cal_mo']]
 
-    # Create a column for each service type
-    grouped_nonzero_heatfuel_use = pd.pivot_table(grouped_nonzero_heatfuel_use,
-                                                  values='avg_price_per_mmbtu',
-                                                  index=['fiscal_year', 'fiscal_mo'],
-                                                  columns='service_type'
-                                                    )
-    grouped_nonzero_heatfuel_use = grouped_nonzero_heatfuel_use.reset_index()
+    # # Drop electricity from the dataframe.
+    # grouped_nonzero_usage = grouped_nonzero_usage.reset_index()
+    # grouped_nonzero_heatfuel_use = grouped_nonzero_usage.query("service_type != 'Electricity'")
+
+    # # Create a column for each service type
+    # grouped_nonzero_heatfuel_use = pd.pivot_table(grouped_nonzero_heatfuel_use,
+    #                                               values='avg_price_per_mmbtu',
+    #                                               index=['fiscal_year', 'fiscal_mo'],
+    #                                               columns='service_type'
+    #                                                 )
+    # grouped_nonzero_heatfuel_use = grouped_nonzero_heatfuel_use.reset_index()
 
     # --- Monthly Cost Per MMBTU: Data and Graphs
 
@@ -1158,12 +1166,15 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
                                     aggfunc=np.sum
                                     )
 
+
+
     # Add in columns for the missing energy services
     missing_services = bu.missing_energy_services(monthly_heating_cost.columns)
     bu.add_columns(monthly_heating_cost, missing_services)
 
     monthly_heating_cost = monthly_heating_cost[bu.all_heat_services]
 
+    
     # Create a total heating column
     monthly_heating_cost['total_heating_cost'] = monthly_heating_cost.sum(axis=1)
 
@@ -1172,40 +1183,40 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     monthly_heat_energy_and_use = pd.merge(monthly_heating_cost, monthly_heating, left_index=True, right_index=True, how='outer')
 
     # Create unit cost columns in $ / MMBTU for each fuel type
-    for col in cost_cols:
-        n_col_name = col.split('_cost')[0] + "_unit_cost"
-        use_col_name = col.split('_cost')[0]
-        monthly_heat_energy_and_use[n_col_name] = monthly_heat_energy_and_use[col] / monthly_heat_energy_and_use[use_col_name]
+    # for col in cost_cols:
+    #     n_col_name = col.split('_cost')[0] + "_unit_cost"
+    #     use_col_name = col.split('_cost')[0]
+    #     monthly_heat_energy_and_use[n_col_name] = monthly_heat_energy_and_use[col] / monthly_heat_energy_and_use[use_col_name]
 
     monthly_heat_energy_and_use['building_unit_cost'] = monthly_heat_energy_and_use.total_heating_cost / monthly_heat_energy_and_use.total_heating_energy
 
     # Reset the index for easier processing
     monthly_heat_energy_and_use = monthly_heat_energy_and_use.reset_index()
 
-    # Add in unit costs for fuels that are currently blank
+    # # Add in unit costs for fuels that are currently blank
 
-    # Get only columns that exist in the dataframe
-    available_service_list = list(grouped_nonzero_heatfuel_use.columns.values)
+    # # Get only columns that exist in the dataframe
+    # available_service_list = list(grouped_nonzero_heatfuel_use.columns.values)
 
-    heat_services_in_grouped_df = list(set(bu.all_heat_services) & set(available_service_list))
+    # heat_services_in_grouped_df = list(set(bu.all_heat_services) & set(available_service_list))
 
-    unit_cost_cols = [col + "_unit_cost" for col in heat_services_in_grouped_df]
-    service_types = [col + "_avg_unit_cost" for col in heat_services_in_grouped_df]
+    # unit_cost_cols = [col + "_unit_cost" for col in heat_services_in_grouped_df]
+    # service_types = [col + "_avg_unit_cost" for col in heat_services_in_grouped_df]
 
-    unit_cost_dict = dict(zip(unit_cost_cols,service_types))
+    # unit_cost_dict = dict(zip(unit_cost_cols,service_types))
 
 
-    # Add in average unit costs calculated from all sites for each month
-    monthly_heat_energy_and_use = pd.merge(monthly_heat_energy_and_use, grouped_nonzero_heatfuel_use,
-                                           left_on=['fiscal_year', 'fiscal_mo'], right_on=['fiscal_year', 'fiscal_mo'],
-                                          how='left', suffixes=('', '_avg_unit_cost'))
+    # # Add in average unit costs calculated from all sites for each month
+    # monthly_heat_energy_and_use = pd.merge(monthly_heat_energy_and_use, grouped_nonzero_heatfuel_use,
+    #                                        left_on=['fiscal_year', 'fiscal_mo'], right_on=['fiscal_year', 'fiscal_mo'],
+    #                                       how='left', suffixes=('', '_avg_unit_cost'))
 
-    # Check each column to see if it is NaN (identified when the value does not equal itself) and if it is, fill with the average
-    # price per MMBTU taken from all sites
-    for col, service in unit_cost_dict.items():
-        monthly_heat_energy_and_use[col] = np.where(monthly_heat_energy_and_use[col] != monthly_heat_energy_and_use[col],
-                                                   monthly_heat_energy_and_use[service],
-                                                   monthly_heat_energy_and_use[col])
+    # # Check each column to see if it is NaN (identified when the value does not equal itself) and if it is, fill with the average
+    # # price per MMBTU taken from all sites
+    # for col, service in unit_cost_dict.items():
+    #     monthly_heat_energy_and_use[col] = np.where(monthly_heat_energy_and_use[col] != monthly_heat_energy_and_use[col],
+    #                                                monthly_heat_energy_and_use[service],
+    #                                                monthly_heat_energy_and_use[col])
 
     # Add calendar year and month columns
     cal_year = []
@@ -1225,42 +1236,54 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     monthly_heat_energy_and_use['date'] = monthly_heat_energy_and_use[['calendar_year','calendar_mo']].apply(get_date, axis=1)
 
     p9g1_filename, p9g1_url = gu.graph_filename_url(site, "heating_cost_g1")
+    # gu.fuel_price_comparison_graph(monthly_heat_energy_and_use, 'date', unit_cost_cols, 'building_unit_cost', p9g1_filename)
+    
+    #Create unit cost columns
+    #unit_cost_cols = list(monthly_heating_cost.columns)
+    unit_cost_cols = []
+    monthly_heat_energy_and_use = monthly_heat_energy_and_use[['date','building_unit_cost']]
+
     gu.fuel_price_comparison_graph(monthly_heat_energy_and_use, 'date', unit_cost_cols, 'building_unit_cost', p9g1_filename)
 
-    # --- Realized Savings from Fuel Switching: Page 9, Graph 2
-
-    # Create an indicator for whether a given heating fuel is available for the facility.  This is done by checking the use for all
-    # months- if it is zero, then that building doesn't have the option to use that type of fuel.
-    for col in bu.all_heat_services:
-        new_col_name = col + "_available"
-        monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
-
-    # Calculate what it would have cost if the building used only one fuel type
-    available_cols = []
-    unit_cost_cols_2 = []
-    for col in bu.all_heat_services:
-        available_cols.append(col + "_available")
-        unit_cost_cols_2.append(col + "_unit_cost")
-    available_dict = dict(zip(unit_cost_cols_2, available_cols))
-    hypothetical_cost_cols = []
-
-    for unit_cost, avail_col in available_dict.items():
-        new_col_name = unit_cost + "_hypothetical"
-        hypothetical_cost_cols.append(new_col_name)
-        monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] * monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
-
-    # Calculate the monthly savings to the building by not using the most expensive available fuel entirely
-    monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1) - monthly_heat_energy_and_use.total_heating_cost
-
-    # Sort dataframe to calculate cumulative value
-    monthly_heat_energy_and_use = monthly_heat_energy_and_use.sort_values(by='date', ascending=True)
-
-    # Calculate cumulative value
-    monthly_heat_energy_and_use['cumulative_fuel_switching_savings'] = np.cumsum(monthly_heat_energy_and_use.fuel_switching_savings)
-
+    # --- BTU/HDD: Page 9, Graph 2
+    #print(list(df_site.columns))
     p9g2_filename, p9g2_url = gu.graph_filename_url(site, "heating_cost_g2")
-    gu.create_monthly_line_graph(monthly_heat_energy_and_use, 'date', 'cumulative_fuel_switching_savings',
-                                'Cumulative Fuel Switching Savings Realized [$]', p9g2_filename)
+    gu.scatter_graph(df_site, 'dd', 'total_heat_mmbtu', 'Monthly Heating Degree Day [Base 65F]', 'Monthly Heat Usage [MMBTU]', 'BTU per HDD', p9g2_filename)
+    
+    # # --- Realized Savings from Fuel Switching: Page 9, Graph 2
+
+    # # Create an indicator for whether a given heating fuel is available for the facility.  This is done by checking the use for all
+    # # months- if it is zero, then that building doesn't have the option to use that type of fuel.
+    # for col in bu.all_heat_services:
+    #     new_col_name = col + "_available"
+    #     monthly_heat_energy_and_use[new_col_name] = np.where(monthly_heat_energy_and_use[col].sum() == 0, 0, 1)
+
+    # # Calculate what it would have cost if the building used only one fuel type
+    # available_cols = []
+    # unit_cost_cols_2 = []
+    # for col in bu.all_heat_services:
+    #     available_cols.append(col + "_available")
+    #     unit_cost_cols_2.append(col + "_unit_cost")
+    # available_dict = dict(zip(unit_cost_cols_2, available_cols))
+    # hypothetical_cost_cols = []
+
+    # for unit_cost, avail_col in available_dict.items():
+    #     new_col_name = unit_cost + "_hypothetical"
+    #     hypothetical_cost_cols.append(new_col_name)
+    #     monthly_heat_energy_and_use[new_col_name] = monthly_heat_energy_and_use[unit_cost] * monthly_heat_energy_and_use.total_heating_energy * monthly_heat_energy_and_use[avail_col]
+
+    # # Calculate the monthly savings to the building by not using the most expensive available fuel entirely
+    # monthly_heat_energy_and_use['fuel_switching_savings'] = monthly_heat_energy_and_use[hypothetical_cost_cols].max(axis=1) - monthly_heat_energy_and_use.total_heating_cost
+
+    # # Sort dataframe to calculate cumulative value
+    # monthly_heat_energy_and_use = monthly_heat_energy_and_use.sort_values(by='date', ascending=True)
+
+    # # Calculate cumulative value
+    # monthly_heat_energy_and_use['cumulative_fuel_switching_savings'] = np.cumsum(monthly_heat_energy_and_use.fuel_switching_savings)
+
+    # p9g2_filename, p9g2_url = gu.graph_filename_url(site, "heating_cost_g2")
+    # gu.create_monthly_line_graph(monthly_heat_energy_and_use, 'date', 'cumulative_fuel_switching_savings',
+    #                             'Cumulative Fuel Switching Savings Realized [$]', p9g2_filename)
 
     # Convert df to dictionary
     heating_cost_rows = bu.df_to_dictionaries(heating_cost_and_use)
@@ -1474,7 +1497,7 @@ def FY_spreadsheets(dfp, ut):
                 bi = ut.building_info(site_id)
                 sq = bi['sq_ft']
             except:
-                print(site_id)    
+                #print(site_id)    
                 sq = np.nan
             sq_ft.append(sq)
 
@@ -1530,6 +1553,7 @@ def FY_spreadsheets(dfp, ut):
 
         df_export.to_excel(f"output/extra_data/FY{year}_Site_Summary_Data.xlsx")
 
+
  
 # ---------------------- Site Analysis Table ---------------------------
 
@@ -1539,7 +1563,7 @@ def Site_spreadsheets(site, df, ut):
         """
 
     df1 = df.query('site_id==@site') 
-    
+
     # Test for valid data
     if len(df1) == 0:
         return
@@ -1566,15 +1590,18 @@ def Site_spreadsheets(site, df, ut):
 
     # Add cost suffix
     df_monthlycost = df_monthlycost.add_suffix('_cost')
-
-    df_monthlycost['total_utility_cost'] = df_monthlycost.sum(axis=1)
+    df_monthlycost = df_monthlycost.fillna(0)
+    df_monthlycost['total_utility_cost'] = df_monthlycost.sum(axis=1) - df_monthlycost.electricity_energy_cost -df_monthlycost.electricity_demand_cost
     df_monthlycost['total_water_cost'] = df_monthlycost[['water_cost', 'sewer_cost']].sum(axis=1)
     df_monthlycost['total_energy_cost'] = df_monthlycost.total_utility_cost - df_monthlycost.total_water_cost
     df_monthlycost['total_heat_cost'] = df_monthlycost.total_energy_cost - df_monthlycost.electricity_cost
     df_monthlycost['eci'] = df_monthlycost.total_energy_cost / sq_ft
     df_monthlycost['uci'] = df_monthlycost.total_utility_cost / sq_ft
+   
+    #  Fill blanks with zeros
+    df_monthlycost = df_monthlycost.fillna(0)
 
-    df_monthlycost_rolling = df_monthlycost.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+    df_monthlycost_rolling = df_monthlycost.rolling(12, min_periods=1, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
 
 
     df_monthlyusage = pd.pivot_table(df1, index=['fiscal_year', 'fiscal_mo'], columns='service_type', values='usage', aggfunc=np.sum)
@@ -1590,7 +1617,10 @@ def Site_spreadsheets(site, df, ut):
     # Add usage suffix
     df_monthlyusage = df_monthlyusage.add_suffix('_usage')
 
-    df_monthlyusage_rolling = df_monthlyusage.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+    #  Fill blanks with zeros
+    df_monthlyusage = df_monthlyusage.fillna(0)
+
+    df_monthlyusage_rolling = df_monthlyusage.rolling(12, min_periods=1, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
     df_monthlyusage_rolling['electricity_demand_usage_12mo'] = df_monthlyusage_rolling['electricity_demand_usage_12mo'] / 12
 
 
@@ -1601,23 +1631,30 @@ def Site_spreadsheets(site, df, ut):
     df_monthlyBTU['total_heat_mmbtu'] = df_monthlyBTU.total_energy_mmbtu - df_monthlyBTU.electricity_mmbtu
     df_monthlyBTU['eui'] = df_monthlyBTU.total_energy_mmbtu * 1e3 / sq_ft
     
+    #  Fill blanks with zeros
+    df_monthlyBTU = df_monthlyBTU.fillna(0)
+
     df_monthlyBTU = pd.merge(df_monthlyBTU, deg_days, how='left', left_index=True, right_index=True)  #right_on=['fiscal_year', 'fiscal_mo'])
     df_monthlyBTU['heat_mmbtu_per_hdd'] = df_monthlyBTU['total_heat_mmbtu'] / df_monthlyBTU['dd']
     df_monthlyBTU['specific eui'] = df_monthlyBTU.total_heat_mmbtu * 1e6 / df_monthlyBTU.dd / sq_ft
 
-    df_monthlyBTU_rolling = df_monthlyBTU.rolling(12, min_periods=None, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
+    df_monthlyBTU_rolling = df_monthlyBTU.rolling(12, min_periods=1, center=False, win_type=None, on=None, axis=0, closed=None).sum().add_suffix('_12mo')
 
     #Merge Dataframes
-
     df_total = pd.concat([df_monthlycost, df_monthlyusage, df_monthlyBTU, df_monthlycost_rolling, df_monthlyusage_rolling, df_monthlyBTU_rolling], axis=1)
-    
-        
-    #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
+    df_total = df_total.reset_index()
 
-    df_export=df_total[['dd', 
+    # Create calendar year time column for plotting in fractions of year
+    df_total['time'] = df_total['fiscal_year'] + ((df_total['fiscal_mo']-1)/12) - 0.5
+
+    #Select Desired Columns and export to excel  - This is the spreadsheet per site, row per month output
+    df_export=df_total[['time',
+                        'fiscal_year',
+                        'fiscal_mo',
+                        'dd', 
                         'electricity_energy_cost',
                         'electricity_demand_cost',
-                        'electricity_cost', 
+                        'electricity_cost',
                         'fuel_oil_cost',
                         'natural_gas_cost',
                         'district_heat_cost',
@@ -1674,28 +1711,87 @@ def Site_spreadsheets(site, df, ut):
                         'water_usage_12mo',
                         'sewer_usage_12mo']]
 
+
+
     df_export.to_excel(f"output/extra_data/Site_{site}_Monthly_Summary_Data.xlsx")
-
-def scorecard(site, ut):      # ultimately will be similar to:  def scorecard(site, df_site, df_fy, ut)
-    """Creates the graphs and data for the Energy Scorecard for one site.
-    """
-
+    return df_export
+    
+def scorecard(site, df, ut):      
+    # Uses Site FY df with 12-mo avgs
+    
     # get general information about this site
     bldg_info = ut.building_info(site)
 
     # start the template data dictionary with the building name
     template_data = {'facility_name': bldg_info['site_name']}
+    
+    # limit data to desired window (months). 
+    window = 72
+    if len(df.index) > window:
+        df = df.tail(window)
 
-    # calculate other data for the template here and add the data
-    # to additional keys in the template_data dictionary.
 
-    # 12-month average calculations
 
-    # For each graph, use gu.graph_filename_url() to get a file name for the
-    # graph and the URL to put in the template dictionary; this will link to the 
-    # in the Scorecard HTML page.
-    # After coding the graph, save it to the filename you got from above
-    # call.
+    # Create most recent FY usage and cost tables in dictionary and pie charts
+    usage_df = df[['electricity_mmbtu', 'district_heat_usage', 'natural_gas_mmbtu', 'fuel_oil_mmbtu', 'total_energy_mmbtu']].tail(12).sum()
+    usage_df = usage_df.reset_index()
+    usage_df.columns = ['Energy Source', 'Usage']
+
+    cost_df = df[['electricity_cost', 'district_heat_cost', 'natural_gas_cost', 'fuel_oil_cost', 'total_water_cost', 'total_utility_cost']].tail(12).sum()
+    #cost_df = cost_df/cost_df.sum()
+    cost_df = cost_df.reset_index()
+    cost_df.columns = ['Energy Source', 'Cost']
+
+    # Create Usage pie chart, omitting total
+    score_usepie_filename, score_usepie_url = gu.graph_filename_url(site, "scorecard_usepie")
+    gu.scorecard_pie_chart(usage_df.iloc[:-1,:], "Annual Energy Usage", score_usepie_filename)
+
+    # Create Cost pie chart, omitting total
+    score_costpie_filename, score_costpie_url = gu.graph_filename_url(site, "scorecard_costpie")
+    gu.scorecard_pie_chart(cost_df.iloc[:-1,:], "Annual Utility Cost", score_costpie_filename)
+    
+    # Create 12-mo avg electricity plot
+    score_elec_filename, score_elec_url = gu.graph_filename_url(site, "scorecard_elec")
+    gu.avg_line_graph(df, 'time', 'electricity_energy_usage_12mo', 'Average Annual Electricity Usage [kWh]', "Facility Electricity Usage", score_elec_filename)
+
+    # Create 12-mo avg BTU/HDD plot
+    score_BtuHDD_filename, score_BTUHDD_url = gu.graph_filename_url(site, "scorecard_BtuHDD")
+    gu.avg_line_graph(df, 'time', 'heat_mmbtu_per_hdd_12mo', 'Specific Heat Usage [MMBTU/HDD]', "", score_BtuHDD_filename)
+
+
+    # Create 12-mo avg stacked area heat energy plot
+    heat_col_list = ['fuel_oil_mmbtu_12mo', 'natural_gas_mmbtu_12mo', 'district_heat_usage_12mo']
+    score_heat_filename, score_heat_url = gu.graph_filename_url(site, "scorecard_heat")
+    
+    # Check if heat usage, pass to plot function
+    if df[heat_col_list].sum().sum() > 0:
+        hasheat=True
+    else:
+        hasheat=False
+
+    gu.scorecard_heat_graph(df, 'time', heat_col_list, 'dd_12mo', 'Average Annual Heat Usage [MMBTU]' , 'Average Annual Heating Degree Day [base 65F]',score_heat_filename, hasheat)
+
+    # Create 12-mo avg water consumption plot
+    score_water_filename, score_water_url = gu.graph_filename_url(site, "scorecard_water")
+    gu.avg_line_graph(df, 'time', 'water_usage_12mo', 'Average Annual Water Usage [gal]', "Facility Water Usage", score_water_filename)
+    
+    # Convert df to dictionary
+    
+    usage_df = usage_df.set_index('Energy Source')
+    cost_df = cost_df.set_index('Energy Source')
+    Usage_Table = bu.df_to_dictionaries(usage_df.transpose())
+    Cost_Table = bu.df_to_dictionaries(cost_df.transpose())
+
+    template_data['scorecard'] = dict(
+        graphs={'Elec' : score_elec_url, 
+                'Heat' : score_heat_url,
+                'HDD_BTU' : score_BTUHDD_url,
+                'Water' : score_water_url,
+                'Use_Pie' : score_usepie_url,
+                'Cost_Pie' : score_costpie_url},
+        table={'Usage': Usage_Table,
+                'Cost': Cost_Table},
+    )
 
     return template_data
 
@@ -1794,7 +1890,7 @@ if __name__=="__main__":
         msg("Site '{}' is being processed...".format(site_id))
         
         # Generate site specific spreadsheet
-        Site_spreadsheets(site_id, df, util_obj)
+        df_FY = Site_spreadsheets(site_id, df, util_obj)
 
         # Gather template data from each of the report sections.  The functions
         # return a dictionary with variables needed by the template.  Sometimes other
@@ -1827,25 +1923,34 @@ if __name__=="__main__":
             #df_usage.to_pickle('df_usage.pkl')
             #import sys; sys.exit()
 
-            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage)
+            report_data = heating_usage_cost_reports(site_id, df, util_obj, df_utility_cost, df_usage, df_FY)
             template_data.update(report_data)
 
         report_data = water_report(site_id, df)
         template_data.update(report_data)
 
-        # save template data variables to debug file if requested
-        if settings.WRITE_DEBUG_DATA:
-            with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
-                pprint.pprint(template_data, fout)
+        # # save template data variables to debug file if requested
+        # if settings.WRITE_DEBUG_DATA:
+        #     with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
+        #         pprint.pprint(template_data, fout)
 
-        # create report file
+        # create benchmark report file
         result = site_template.render(template_data)
         with open('output/sites/{}.html'.format(site_id), 'w') as fout:
             fout.write(result)
 
         # Make Scorecard and write out scorecard HTML file.
-        score_data = scorecard(site_id, util_obj)
+        score_data = scorecard(site_id, df_FY, util_obj)
+        template_data.update(score_data)
+        
+        # save template data variables to debug file if requested
+        if settings.WRITE_DEBUG_DATA:
+            with open('output/debug/{}.vars'.format(site_id), 'w') as fout:
+                pprint.pprint(template_data, fout)
+
+        # create scorecard report file        
         result = score_template.render(template_data)
+
         with open(f'output/sites/{site_id}_score.html', 'w') as fout:
             fout.write(result)
 

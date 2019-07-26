@@ -387,19 +387,19 @@ class Util:
             
                 rec = default_info.copy()
                 rec['site_id'] = id
-                rec['site_name'] = f'{gp_col} - {id}'    # combine grouping type and ID for name.
+                rec['site_name'] = id #f'{gp_col} - {id}'    # combine grouping type and ID for name.
                 rec['site_category'] = gp_col
                 rec['grouping'] =  gp_col
 
                 # get a DataFrame of all the site records that are part of this group.
                 df_sites_for_gp = df_just_facilities[df_just_facilities[gp_col]==id]
-                
+
                 # fill out fields of info that involve all of the sites.
                 rec['facility_list'] = ', '.join(df_sites_for_gp.site_name.values)
-                
-                # Do the utilities and the account numbers
-                for col in src_list + acct_list:
-                    rec[col] = ', '.join(df_sites_for_gp[col].unique())
+ 
+                # Address and year built
+                rec['address'] = ', '.join(df_sites_for_gp.address.unique().astype(str))
+                rec['year_built'] = ', '.join(df_sites_for_gp.year_built.unique().astype(str))
 
                 # Square feet totals
                 rec['sq_ft'] = df_sites_for_gp.sq_ft.sum()
@@ -407,7 +407,9 @@ class Util:
                 # Use the degree-day site that is most prevalent, it appears 
                 # first in the value_counts.
                 rec['dd_site'] = df_sites_for_gp.dd_site.value_counts().index[0]
-                
+
+                print(rec)
+
                 self._bldg_info[id] = rec
                 rec_list.append(rec)
 

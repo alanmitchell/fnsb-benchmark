@@ -1,4 +1,5 @@
-{% extends "layout_no_nav.html" %}
+{% extends "layout.html" %}
+{#% extends "layout_no_nav.html" %#}
 {% set building_name = building_info.bldg.site_name %}
 {% set root_path = ".." %}
 {% set show_subnav = false %}
@@ -7,10 +8,146 @@
 
 {% set data = scorecard.table %}
 {% block body %}
-<h1>Energy Scorecard: {{ building_name }}</h1>
-<h5>This Scorecard sumarizes data for a facility or group of facilities from the FNSB utility billing database.  If you have any questions or comments, please direct them to the FNSB Public Works Energy Management Engineer.</h5>
-<section>
+<h1>Energy Report: {{ building_name }}</h1>
+<h5>This report sumarizes data for a facility or group of facilities from the FNSB utility billing database.  If you have any questions or comments, please direct them to the FNSB Public Works Energy Management Engineer.</h5>
+<h5>{{ building_name }} is located at {{ building_info.bldg.address | only_string }}.</h5> 
+{% if building_info.bldg.year_built | int != 0 %}
+<h5>{{ building_name }} was built in {{ building_info.bldg.year_built | int }}.</h5>
+{% endif %}
+<h5>{{ building_name }} has a total floor area of approximately {{ building_info.bldg.sq_ft | number }} square feet.</h5>
 
+<section>
+    {% set data2 = energy_index_comparison.details_table %}
+    <div class="row">
+      <div class="col-12">
+        {% set incl = energy_index_comparison.non_zero %}
+        <table class="table table-bordered table-hover centered valign-middle">
+          <thead>
+            <tr>
+              <th colspan="6">
+                {{ data2.fiscal_year }}
+              </th>
+            </tr>
+            <tr>
+              <th class="wide">Metric</th>
+              <th>Unit</th>
+              <th>Building</th>
+              <th>All Buildings Total</th>
+              <th>Building % of Total</th>
+              <th>Building Rank</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="wide">Square Footage</th>
+              <td>ft^2</td>
+              <td>{{ data2.bldg.sq_ft | number }}</td>
+              <td>{{ data2.all.sq_ft | number }}</td>
+              <td>{{ data2.pct.sq_ft | percent }}</td>
+              <td>{{ data2.rank.sq_ft | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">Total Utility Cost</th>
+              <td>$</td>
+              <td>{{ data2.bldg.total_cost | money }}</td>
+              <td>{{ data2.all.total_cost | money }}</td>
+              <td>{{ data2.pct.total_cost | percent }}</td>
+              <td>{{ data2.rank.total_cost | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">Total Energy Cost</th>
+              <td>$</td>
+              <td>{{ data2.bldg.total_energy_cost | money }}</td>
+              <td>{{ data2.all.total_energy_cost | money }}</td>
+              <td>{{ data2.pct.total_energy_cost | percent }}</td>
+              <td>{{ data2.rank.total_energy_cost | number }}</td
+            </tr>
+            <tr>
+              <th class="wide">Total Energy Usage</th>
+              <td>MMBTU</td>
+              <td>{{ data2.bldg.total_mmbtu | number }}</td>
+              <td>{{ data2.all.total_mmbtu | number }}</td>
+              <td>{{ data2.pct.total_mmbtu | percent }}</td>
+              <td>{{ data2.rank.total_mmbtu | number }}</td
+            </tr>
+            {% if incl.electricity %}<tr>
+              <th rowspan="4" class="wide">Electricity</th>
+              <td>kWh</td>
+              <td>{{ data2.bldg.electricity_kwh | number }}</td>
+              <td>{{ data2.all.electricity_kwh | number }}</td>
+              <td>{{ data2.pct.electricity_kwh | percent }}</td>
+              <td>{{ data2.rank.electricity_kwh | number }}</td
+            </tr>
+            <tr>
+              <td>kW average</td>
+              <td>{{ data2.bldg.electricity_kw_average | number }}</td>
+              <td>{{ data2.all.electricity_kw_average | number }}</td>
+              <td>{{ data2.pct.electricity_kw_average | percent }}</td>
+              <td>{{ data2.rank.electricity_kw_average | number }}</td>
+            </tr>
+            <tr>
+              <td>kW max</td>
+              <td>{{ data2.bldg.electricity_kw_max | number }}</td>
+              <td>{{ data2.all.electricity_kw_max | number }}</td>
+              <td>{{ data2.pct.electricity_kw_max | percent }}</td>
+              <td>{{ data2.rank.electricity_kw_max | number }}</td>
+            </tr>
+            <tr>
+              <td>$</td>
+              <td>{{ data2.bldg.electricity_cost | money }}</td>
+              <td>{{ data2.all.electricity_cost | money }}</td>
+              <td>{{ data2.pct.electricity_cost | percent }}</td>
+              <td>{{ data2.rank.electricity_cost | number }}</td>
+            </tr>{% endif %}
+            <tr>
+              <th class="wide">Total Heat Energy</th>
+              <td>MMBTU</td>
+              <td>{{ data2.bldg.total_heat_mmbtu | number }}</td>
+              <td>{{ data2.all.total_heat_mmbtu | number }}</td>
+              <td>{{ data2.pct.total_heat_mmbtu | percent }}</td>
+              <td>{{ data2.rank.total_heat_mmbtu | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">Total Heat Cost</th>
+              <td>$</td>
+              <td>{{ data2.bldg.total_heat_cost | money }}</td>
+              <td>{{ data2.all.total_heat_cost | money }}</td>
+              <td>{{ data2.pct.total_heat_cost | percent }}</td>
+              <td>{{ data2.rank.total_heat_cost | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">EUI</th>
+              <td>kBTU/sqft</td>
+              <td>{{ data2.bldg.eui | number }}</td>
+              <td>{{ data2.all.eui | number }}</td>
+              <td>{{ data2.pct.eui | percent }}</td>
+              <td>{{ data2.rank.eui | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">HDD Specific EUI</th>
+              <td>Btu/sqft-HDD</td>
+              <td>{{ data2.bldg.specific_eui | number(2) }}</td>
+              <td>{{ data2.all.specific_eui | number(2) }}</td>
+              <td>{{ data2.pct.specific_eui | percent }}</td>
+              <td>{{ data2.rank.specific_eui | number }}</td>
+            </tr>
+            <tr>
+              <th class="wide">ECI</th>
+              <td>$/sqft</td>
+              <td>{{ data2.bldg.eci | money(2) }}</td>
+              <td>{{ data2.all.eci | money(2) }}</td>
+              <td>{{ data2.pct.eci | percent }}</td>
+              <td>{{ data2.rank.eci | number }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+</section>
+  
+
+
+<section>
   <h2>Annual Energy Usage:</h2>
   <h5>Breakdown of energy usage in MMBTU (1,000,000 BTU) by energy source for the most recent 12 months in utility billing database:</h5>    
   <div class="row">
@@ -48,15 +185,15 @@
     </div>
 
     <div class="col-md-6">
-      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Use_Pie }}" />
+      <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Use_Pie }}" />
     </div>
   </div>
 </section>
 
 <section>
 <div class="row">
-    <h2>Annual Energy Cost:</h2>
-    <h5>Breakdown of costs by energy source for the most recent 12 months in utility billing database:</h5>    
+    <h2>Annual Utility Cost:</h2>
+    <h5>Breakdown of utility costs for the most recent 12 months in utility billing database:</h5>    
   <div class="col-md-4">
       <table class="table table-bordered table-hover table-striped centered valign-middle">
           <thead>
@@ -94,7 +231,7 @@
       </table>
   </div>
     <div class="col-md-6">
-      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Cost_Pie }}" />
+      <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Cost_Pie }}" />
     </div>
 </div>
 </section>
@@ -102,6 +239,7 @@
 <section>
     <h2>Electricity Usage Trend:</h2>
     <h5>12-month rolling average of electricity usage in kWh.  Each point on graph indicates kWh used in previous 12 months.  Linear trendline with % per year change notated.</h5>
+    <h5>Trends in electrical usage may be due to changes if facility usage or occupancy, changes in ventilation programming, and changes in electrical loads such as lighting, computers, and appliances.</h5>
   <div class="row">
     <div class="col-md-8">
       <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Elec }}" />
@@ -112,9 +250,10 @@
 <section>
     <h2>Heat Energy Usage Trend:</h2>
     <h5>12-month rolling average of heat energy usage, by energy source, in MMBTU.  Each point on graph indicates MMBTU used in previous 12 months.  Heating degree days for previous 12 months plotted on right axis.</h5>
+    <h5>The top of the stacked heat usage plot should track with the HDD line.  Deviations may be due to changes in building usage or occupancy, changes in ventilation programming, significant maintenance events, or insulation changes.</h5>
   <div class="row">
     <div class="col-md-8">
-      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Heat }}" />
+      <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Heat }}" />
     </div>
   </div>
 </section>
@@ -124,7 +263,7 @@
     <h5>12-month rolling average of water usage in gallons.  Each point on graph indicates gallons used in previous 12 months.  Linear trendline with % per year change notated.</h5>
   <div class="row">
     <div class="col-md-8">
-      <img class="graph" src="{{ root_path }}/{{ scorecard.graphs.Water }}"/>
+      <img class="center-block img-responsive" src="{{ root_path }}/{{ scorecard.graphs.Water }}"/>
     </div>
   </div>
 </section>
@@ -135,7 +274,7 @@
       <div class="col-10">
         <h2>Fiscal Year Utility Cost Overview</h2>
         <div>
-          <h5>The table below comipiles the total utility cost by fiscal year and utility type.  Total % change from year prior is shown in final column.</h5>
+          <h5>The table below comipiles the total utility cost by fiscal year and utility type.  Total % change from year prior is shown in final column.  Most recent Fiscal Year is preliminary until October report update.</h5>
         </div>
       </div>
     </div>
