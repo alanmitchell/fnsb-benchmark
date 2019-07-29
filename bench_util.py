@@ -408,7 +408,7 @@ class Util:
                 # first in the value_counts.
                 rec['dd_site'] = df_sites_for_gp.dd_site.value_counts().index[0]
 
-                print(rec)
+                #print(rec)
 
                 self._bldg_info[id] = rec
                 rec_list.append(rec)
