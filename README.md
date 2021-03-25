@@ -72,7 +72,7 @@ available from the software authors.
 * Degree-Day Information: This script also depends upon degree-day information provided by a file on the
 Alaska Housing Finance Corporation BMON server.  That file is updated monthly
 by the [update-degree-days script](https://github.com/alanmitchell/update-degree-days).
-The URL to the degree-day file is:  `http://ahfc.webfactional.com/data/degree_days.pkl` and
+The URL to the degree-day file is:  `https://ahfc.bmon.org/data/degree_days.pkl` and
 it is a pickled Pandas DataFrame using `bz2` compression.
 
 ## Running the Script

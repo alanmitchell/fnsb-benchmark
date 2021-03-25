@@ -351,7 +351,7 @@ class Util:
             self._site_categories.append( {'name': nm, 'sites': sites} )
 
         # read in the degree-day info from AHFC's online file
-        resp = requests.get('http://ahfc.webfactional.com/data/degree_days.pkl').content
+        resp = requests.get('https://ahfc.bmon.org/data/degree_days.pkl').content
         df_dd = pd.read_pickle(io.BytesIO(resp), compression='bz2')
 
         # make a dictionary keyed on fiscal_yr, fiscal_mo, site_id
