@@ -4,9 +4,13 @@ and Buildings found in the Alaska Housing Finance Corporation ARIS database.  A
 sample web site created with this script is available [here](http://benchmark.ahfc.webfactional.com/).
 
 ## Prerequisites
-If you are running the Anaconda distribution of Python, you should have all of the
-required packages to run the script.  If not, from a command line in the root
-directory of the project, run:
+The script is particular about the versions of Python and Python packages.
+It is successfully installed and running on Ubuntu 20.04, but a virtual
+environment running Python 3.6.13 is used, and the requiremensts.txt
+file is used to install the proper versions of Python packages.  The
+package `pyenv` was used to install Python 3.6.13, which was then used to
+make the virtual environment.  Once the venv is activated, install the
+needed Python packages with:
 
     pip install -r requirements.txt
     
