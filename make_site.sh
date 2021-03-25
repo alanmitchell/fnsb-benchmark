@@ -24,8 +24,8 @@ python -u read_aris.py > logs/read_aris.log 2>&1  # || error_exit "Error reading
 python -u benchmark.py > logs/benchmark.log 2>&1  # || error_exit "Error executing Benchmark script."
 deactivate
 
-# rm -rf /home/ahfc/webapps/benchmark/* || error_exit "Error removing old web site files."
-# cp -r ~/fnsb-benchmark/output/* /home/ahfc/webapps/benchmark/ || error_exit "Error copying new files to site."
+rm -rf /var/www/html/benchmark/*     # || error_exit "Error removing old web site files."
+cp -r ~/fnsb-benchmark/output/* /var/www/html/benchmark/   # || error_exit "Error copying new files to site."
 
 #/usr/bin/sendmail "$recipient" <<EOF
 #Subject: AHFC Benchmark Script Succeeded
