@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3.6
 """Script to read ARIS utility billing data via the ARIS API and 
 transform the data into a format that can be processed by the Fairbanks
 North Star Borough (FNSB) benchmarking script.  The output of this script

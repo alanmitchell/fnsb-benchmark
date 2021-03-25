@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3.6
 """ -------------------- MAIN BENCHMARKING SCRIPT -----------------------
 
 Run this script by executing the following from a command prompt:
