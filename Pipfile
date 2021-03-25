@@ -4,15 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "<1"
+pandas = "0.22.0"
 requests = "*"
-matplotlib = "<3"
-Jinja2 = "*"
+matplotlib = "2.2.2"
+Jinja2 = "2.10"
 PyYAML = "*"
-xlrd = "*"
-openpyxl = "*"
+xlrd = "1.1.0"
+openpyxl = "2.5.3"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.6"
