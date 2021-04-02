@@ -88,12 +88,19 @@ def color_formatter(col_name_list):
             
     return color_dict
 
+def nonzero_df(df):
+    """Returns True if a non-zero value appears in any float dtype column of the 
+    DataFrame 'df'.  Returns False otherwise.
+    """
+    float_cols = df.dtypes[df.dtypes == np.float64].index.values
+    return np.any(df[float_cols].fillna(0.0) > 0)
+
 
 def area_cost_distribution(df, fiscal_year_col, utility_col_list, filename):
     # Inputs include the dataframe, the column name for the fiscal year column, and the list of column names for the 
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
     
-    if not df.empty and np.any(df.fillna(0) > 0):
+    if not df.empty and nonzero_df(df):
         fig, ax = plt.subplots()
 
         # Makes the legend prettier.
@@ -151,7 +158,7 @@ def area_use_distribution(df, fiscal_year_col, utility_col_list, filename):
     # different utility bills.  The dataframe should already include the summed bills for each fiscal year.
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if not df.empty and np.any(df.fillna(0) > 0):
+    if not df.empty and nonzero_df(df):
         # Makes the legend prettier.
         df, utility_col_list = beautify_legend(df, utility_col_list)
         
@@ -210,7 +217,7 @@ def create_stacked_bar(df, fiscal_year_col, column_name_list, ylabel, title, fil
     # with the correct data for the chart, and the filename where the output should be saved.
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if not df.empty and np.any(df[column_name_list].fillna(0) > 0):
+    if not df.empty and nonzero_df(df[column_name_list]):
         # Makes the legend prettier.
         df, column_name_list = beautify_legend(df, column_name_list)
 
@@ -264,7 +271,7 @@ def energy_use_stacked_bar(df, fiscal_year_col, column_name_list, filename):
     # with the correct data for the chart, and the filename where the output should be saved.
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if not df.empty and np.any(df[column_name_list].fillna(0) > 0):
+    if not df.empty and nonzero_df(df[column_name_list]):
         # Makes the legend prettier.
         df, column_name_list = beautify_legend(df, column_name_list)
         
@@ -425,7 +432,7 @@ def create_monthly_profile(df, graph_column_name, yaxis_name, color_choice, titl
         # color_choice: 'blue', 'red', or 'green' depending on the desired color palette.  
 
     # Test to see if the dataframe is empty or if all values equal zero
-    if not df.empty and np.any(df.fillna(0) > 0):
+    if not df.empty and nonzero_df(df):
         # Get five most recent years
         recent_years = (sorted(list(df.index.levels[0].values), reverse=True)[0:5])
         
@@ -493,7 +500,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
     all_cols = []
     all_cols.extend(bar_col_list)
     all_cols.append(line_col)
-    if not df.empty and np.any(df[all_cols].fillna(0) > 0):
+    if not df.empty and nonzero_df(df[all_cols]):
         # Makes the legend prettier.
         df, bar_col_list = beautify_legend(df, bar_col_list)
         
@@ -557,7 +564,7 @@ def stacked_bar_with_line(df, fiscal_year_col, bar_col_list, line_col, ylabel1, 
 def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_unit_cost_col, filename):
     
         # Test to see if the dataframe is empty or if all values equal zero
-    if not unit_cost_df.empty and np.any(unit_cost_df.fillna(0) > 0):
+    if not unit_cost_df.empty and nonzero_df(unit_cost_df):
         # Makes the legend prettier.
         unit_cost_df, unit_cost_cols = beautify_legend(unit_cost_df, unit_cost_cols)
         
@@ -591,7 +598,7 @@ def fuel_price_comparison_graph(unit_cost_df, date_col, unit_cost_cols, bldg_uni
 def create_monthly_line_graph(df, date_col, graph_col, ylabel, filename):
     
     # Test to see if the dataframe is empty or if all values equal zero
-    if not df.empty and np.any(df.fillna(0) > 0):    
+    if not df.empty and nonzero_df(df):    
         fig, ax = plt.subplots()
         
         # Create the plot

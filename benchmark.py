@@ -1200,6 +1200,10 @@ def water_report(site, df):
 
     water_use = df.query('site_id == @site')[['service_type', 'fiscal_year', 'fiscal_mo','cost', 'usage', 'units']]
 
+    # Abort if no data
+    if water_use.empty:
+        return {}
+
     # Create month count field for all months that have water and sewer bills
     water_use_only = water_use.query("service_type == 'water'")
     water_months_present = bu.months_present(water_use_only)
