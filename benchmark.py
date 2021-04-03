@@ -1399,7 +1399,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        if site_id < '1187': continue
+        # if site_id < '1187': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
