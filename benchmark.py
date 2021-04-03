@@ -900,6 +900,10 @@ def heating_usage_cost_reports(site, df, ut, df_utility_cost, df_usage):
     energy_use_cost_reports function.
     '''
 
+    # Abort if no heating usage
+    if df_usage.empty:
+        return {}
+
     heat_service_mmbtu_list = []
     for heat_service in bu.all_heat_services:
         heat_service_mmbtu_list.append(heat_service + '_mmbtu')
@@ -1395,7 +1399,7 @@ if __name__=="__main__":
     for site_id in util_obj.all_sites():
         # This line shortens the calculation process to start with whatever
         # Site ID you want to start with
-        # if site_id < '15711': continue
+        if site_id < '1187': continue
 
         msg("Site '{}' is being processed...".format(site_id))
 
